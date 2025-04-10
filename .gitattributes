@@ -1,0 +1,30 @@
+# Ensure consistent LF line endings
+* text=auto
+
+# C# files
+*.cs text diff=csharp
+
+# Unity specific
+*.mat     merge=unityyamlmerge eol=lf
+*.anim    merge=unityyamlmerge eol=lf
+*.unity   merge=unityyamlmerge eol=lf
+*.prefab  merge=unityyamlmerge eol=lf
+*.asset   merge=unityyamlmerge eol=lf
+*.controller merge=unityyamlmerge eol=lf
+
+# Binary files (never diff)
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.fbx binary
+*.mp3 binary
+*.mp4 binary
+*.wav binary
+*.ogg binary
+*.ttf binary
+*.otf binary
+
+# Prevent Unity meta merge conflicts
+*.meta merge=union
