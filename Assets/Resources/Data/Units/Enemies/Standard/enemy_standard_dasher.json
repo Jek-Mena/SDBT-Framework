@@ -1,0 +1,18 @@
+{
+  "id": "enemy_standard_dasher",
+  "prefab": "Prefabs/Enemy/Standard/enemy_standard_dasher",
+  "components": [
+    [
+      "DashRigidbody",
+      {
+        "impulseStrength": 10,
+        "tolerance": 3,
+        "stateTimeout": 2
+      }
+    ],
+    [
+      "BtLoadTree",
+      { "tree": "dashOnly" }
+    ]
+  ]
+}

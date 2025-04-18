@@ -1,0 +1,19 @@
+{
+  "id": "enemy_standard_chaser",
+  "prefab": "Prefabs/Enemy/Standard/enemy_standard_chaser",
+  "components": [
+    [
+      "MovementNavMesh",
+      {
+        "speed": 3,
+        "acceleration": 3,
+        "stoppingDistance": 0.5
+      }
+    ],
+    [
+      "BtLoadTree",
+      { "tree": "basicChase" }
+    ]
+
+  ]
+}

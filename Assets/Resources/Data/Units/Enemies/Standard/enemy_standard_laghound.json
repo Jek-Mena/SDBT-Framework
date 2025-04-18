@@ -1,0 +1,18 @@
+{
+  "id": "enemy_standard_laghound",
+  "prefab": "Prefabs/Enemy/Standard/enemy_standard_laghound",
+  "components": [
+    [
+      "MovementNavMesh",
+      {
+        "speed": 3,
+        "acceleration": 3,
+        "stoppingDistance": 0.5
+      }
+    ],
+    [
+      "BtLoadTree",
+      { "tree": "basicChase" }
+    ]
+  ]
+}
