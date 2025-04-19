@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class BtController : MonoBehaviour
 {
+    public Blackboard Blackboard;
     private IBehaviorNode _rootNode;
-    private Blackboard _context;
     
-    public void InitContext(Blackboard context) => _context = context;
+    public void InitContext(Blackboard blackboard) => Blackboard = blackboard;
 
     public void LoadBtFromRunTime(IBehaviorNode rootNode) => _rootNode = rootNode;
     

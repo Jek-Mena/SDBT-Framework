@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimedActionExecutor : MonoBehaviour
+public class UpdatePhaseExecutor : MonoBehaviour
 {
     private readonly Queue<IGameAction> _updateQueue = new();
     private readonly Queue<IGameAction> _lateUpdateQueue = new();
@@ -47,10 +47,10 @@ using UnityEngine;
        private readonly Vector3 _direction;
        private readonly float _speed;
    
-       public DashCommand(Vector3 direction, float speed)
+       public DashCommand(Vector3 direction, float impulseStrength)
        {
            _direction = direction;
-           _speed = speed;
+           _speed = impulseStrength;
        }
    
        public void Execute(GameObject context)
@@ -94,7 +94,7 @@ public class EnemyAI : MonoBehaviour
        {
            Vector3 direction = (playerPosition - transform.position).normalized;
            _executor.EnqueueCommand(new DashCommand(direction, 10f));
-           _executor.EnqueueCommand(new PlayAnimationCommand("Dash"));
+           _executor.EnqueueCommand(new PlayAnimationCommand("ImpulseLogic"));
        }
    }
    

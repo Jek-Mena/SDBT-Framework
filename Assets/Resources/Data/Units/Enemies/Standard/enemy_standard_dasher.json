@@ -3,9 +3,9 @@
   "prefab": "Prefabs/Enemy/Standard/enemy_standard_dasher",
   "components": [
     [
-      "DashRigidbody",
+      "ImpulseRigidbody",
       {
-        "impulseStrength": 10,
+        "impulseStrength": 5,
         "tolerance": 3,
         "stateTimeout": 2
       }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class NavMeshMover : MonoBehaviour, IMovementBehavior, IInitializeBehavior<MovementData>
+public class NavMeshMover : MonoBehaviour, IMovementNode, IInitializeBehavior<MovementData>
 {
     private NavMeshAgent _agent;
 
@@ -12,9 +12,9 @@ public class NavMeshMover : MonoBehaviour, IMovementBehavior, IInitializeBehavio
     public void Initialize(MovementData data)
     {
         if (_agent == null) return;
-        _agent.speed = data.speed;
-        _agent.acceleration = data.acceleration;
-        _agent.stoppingDistance = data.stoppingDistance;
+        _agent.speed = data.Speed;
+        _agent.acceleration = data.Acceleration;
+        _agent.stoppingDistance = data.StoppingDistance;
     }
 
     public bool TryMoveTo(Vector3 destination)

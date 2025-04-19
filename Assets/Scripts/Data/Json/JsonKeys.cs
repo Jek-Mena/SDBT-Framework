@@ -9,7 +9,7 @@
 
 // TODO: Modularize JsonKeys by splitting into domain-specific static classes (e.g., JsonKeysMovement, JsonKeysBt).
 // Ensure naming consistency with PluginKey domains.
-// Optional: Add attributes for future tooling support (e.g., [PluginConfigKey("speed")]). <<-- Already implemented, just don't forget to implement it.
+// Optional: Add attributes for future tooling support (e.g., [PluginConfigKey("impulseStrength")]). <<-- Already implemented, just don't forget to implement it.
 
 public static class JsonKeys
 {
@@ -20,11 +20,21 @@ public static class JsonKeys
         public const string StoppingDistance = "stoppingDistance";
     }
 
-    public static class Dash
+    public static class Impulse
     {
         public const string ImpulseStrength = "impulseStrength";
         public const string Tolerance = "tolerance";
         public const string StateTimeout = "stateTimeout";
+    }
+
+    public static class TimedExecution
+    {
+        public const string Duration = "duration";
+        public const string StartDelay = "startDelay";
+        public const string Interruptible = "interruptible";
+        public const string FailOnInterrupt = "failOnInterrupt";
+        public const string ResetOnExit = "resetOnExit";
+        public const string Mode = "mode";
     }
 
     public static class Visual
@@ -34,7 +44,9 @@ public static class JsonKeys
 
     public static class BehaviorTree
     {
-        public const string ConfigId = "tree";
+        public const string TreeId = "tree";
+        public const string Children = "children";
+        public const string NodeType = "nodeType";
 
         public static class Behavior
         {

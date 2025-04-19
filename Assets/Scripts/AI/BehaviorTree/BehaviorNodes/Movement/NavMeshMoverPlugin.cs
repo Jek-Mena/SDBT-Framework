@@ -1,7 +1,7 @@
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-[Plugin(PluginKey.MovementNavMesh)]
+[Plugin(PluginKey.BtNode_MovementNavMesh)]
 public class NavMeshMoverPlugin : BasePlugin, IValidatablePlugin
 {
     public override void Apply(GameObject entity, JObject config)
@@ -10,9 +10,9 @@ public class NavMeshMoverPlugin : BasePlugin, IValidatablePlugin
 
         movement.Initialize(new MovementData
         {
-            speed = config.RequireFloat(JsonKeys.Movement.Speed),
-            acceleration = config.RequireFloat(JsonKeys.Movement.Acceleration),
-            stoppingDistance = config.RequireFloat(JsonKeys.Movement.StoppingDistance)
+            Speed = config.RequireFloat(JsonKeys.Movement.Speed),
+            Acceleration = config.RequireFloat(JsonKeys.Movement.Acceleration),
+            StoppingDistance = config.RequireFloat(JsonKeys.Movement.StoppingDistance)
         });
     }
 

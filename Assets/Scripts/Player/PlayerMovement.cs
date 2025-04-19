@@ -5,7 +5,7 @@ namespace Assets.Scripts.Player
     [RequireComponent(typeof(CharacterController))]
     public class PlayerMovement : MonoBehaviour
     {
-        [Header("Movement Settings")]
+        [Header("MovementLogic Settings")]
         [SerializeField] private float _moveSpeed = 5f;
 
         private CharacterController _characterController;
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Player
             // Forward/back is aligned with the camera’s forward. Left / right is aligned with the camera’s right
             var direction = (camForward * v + camRight * h).normalized;
 
-            // Move in the direction vector as input (not position!), at this speed, and make sure the object slide along the ground and obey collisions.
+            // Move in the direction vector as input (not position!), at this impulseStrength, and make sure the object slide along the ground and obey collisions.
             _characterController.SimpleMove(direction * _moveSpeed);
 
             // Turn the player to face the same direction they’re moving

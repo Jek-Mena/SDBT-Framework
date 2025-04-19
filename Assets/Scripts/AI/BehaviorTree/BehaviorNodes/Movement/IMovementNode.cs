@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IMovementBehavior
+public interface IMovementNode
 {
     bool TryMoveTo(Vector3 destination);
     void Stop();

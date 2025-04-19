@@ -8,7 +8,7 @@
 // DO NOT confuse this with internal config fields like "abilityId" — those belong in JsonKeys.
 
 // TODO: Gradual migration plan for PluginKey scalability:
-// - Step 1: Prefix existing PluginKey entries by domain (e.g., BtInjectAbilityNode → Bt_InjectAbilityNode, DashRigidbody → Movement_DashRigidbody)
+// - Step 1: Prefix existing PluginKey entries by domain (e.g., BtInjectAbilityNode → Bt_InjectAbilityNode, BtNode_ImpulseRigidbody → Movement_DashRigidbody)
 //   This keeps organization clean without breaking existing [Plugin(PluginKey.X)] usage.
 // - Step 2: When ready, consider splitting PluginKey into domain-specific enums (BtPluginKey, MovementPluginKey, etc.)
 //   PRO: Scales better as plugin count grows; clearer ownership by system.
@@ -25,17 +25,23 @@ using UnityEngine.Rendering;
 
 public enum PluginKey
 {
-    // Behavior Tree
+    // Behavior Tree: Node Loaders & Injectors
     BtLoadTree,
+    BtSequenceNode,
     BtInjectAbilityNode,
-
-    // Behavior Tree Time-based
 
     // Behavior Tree Condition-based
 
-    // Movement
-    MovementNavMesh,
-    DashRigidbody,
+    // === Behavior Tree Nodes ===
+    BtNode_MovementNavMesh,     // Move (and also rotate) to target using NavMesh
+    BtNode_ImpulseRigidbody,    // Move using physics impulse
+
+    // === Behavior Tree Trees (subtree loaders) ===
+    BtTree_DashOnly,
+    BtTree_BasicChase,
+
+    // Behavior Tree: Time-Based
+    BtNode_Pause,
 
     // Status/Stats
     StatusBuff,
@@ -60,4 +66,11 @@ public enum PluginKey
 public enum FXPrefabKey
 {
     [ResourcePath("FX/GlowAura")] GlowAura
+}
+
+public static class NodeName
+{
+    public const string MoveTo = "MoveTo";
+    public const string Impulse = "Impulse";
+    public const string Pause = "Pause";
 }
