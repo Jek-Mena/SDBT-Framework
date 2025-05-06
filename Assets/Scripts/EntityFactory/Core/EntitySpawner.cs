@@ -1,40 +1,42 @@
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class EntitySpawner : MonoBehaviour
 {
     [SerializeField] private Transform spawnPoint;
-    
-    private string entityId = "enemy_standard_dasher";
-
-    private void Awake() => PluginRegistry.RegisterAll();
+    private readonly JsonEntityLoader _entityLoader = new JsonEntityLoader();
 
     private void Start()
     {
-        var loader = new JsonEntityLoader();
-        var data = loader.Load(entityId);
+        // 1) Load the entity definition
+        var entityData = _entityLoader.Load("Data/Units/Enemies/Standard/enemy_standard_chaser");
+        var prefab = Resources.Load<GameObject>(entityData.prefab);
 
-        var prefab = Resources.Load<GameObject>(data.prefab);
-        if (!prefab)
+        if (prefab == null)
         {
-            Debug.LogError($"Prefab not found: {data.prefab}");
+            Debug.LogError($"Prefab not found for '{entityData.prefab}'");
             return;
         }
 
-        var entity = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
-
-        foreach (var entry in data.components)
+        // 2) Instantiate at your designated spawnPoint
+        var go = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
+        if (go == null)
         {
-            var key = entry.type;
+            Debug.LogError($"Failed to spawn '{prefab.name}'.");
+            return;
+        }
+        Debug.Log($"'{go.name}' successfully spawned.");
 
-            if (!PluginRegistry.TryGet(key, out var plugin))
-            {
-                Debug.LogError($"Plugin not found for: {key}");
-                continue;
-            }
-
-            plugin.Apply(entity, entry.@params);
+        // 3) Build a root JObject mapping each component key to its params
+        var configRoot = new JObject();
+        foreach (var comp in entityData.components)
+        {
+            var key = comp.Key. ToString();
+            var parameters = comp.@params ?? new JObject();
+            configRoot.Add(key, parameters);
         }
 
-        Debug.Log($"Spawned: {entityId}");
+        // 4) Apply all plugins in the correct order
+        BtLoader.ApplyAll(go, configRoot);
     }
 }

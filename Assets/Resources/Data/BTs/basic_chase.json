@@ -1,0 +1,11 @@
+{
+  "root": {
+    "type": "Repeater",
+    "children": {
+      "type": "MoveTo",
+      "config": {
+        "overrideSpeed": 3.5
+      }
+    }
+  }
+}

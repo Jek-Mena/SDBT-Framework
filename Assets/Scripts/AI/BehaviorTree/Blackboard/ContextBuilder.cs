@@ -33,8 +33,16 @@ public class ContextBuilder : IContextBuilder
         return new Blackboard
         {
             MovementLogic = movement,
+            MovementModifiers = new ModifierProvider<MovementSettings>(),
             ImpulseLogic = impulse,
             TimedExecutionLogic = timer,
+            TimerData = new TimedExecutionData
+            {
+                key = "", // Or a default you expect nodes to override later
+                duration = 3f,
+                interruptible = false,
+                failOnInterrupt = false
+            },
             Health = health,
             Target = player.transform,
             IsStunned = false,

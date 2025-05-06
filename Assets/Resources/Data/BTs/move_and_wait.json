@@ -1,0 +1,32 @@
+{
+  "root": {
+    "type": "Repeater",
+    "children": {
+      "type": "Sequence",
+      "children": [
+        {
+          "type": "Timeout",
+          "config": {
+            "duration": 5.0,
+            "interruptible": false,
+            "failOnInterrupt": false
+          },
+          "children": {
+            "type": "MoveTo",
+            "config": {
+              "overrideSpeed": 3.5
+            }
+          }
+        },
+        {
+          "type": "Pause",
+          "config": {
+            "duration": 3.0,
+            "interruptible": false,
+            "failOnInterrupt": false
+          }
+        }
+      ]
+    }
+  }
+}

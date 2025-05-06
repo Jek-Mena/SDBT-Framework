@@ -2,17 +2,30 @@
   "id": "enemy_standard_chaser",
   "prefab": "Prefabs/Enemy/Standard/enemy_standard_chaser",
   "components": [
-    [
-      "MovementNavMesh",
-      {
-        "speed": 3,
-        "acceleration": 3,
-        "stoppingDistance": 0.5
+    {
+      "plugin": "BtLoadTree",
+      "params": {
+        "treeId": "move_and_wait"
       }
-    ],
-    [
-      "BtLoadTree",
-      { "tree": "basicChase" }
-    ]
+    },
+    {
+      "plugin": "BtNodeMono_MovementNavMesh",
+      "params": {
+        "speed": 3.0,
+        "acceleration": 3.0,
+        "stoppingDistance": 0.5,
+        "updateThreshold": 0.25
+      }
+    },
+    {
+      "plugin": "BtNode_Pause",
+      "params": {
+        "duration": 5.0
+      }
+    },
+    {
+      "plugin": "BtNodeModifier_Movement",
+      "params": {}
+    }
   ]
 }

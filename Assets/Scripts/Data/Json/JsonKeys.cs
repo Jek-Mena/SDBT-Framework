@@ -13,11 +13,17 @@
 
 public static class JsonKeys
 {
+    public static class Bt
+    {
+        public const string MaxRepeats = "maxRepeats";
+    }
+
     public static class Movement
     {
         public const string Speed = "speed";
         public const string Acceleration = "acceleration";
         public const string StoppingDistance = "stoppingDistance";
+        public const string UpdateThreshold = "updateThreshold";
     }
 
     public static class Impulse
@@ -29,6 +35,7 @@ public static class JsonKeys
 
     public static class TimedExecution
     {
+        // Pause, Channelling, Idle, etc.
         public const string Duration = "duration";
         public const string StartDelay = "startDelay";
         public const string Interruptible = "interruptible";
@@ -42,18 +49,6 @@ public static class JsonKeys
         public const string PrefabPath = "visualPrefab";
     }
 
-    public static class BehaviorTree
-    {
-        public const string TreeId = "tree";
-        public const string Children = "children";
-        public const string NodeType = "nodeType";
-
-        public static class Behavior
-        {
-            public const string BasicChase = "basicChase";
-            public const string DashOnly = "dashOnly";
-        }
-    }
     public static class Buff
     {
         public const string HealthMultiplier = "healthMultiplier";
@@ -62,5 +57,27 @@ public static class JsonKeys
     public static class Ability
     {
         public const string Id = "abilityID";
+    }
+}
+
+public static class JsonFields
+{
+    public const string Id = "id";
+    public const string Plugin = "plugin";
+    public const string Params = "params";
+    public const string Prefab = "prefab";
+    public const string Components = "components";
+    public const string TreeId = "treeId";
+    public const string Type = "type";
+    public const string Children = "children";
+    public const string Root = "root";
+ }
+
+public static class JsonLiterals
+{
+    public static class Behavior
+    {
+        public const string BasicChase = "basicChase";
+        public const string DashOnly = "dashOnly";
     }
 }

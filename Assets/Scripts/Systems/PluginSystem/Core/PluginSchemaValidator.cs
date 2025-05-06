@@ -7,9 +7,9 @@ public static class PluginSchemaValidator
     {
         foreach (var entry in components)
         {
-            if (!PluginRegistry.TryGet(entry.type, out var plugin))
+            if (!PluginRegistry.TryGet(entry.Key, out var plugin))
             {
-                Debug.Log($"[Validator] Plugin not registered: {entry.type}");
+                Debug.Log($"[Validator] Plugin not registered: {entry.Key}");
                 continue;
             }
 

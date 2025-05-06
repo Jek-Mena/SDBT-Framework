@@ -8,6 +8,24 @@ public static class JTokenExtensions
     // Fail fast and loud or waste hours on silent misbehavior.
     public static bool In(this JTokenType type, params JTokenType[] types)
         => System.Array.Exists(types, t => t == type);
+    public static bool TryGetBool(this JObject obj, string key, bool defaultValue = false)
+    {
+        if (!obj.TryGetValue(key, out var token))
+            return defaultValue;
+
+        if (token.Type == JTokenType.Boolean)
+            return token.Value<bool>();
+
+        if (token.Type == JTokenType.String)
+        {
+            // Handle "true"/"false" strings just in case
+            if (bool.TryParse(token.Value<string>(), out var result))
+                return result;
+        }
+
+        Debug.LogWarning($"[JTokenExtensions] Expected boolean for key '{key}', got '{token}' ({token.Type}). Defaulting to {defaultValue}");
+        return defaultValue;
+    }
 
     public static float RequireFloat(this JObject obj, string key)
     {

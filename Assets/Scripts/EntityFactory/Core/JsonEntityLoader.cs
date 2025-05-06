@@ -4,21 +4,25 @@ using UnityEngine;
 
 public class JsonEntityLoader
 {
-    private const string JsonFolderPath = "Data/Units/Enemies/Standard/";
+    private const string JsonFolderPath = "";
+    //private const string JsonFolderPath = "Data/Units/Enemies/Standard/";
     private readonly Dictionary<string, BaseEntityData> _cache = new();
 
-    public BaseEntityData Load(string fileName)
+    public BaseEntityData Load(string path)
     {
-        if (_cache.TryGetValue(fileName, out var cached))
+        if (_cache.TryGetValue(path, out var cached))
             return cached;
 
-        var jsonAsset = Resources.Load<TextAsset>($"{JsonFolderPath}{fileName}");
+        var jsonAsset = Resources.Load<TextAsset>($"{JsonFolderPath}{path}");
         if (jsonAsset == null)
-            throw new System.Exception($"JSON not found at: Resources/{JsonFolderPath}{fileName}.json");
+            throw new System.Exception($"JSON not found at: Resources/{JsonFolderPath}{path}.json");
 
-        var data = JsonConvert.DeserializeObject<BaseEntityData>(jsonAsset.text);
+        var settings = new JsonSerializerSettings();
+        settings.Converters.Add(new ComponentEntryObjectConverter());
 
-        _cache[fileName] = data;
+        var data = JsonConvert.DeserializeObject<BaseEntityData>(jsonAsset.text, settings);
+
+        _cache[path] = data;
         return data;
     }
 

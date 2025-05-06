@@ -8,7 +8,7 @@ public class BaseEntityData
     public string id;
     public string prefab;
 
-    [JsonConverter(typeof(ComponentEntryArrayConverter))]
+    [JsonConverter(typeof(ComponentEntryObjectConverter))]
     public List<ComponentEntry> components = new();
     // Add more optional sections as needed
 }

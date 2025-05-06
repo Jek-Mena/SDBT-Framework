@@ -1,4 +1,3 @@
-using Assets.Scripts.Shared.AI;
 
 public class BehaviorLeafNode : IBehaviorNode
 {
