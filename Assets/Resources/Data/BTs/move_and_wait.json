@@ -1,25 +1,26 @@
 {
   "root": {
-    "type": "Repeater",
+    "btKey": "Repeater",
     "children": {
-      "type": "Sequence",
+      "btKey": "Sequence",
       "children": [
         {
-          "type": "Timeout",
+          "btKey": "Timeout",
           "config": {
+			"key": "StandStill",
             "duration": 5.0,
             "interruptible": false,
             "failOnInterrupt": false
           },
           "children": {
-            "type": "MoveTo",
+            "btKey": "MoveTo",
             "config": {
               "overrideSpeed": 3.5
             }
           }
         },
         {
-          "type": "Pause",
+          "btKey": "Pause",
           "config": {
             "duration": 3.0,
             "interruptible": false,

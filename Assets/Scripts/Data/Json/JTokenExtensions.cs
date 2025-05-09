@@ -27,19 +27,6 @@ public static class JTokenExtensions
         return defaultValue;
     }
 
-    public static float RequireFloat(this JObject obj, string key)
-    {
-        if (!obj.TryGetValue(key, out var token) || !token.Type.In(JTokenType.Float, JTokenType.Integer))
-            throw new System.Exception($"Missing or invalid float value for key '{key}' in: {obj}");
-        return token.Value<float>();
-    }
-
-    public static void RequireKey(this JObject obj, string key)
-    {
-        if (!obj.ContainsKey(key))
-            throw new System.Exception($"Missing required key '{key}' in: {obj}");
-    }
-
     public static bool HasKey(this JObject obj, string key)
     {
         return obj.ContainsKey(key);

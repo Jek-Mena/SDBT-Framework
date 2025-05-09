@@ -12,6 +12,7 @@
       "plugin": "BtNodeMono_MovementNavMesh",
       "params": {
         "speed": 3.0,
+		"angularSpeed" : 150.0,
         "acceleration": 3.0,
         "stoppingDistance": 0.5,
         "updateThreshold": 0.25

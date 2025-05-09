@@ -1,5 +1,72 @@
 using System;
 using System.Collections.Generic;
+
+public static class BtNodeRegistry
+{
+    private static readonly Dictionary<Type, IBtNodeFactory> Map = new();
+
+    // ?? Public access to all registered node types
+    public static IEnumerable<Type> RegisteredNodeTypes => Map.Keys;
+
+    public static void Register<TKey, TFactory>()
+        where TKey : IBtNodeKey<TFactory>, new()
+        where TFactory : IBtNodeFactory, new()
+    {
+        var keyType = typeof(TKey);
+        
+    }
+
+    public static IBtNodeFactory GetFactory<TKey>()
+        where TKey : IBtNodeFactory
+    {
+        var keyType = typeof(TKey);
+        if (!Map.TryGetValue(keyType, out var factory))
+            throw new InvalidOperationException($"No factory registered for key type {keyType}");
+
+        return factory;
+    }
+
+    public static IBtNodeFactory GetFactoryByAlias(string alias)
+    {
+        if (!BtNodeRegistrationList.AliasToKeyMap.TryGetValue(alias, out var keyType))
+            throw new InvalidOperationException($"Unknown behavior key alias: '{alias}'");
+
+        if (!Map.TryGetValue(keyType, out var factory))
+            throw new InvalidOperationException($"Factory not found for key type: '{keyType}'");
+
+        return factory;
+    }
+
+    public static void InitializeDefaults()
+    {
+        foreach (var (keyType, factory) in BtNodeRegistrationList.GetAll())
+        {
+            if(Map.ContainsKey(keyType))
+                throw new InvalidOperationException($"Factory already registered. Duplicate factory key: {keyType}");
+
+            Map[keyType] = factory;
+        }
+    }
+
+    public static void PrintRegisteredNodes()
+    {
+        foreach (var (alias, keyType) in BtNodeRegistrationList.AliasToKeyMap)
+        {
+            if (Map.TryGetValue(keyType, out var factory))
+            {
+                UnityEngine.Debug.Log($"Alias '{alias}' => {keyType.Name} => {factory.GetType().Name}");
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning($"Alias '{alias}' maps to {keyType.Name}, but factory is missing.");
+            }
+        }
+    }
+}
+
+
+/*using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
@@ -72,4 +139,4 @@ public static class BtNodeRegistry
     }
     // NOTE On IL2CPP platforms (e.g., iOS), Unity may strip unused types, so you might need:
     // [UnityEngine.Scripting.Preserve]
-}
+}*/
