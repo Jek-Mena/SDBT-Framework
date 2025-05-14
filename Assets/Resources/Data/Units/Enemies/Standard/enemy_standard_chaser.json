@@ -1,31 +1,32 @@
 {
-  "id": "enemy_standard_chaser",
+  "entityId": "enemy_standard_chaser",
   "prefab": "Prefabs/Enemy/Standard/enemy_standard_chaser",
   "components": [
     {
-      "plugin": "BtLoadTree",
+      "plugin": "Plugin/BtLoadTree",
       "params": {
         "treeId": "move_and_wait"
       }
     },
     {
-      "plugin": "BtNodeMono_MovementNavMesh",
+      "plugin": "Plugin/NavMeshMoveToTarget",
       "params": {
+		"target": "Player",
         "speed": 3.0,
-		"angularSpeed" : 150.0,
+        "angularSpeed": 150.0,
         "acceleration": 3.0,
         "stoppingDistance": 0.5,
         "updateThreshold": 0.25
       }
     },
     {
-      "plugin": "BtNode_Pause",
+      "plugin": "Plugin/Pause",
       "params": {
         "duration": 5.0
       }
     },
     {
-      "plugin": "BtNodeModifier_Movement",
+      "plugin": "Plugin/MovementModifier",
       "params": {}
     }
   ]

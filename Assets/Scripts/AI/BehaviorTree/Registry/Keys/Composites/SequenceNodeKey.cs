@@ -1,7 +1,7 @@
 
 public sealed class SequenceNodeKey : IBtNodeKey<BtSequenceNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.Composite.Sequence;
+    public static string Alias => BehaviorTreeKeys.Alias.Composite.Sequence;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

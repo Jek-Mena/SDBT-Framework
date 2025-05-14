@@ -1,12 +1,10 @@
 using Newtonsoft.Json.Linq;
-using System;
 using Newtonsoft.Json;
 using UnityEngine;
 
-[Plugin(PluginKey.BtLoadTree)]
 public class BtLoadTreePlugin : BasePlugin
 {
-    private readonly IContextBuilder _contextBuilder = new ContextBuilder();
+    private IContextBuilder ContextBuilder => BtServices.ContextBuilder;
 
     public override void Apply(GameObject entity, JObject jObject)
     {
@@ -18,29 +16,27 @@ public class BtLoadTreePlugin : BasePlugin
 
         var controller = entity.RequireComponent<BtController>();
         
-        var treeId = jObject[JsonFields.TreeId]?.Value<string>();
+        var treeId = jObject[CoreKeys.TreeId]?.Value<string>();
         if (string.IsNullOrEmpty(treeId))
         {
-            Debug.LogError($"Missing JSON key {JsonFields.TreeId}.");
+            Debug.LogError($"Missing JSON key {CoreKeys.TreeId}.");
             return;
         }
 
-        // You must map treeId -> IBehaviorNode tree here
-        var context = _contextBuilder.Build(entity);
+        var context = controller.Blackboard;
         controller.InitContext(context);
 
         var treeJson = BtLoader.LoadJsonTreeBtId(treeId);
 
-        var rootToken = treeJson[JsonFields.Root] ?? treeJson;
+        var rootToken = treeJson[CoreKeys.Root] ?? treeJson;
 
-        if (rootToken[JsonFields.BtKey] == null)
+        if (rootToken[CoreKeys.Type] == null)
         {
             Debug.LogError($"[BT Loader] Missing 'btKey' in root node:\n{rootToken.ToString(Formatting.Indented)}");
             return;
         }
 
         var root = BtTreeBuilder.Build(rootToken, context);
-        
         controller.LoadBtFromRunTime(root);
     }
 }

@@ -9,18 +9,18 @@ public class MovementModifier : IModifier<MovementSettings>
         Settings = settings;
     }
 
-    public string Source => Meta.Source;
+    public string Source => Meta.AppliedBy;
     public int Priority => Meta.Priority;
-    public string EffectTag => Meta.EffectTag;
+    public string EffectTag => Meta.Label;
     public float? Duration => Meta.Duration;
-    public bool CanStack => Meta.CanStack;
+    public bool CanStack => Meta.IsExclusive;
     public int MaxStacks => Meta.MaxStacks;
     public ModifierBlendMode BlendMode => Meta.BlendMode;
     public MovementSettings Apply(MovementSettings original)
     {
         var result = original != null ? new MovementSettings(original) : new MovementSettings();
 
-        if (BlendMode != ModifierBlendMode.Override) return result;
+        if (BlendMode != ModifierBlendMode.Replace) return result;
 
         result.Speed = Settings.Speed ?? result.Speed;
         result.Acceleration = Settings.Acceleration ?? result.Acceleration;

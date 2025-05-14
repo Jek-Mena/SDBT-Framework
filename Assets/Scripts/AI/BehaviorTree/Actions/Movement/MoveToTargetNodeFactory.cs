@@ -1,17 +1,15 @@
 using Newtonsoft.Json.Linq;
 using System;
+using UnityEngine;
 
 public class MoveToTargetNodeFactory : IBtNodeFactory
 {
     public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
     {
+        var context = nameof(MoveToTargetNodeFactory);
         var config = JsonUtils.GetConfig(jObject, nameof(MoveToTargetNodeFactory));
 
-        var stopRange = config.Value<float?>(JsonKeys.Movement.Speed) ?? 0.5f;
-        var angularSpeed = config.Value<float?>(JsonKeys.Movement.AngularSpeed) ?? 120f;
-        var overrideSpeed = config.Value<float?>(JsonKeys.Movement.OverrideSpeed);
-        var target = config.Value<string>("target") ?? "Player";
-
+        Debug.Log($"[MoveToTargetNodeFactory] Creating 'MoveTo' node. [Config] {config} ");
         return new MoveToTargetNode(); // Leaf node — no children
     }
 }

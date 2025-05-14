@@ -5,7 +5,7 @@ public class BtController : MonoBehaviour
 {
     public Blackboard Blackboard;
     private IBehaviorNode _rootNode;
-    
+
     public void InitContext(Blackboard blackboard) => Blackboard = blackboard;
 
     public void LoadBtFromRunTime(IBehaviorNode rootNode) => _rootNode = rootNode;

@@ -7,9 +7,9 @@ public class BtSequenceNodeFactory : IBtNodeFactory
     public IBehaviorNode CreateNode(JObject config, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
     {
         // Ensure 'children' array exists
-        var childrenArray = config[JsonFields.Children] as JArray;
+        var childrenArray = config[CoreKeys.Children] as JArray;
         if (childrenArray == null || childrenArray.Count == 0)
-            throw new System.Exception($"[BtSequenceNodeFactory] requires/missing a {JsonFields.Children} array.");
+            throw new System.Exception($"[BtSequenceNodeFactory] requires/missing a {CoreKeys.Children} array.");
 
         // Recurse through children
         var children = childrenArray

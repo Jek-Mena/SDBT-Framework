@@ -1,6 +1,6 @@
 public class TimedExecutionData
 {
-    public string Key = "";
+    public string Label = "";
     public float Duration = 1f;           // Core timer value for how long the behavior runs
     public float StartDelay = 0f;         // Optional: Delay before the execution starts
     public bool Interruptible = true;     // Can be interrupted by external events like stun

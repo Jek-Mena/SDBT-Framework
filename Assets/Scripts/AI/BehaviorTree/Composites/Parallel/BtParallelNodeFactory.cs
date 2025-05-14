@@ -6,7 +6,7 @@ public class BtParallelNodeFactory : IBtNodeFactory
 {
     public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
     {
-        var childrenToken = jObject[JsonFields.Children];
+        var childrenToken = jObject[CoreKeys.Config];
         if (childrenToken is not JArray childrenArray || childrenArray.Count == 0)
             throw new Exception("[BtParallelNodeFactory] 'children' array is missing or empty.");
 

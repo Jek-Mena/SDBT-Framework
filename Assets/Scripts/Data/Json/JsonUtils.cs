@@ -118,7 +118,7 @@ public static class JsonUtils
     /// </summary>
     public static JObject GetConfig(JObject json, string context)
     {
-        var config = json[JsonFields.Config] as JObject ?? json;
+        var config = json[CoreKeys.Config] as JObject ?? json;
         if (config == null)
             throw new Exception($"{context} Missing or invalid 'config' block.");
         return config;

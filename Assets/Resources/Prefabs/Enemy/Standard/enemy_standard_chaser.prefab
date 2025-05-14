@@ -17,8 +17,7 @@ GameObject:
   - component: {fileID: 1956215514786081684}
   - component: {fileID: 1622663357315059159}
   - component: {fileID: 4754116142638426494}
-  - component: {fileID: 4446346217398124629}
-  - component: {fileID: 3704099930251615349}
+  - component: {fileID: 218923047330614946}
   m_Layer: 0
   m_Name: enemy_standard_chaser
   m_TagString: Untagged
@@ -201,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 201f69da5127aac4ca361cd8ef26ca49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4446346217398124629
+--- !u!114 &218923047330614946
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -210,20 +209,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 621597336681991154}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a7675382a0184548a3918724934f2b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _directionMode: 0
---- !u!114 &3704099930251615349
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 621597336681991154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27fc8bf30edb1044f95d1cc39b73d2fa, type: 3}
+  m_Script: {fileID: 11500000, guid: f0b92522ba293254f910a26537ac7048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &9027836807911911425

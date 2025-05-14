@@ -32,11 +32,11 @@ public class JsonEntityLoader
             JsonConvert.SerializeObject(parent)
         );
 
-        result.id = child.id ?? parent.id;
-        result.prefab= child.prefab ?? parent.prefab;
+        result.EntityId = child.EntityId ?? parent.EntityId;
+        result.Prefab= child.Prefab ?? parent.Prefab;
 
-        if (child.components!= null)
-            result.components.AddRange(child.components);
+        if (child.Components!= null)
+            result.Components.AddRange(child.Components);
 
         return result;
     }

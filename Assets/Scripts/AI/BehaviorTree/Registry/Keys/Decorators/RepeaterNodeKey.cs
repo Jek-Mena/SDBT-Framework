@@ -1,6 +1,6 @@
 public sealed class RepeaterNodeKey : IBtNodeKey<BtRepeaterNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.Decorator.Repeater;
+    public static string Alias => BehaviorTreeKeys.Alias.Decorator.Repeater;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

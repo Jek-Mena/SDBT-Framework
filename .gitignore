@@ -36,6 +36,10 @@ desktop.ini
 # --- Packages (optional: if you're using local ones) ---
 *.tgz
 
+# --- NuGet and auto-generated packages ---
+**/Packages/*
+
+
 # --- Crash / profiler dumps ---
 sysinfo.txt
 *.stacktrace

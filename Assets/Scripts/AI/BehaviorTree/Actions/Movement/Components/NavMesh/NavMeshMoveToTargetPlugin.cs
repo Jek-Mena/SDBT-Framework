@@ -1,29 +1,51 @@
 using Newtonsoft.Json.Linq;
+using System;
 using UnityEngine;
 
-[Plugin(PluginKey.BtNodeMono_MovementNavMesh)]
-public class NavMeshMoveToTargetPlugin : BasePlugin, IValidatablePlugin
+public class NavMeshMoveToTargetPlugin : BasePlugin
 {
     public override void Apply(GameObject entity, JObject jObject)
     {
-        var movement = entity.RequireComponent<NavMeshMoveToTarget>();
+        Debug.Log($"[NavMeshMoveToTargetPlugin] Applying plugin to: {entity.name}");
 
         var context = nameof(NavMeshMoveToTargetPlugin);
-
         var config = JsonUtils.GetConfig(jObject, context);
 
-        movement.Initialize(new MovementData
+        var data = new MovementData
         {
-            Speed = JsonUtils.RequireFloat(config, JsonKeys.Movement.Speed, context),
-            AngularSpeed = JsonUtils.RequireFloat(config, JsonKeys.Movement.AngularSpeed, context),
-            Acceleration = JsonUtils.RequireFloat(config, JsonKeys.Movement.Acceleration, context),
-            StoppingDistance = JsonUtils.RequireFloat(config, JsonKeys.Movement.StoppingDistance, context),
-            UpdateThreshold = JsonUtils.RequireFloat(config, JsonKeys.Movement.UpdateThreshold, context)
-        });
+            Speed = JsonUtils.RequireFloat(config, MovementKeys.Json.Speed, context),
+            AngularSpeed = JsonUtils.RequireFloat(config, MovementKeys.Json.AngularSpeed, context),
+            Acceleration = JsonUtils.RequireFloat(config, MovementKeys.Json.Acceleration, context),
+            StoppingDistance = JsonUtils.RequireFloat(config, MovementKeys.Json.StoppingDistance, context),
+            UpdateThreshold = JsonUtils.RequireFloat(config, MovementKeys.Json.UpdateThreshold, context)
+        };
+        
+        var mover = entity.RequireComponent<NavMeshMoveToTarget>();
+        if (mover != null)
+        {
+            mover.Initialize(data);
+            Debug.Log($"[NavMeshMoveToTargetPlugin] Initialized with " +
+                      $"Speed: {data.Speed} " +
+                      $"AngularSpeed: {data.AngularSpeed} " +
+                      $"Acceleration: {data.Acceleration} " +
+                      $"StoppingDistance: {data.StoppingDistance} " +
+                      $"UpdateThreshold: {data.UpdateThreshold}");
+        }
+        else
+        {
+            Debug.LogError($"[NavMeshMoveToTargetPlugin] NavMeshMoveToTarget not found on {entity.name}");
+        }
     }
 
-    public void Validate(ComponentEntry entry)
+    public static PluginMetadata Metadata => new()
     {
-        JTokenExtensions.ValidateRequiredKeys(typeof(JsonKeys.Movement), entry.@params, nameof(NavMeshMoveToTargetPlugin));
-    }
+        PluginKey = MovementKeys.Plugin.NavMeshMoveToTarget,
+        SchemaKey = MovementKeys.Schema.NavMeshMoveToTarget,
+        PluginType = typeof(NavMeshMoveToTargetPlugin),
+        Domain = MovementKeys.Domain.Default,
+        ExecutionPhase = MovementKeys.ExecutionPhase.Default,
+        DependsOn = Array.Empty<Type>() // Or null, based on PluginRegistry default handling
+    };
+
+
 }

@@ -1,6 +1,6 @@
 public sealed class TimeoutDecoratorNodeKey : IBtNodeKey<TimeoutDecoratorNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.TimedExecution.Timeout;
+    public static string Alias => TimedExecutionKeys.Alias.TimeoutDecorator;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

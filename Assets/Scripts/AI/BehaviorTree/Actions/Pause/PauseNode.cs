@@ -1,6 +1,6 @@
 ﻿// TEMPORARY: This node applies a movement override to simulate a pause.
 // In the future, replace this with status-based effect handling (e.g., STUN, ROOT).
-public class PauseNode : TimedExecutionNode 
+public class PauseNode : TimedExecutionNode
 {
     private bool _modifierApplied;
     private ModifierMeta _meta;
@@ -9,14 +9,18 @@ public class PauseNode : TimedExecutionNode
     {
         var blackboard = controller.Blackboard;
 
-        // First tick -> stop movement
         if (!_modifierApplied && blackboard.MovementLogic != null)
         {
-            _meta = new ModifierMeta (
-                source: JsonLiterals.Behavior.TimedExecution.Pause,
+            _meta = ModifierMeta.CreateNow(
+                appliedBy: TimedExecutionKeys.Alias.Pause,
+                category: ModifierCategories.Movement,
+                label: EffectTags.Pause,
+                blendMode: ModifierBlendMode.Replace,
+                maxStacks: 1,
+                duration: blackboard.TimerData.Duration,
                 priority: ModifierPriority.Pause,
-                effectTag: EffectTags.Movement,
-                blendMode: ModifierBlendMode.Override
+                isExclusive: true,
+                description: "PauseNode applied movement override"
             );
 
             var modifier = new MovementModifier(_meta, new MovementSettings { IsControlled = true });
@@ -25,16 +29,14 @@ public class PauseNode : TimedExecutionNode
             _modifierApplied = true;
         }
 
-        var status = base.Tick(controller); // Handles the actual timer logic
+        var status = base.Tick(controller); // Handles timer logic
 
-        // On completion, remove modifier
         if (status != BtStatus.Running && _modifierApplied)
         {
-            blackboard.MovementModifiers.Remove(_meta.Source);
+            blackboard.MovementModifiers.Remove(_meta.AppliedBy);
             _modifierApplied = false;
         }
 
         return status;
     }
-
 }

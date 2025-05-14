@@ -16,13 +16,13 @@ public class ComponentEntryObjectConverter : JsonConverter<List<ComponentEntry>>
                 throw new JsonSerializationException("Each component must be an object with 'plugin' and 'params'.");
 
             var obj = (JObject)token;
-            var pluginString = obj["plugin"]?.ToString();
-            var @params = obj["params"] as JObject;
+            var pluginString = obj[CoreKeys.Plugin]?.ToString();
+            var @params = obj[CoreKeys.Params] as JObject;
 
-            if (!Enum.TryParse(pluginString, out PluginKey pluginKey))
-                throw new JsonSerializationException($"Invalid plugin key: {pluginString}");
+            if (string.IsNullOrWhiteSpace(pluginString))
+                throw new JsonSerializationException("Missing or empty plugin key.");
 
-            list.Add(new ComponentEntry(pluginKey, @params));
+            list.Add(new ComponentEntry(pluginString, @params));
         }
 
         return list;
@@ -34,9 +34,9 @@ public class ComponentEntryObjectConverter : JsonConverter<List<ComponentEntry>>
         foreach (var entry in value)
         {
             writer.WriteStartObject();
-            writer.WritePropertyName(JsonFields.Plugin);
-            writer.WriteValue(entry.Key.ToString());
-            writer.WritePropertyName(JsonFields.Params);
+            writer.WritePropertyName(CoreKeys.Plugin);
+            writer.WriteValue(entry.PluginKey);
+            writer.WritePropertyName(CoreKeys.Params);
             serializer.Serialize(writer, entry.@params);
             writer.WriteEndObject();
         }

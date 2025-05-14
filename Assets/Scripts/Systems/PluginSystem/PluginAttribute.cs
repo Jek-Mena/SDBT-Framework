@@ -4,8 +4,8 @@ using UnityEngine;
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class PluginAttribute : Attribute
 {
-    public PluginKey Key { get; }
+    public string PluginKey { get; }
 
-    public PluginAttribute(PluginKey key) => Key = key;
+    public PluginAttribute(string pluginKey) => PluginKey = pluginKey;
 
 }

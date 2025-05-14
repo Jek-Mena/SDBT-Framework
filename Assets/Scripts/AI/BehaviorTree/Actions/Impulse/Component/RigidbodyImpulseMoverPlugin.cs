@@ -1,28 +1,22 @@
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-[Plugin(PluginKey.BtNodeMono_ImpulseRigidbody)]
-public class RigidbodyImpulseMoverPlugin : BasePlugin, IValidatablePlugin
+public class RigidbodyImpulseMoverPlugin : BasePlugin
 {
     public override void Apply(GameObject entity, JObject jObject)
     {
-        var dasher = entity.RequireComponent<RigidbodyImpulseNode>();
+        var rbImpulseNode = entity.RequireComponent<RigidbodyImpulseNode>();
 
         var context = nameof(RigidbodyImpulseMoverPlugin);
 
         // Parse config
         var config = JsonUtils.GetConfig(jObject, context);
 
-        dasher.Initialize(new ImpulseMoverData
+        rbImpulseNode.Initialize(new ImpulseMoverData
         {
-            ImpulseStrength = JsonUtils.RequireFloat(config, JsonKeys.Impulse.ImpulseStrength, context),
-            Tolerance = JsonUtils.RequireFloat(config, JsonKeys.Impulse.Tolerance, context),
-            StateTimeout= JsonUtils.RequireFloat(config, JsonKeys.Impulse.StateTimeout, context)
+            ImpulseStrength = JsonUtils.RequireFloat(config, MovementKeys.Json.ImpulseStrength, context),
+            Tolerance = JsonUtils.RequireFloat(config, MovementKeys.Json.Tolerance, context),
+            StateTimeout= JsonUtils.RequireFloat(config, MovementKeys.Json.StateTimeout, context)
         });
-    }
-
-    public void Validate(ComponentEntry entry)
-    {
-        JTokenExtensions.ValidateRequiredKeys(typeof(JsonKeys.Impulse), entry.@params, nameof(RigidbodyImpulseMoverPlugin));
     }
 }

@@ -5,7 +5,7 @@ using System.Reflection;
 
 public static class PluginRegistry
 {
-    private static Dictionary<PluginKey, IEntityComponentPlugin> _plugins = new();
+    private static Dictionary<string, IEntityComponentPlugin> _plugins = new();
 
     public static void RegisterAll()
     {
@@ -20,11 +20,11 @@ public static class PluginRegistry
             if (attr == null) continue;
 
             var instance = (IEntityComponentPlugin)Activator.CreateInstance(type);
-            _plugins[attr.Key] = instance;
+            _plugins[attr.PluginKey] = instance;
         }
     }
 
-    public static bool TryGet(PluginKey id, out IEntityComponentPlugin plugin)
+    public static bool TryGet(string id, out IEntityComponentPlugin plugin)
     {
         return _plugins.TryGetValue(id, out plugin);
     }

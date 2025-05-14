@@ -1,11 +1,18 @@
 {
   "root": {
-    "type": "Repeater",
-    "children": {
-      "type": "MoveTo",
-      "config": {
-        "overrideSpeed": 3.5
+    "type": "Bt/Sequence",
+    "children": [
+      {
+        "type": "Bt/MoveTo",
+        "config": {
+			"target": "Player",
+			"speed": 3.0,
+			"angularSpeed": 150.0,
+			"acceleration": 3.0,
+			"stoppingDistance": 0.5,
+			"updateThreshold": 0.25
+		}
       }
-    }
+    ]
   }
 }

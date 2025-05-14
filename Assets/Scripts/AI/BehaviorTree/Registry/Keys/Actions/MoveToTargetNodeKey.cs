@@ -1,6 +1,6 @@
 public sealed class MoveToTargetNodeKey : IBtNodeKey<MoveToTargetNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.Movement.MoveTo;
+    public static string Alias => MovementKeys.Alias.MoveTo;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

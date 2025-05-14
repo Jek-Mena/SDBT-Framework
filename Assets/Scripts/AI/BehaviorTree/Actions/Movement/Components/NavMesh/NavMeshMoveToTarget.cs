@@ -9,13 +9,13 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IInitializeBehavior<MovementData>
+public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IInitializeBehavior<MovementData>, IAcceptsSettingsProvider<MovementSettings>
 {
     private Vector3 _lastSetDestination;
     private NavMeshAgent _agent;
     private MovementData _defaultData;
 
-    private IMovementSettingsProvider _settingsProvider;
+    private ISettingsProvider<MovementSettings> _settingsProvider;
     private bool _hasDestination = false;
 
     public void Initialize(MovementData data)
@@ -24,17 +24,17 @@ public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IInitializeBeha
         _defaultData = data;
     }
 
-    public void SetSettingsProvider(IMovementSettingsProvider provider)
+    public void SetSettingsProvider(ISettingsProvider<MovementSettings> provider)
     {
         _settingsProvider = provider;
     }
 
     public bool TryMoveTo(Vector3 destination)
     {
-        if (_agent == null || !_agent.enabled || _settingsProvider == null)
-            return false;
-
         var settings = _settingsProvider.GetEffectiveSettings();
+        
+        if (!IsAgentValid())
+            return false;
 
         if (settings.IsControlled)
         {
@@ -58,7 +58,7 @@ public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IInitializeBeha
             _lastSetDestination = destination;
             _agent.SetDestination(destination);
             _hasDestination = true;
-            Debug.Log("[BT] NavMeshMover -> status: Running");
+            Debug.Log("[Bt-NavMeshMoveToTarget] -> status: Running");
         }
 
         // Debug.Log(
@@ -90,5 +90,34 @@ public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IInitializeBeha
         }
 
         Debug.LogError($"{gameObject.name} NavMeshAgent is null");
+    }
+
+    private bool IsAgentValid()
+    {
+        if (_agent == null)
+        {
+            Debug.LogError($"[{name}] NavMeshAgent is null");
+            return false;
+        }
+
+        if (!_agent.isOnNavMesh)
+        {
+            Debug.LogWarning($"[{name}] NavMeshAgent is NOT on NavMesh");
+            return false;
+        }
+
+        if (!_agent.enabled)
+        {
+            Debug.LogWarning($"[{name}] NavMeshAgent is DISABLED");
+            return false;
+        }
+
+        if (_settingsProvider == null)
+        {
+            Debug.LogError("[NavMeshMoveToTarget] Settings provider is not set.");
+            return false;
+        }
+
+        return true;
     }
 }

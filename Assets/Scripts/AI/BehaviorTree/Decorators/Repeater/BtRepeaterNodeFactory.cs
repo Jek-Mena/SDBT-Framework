@@ -5,14 +5,15 @@ public class BtRepeaterNodeFactory : IBtNodeFactory
 {
     public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
     {
-        var config = JsonUtils.GetConfig(jObject, nameof(BtRepeaterNodeFactory));
+        var childToken = jObject[CoreKeys.Child];
 
-        var childToken = jObject[JsonFields.Children];
         if (childToken == null)
-            throw new Exception("[BtRepeaterNodeFactory] 'children' field required.");
+            throw new Exception("[BtRepeaterNodeFactory] 'child' field required.");
 
         var child = build(childToken);
-        var maxRepeats = config.Value<int?>(JsonFields.BtFields.MaxRepeats) ?? -1;
+
+        var config = JsonUtils.GetConfig(jObject, nameof(BtRepeaterNodeFactory));
+        var maxRepeats = config.Value<int?>(BehaviorTreeKeys.Json.Node.MaxRepeats) ?? -1;
 
         return new BtRepeaterNode(child, maxRepeats);
     }

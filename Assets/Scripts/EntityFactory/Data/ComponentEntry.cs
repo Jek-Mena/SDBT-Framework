@@ -5,13 +5,13 @@ using Newtonsoft.Json.Linq;
 [Serializable]
 public class ComponentEntry
 {
-    public PluginKey Key;
+    public string PluginKey;
     public JObject @params;
     
     [JsonConstructor]
-    public ComponentEntry(PluginKey key, JObject @params)
+    public ComponentEntry(string pluginKey, JObject @params)
     {
-        this.Key = key;
+        this.PluginKey = pluginKey;
         this.@params = @params;
     }
 }

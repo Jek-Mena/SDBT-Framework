@@ -7,9 +7,9 @@ public class BtSelectorNodeFactory : IBtNodeFactory
 {
     public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
     {
-        var childrenToken = jObject[JsonFields.Children];
+        var childrenToken = jObject[CoreKeys.Children];
         if (childrenToken is not JArray childrenArray || childrenArray.Count == 0)
-            throw new Exception($"[BtSelectorFactory] {JsonFields.Children} array is required and must not be empty.");
+            throw new Exception($"[BtSelectorFactory] {CoreKeys.Children} array is required and must not be empty.");
 
         var children = childrenArray.Select(build).ToList();
 

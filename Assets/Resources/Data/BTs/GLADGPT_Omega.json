@@ -1,0 +1,150 @@
+{
+  "plugins": [
+    {
+      "type": "Plugin/BtConfig",
+      "params": {
+        // === GLOBAL BLACKBOARD KEYS ===
+        "stunStateKey": "IsStunned",
+        "knockbackKey": "WasKnockedBack",
+        "lastUsedKey": "LastSkillUsed",
+        "cooldowns": {
+          "dash": 5.0,
+          "smash": 8.0,
+          "teleport": 12.0,
+          "taunt": 10.0
+        },
+
+        // === SENSORY ===
+        "look": { "target": "Player", "rotateSpeed": 100 },
+        "playerTracker": { "trackKeys": ["attackType", "skillAbuse"] },
+
+        // === FX+ANIM ATTACKS ===
+        "dash": {
+          "direction": "forward",
+          "magnitude": 25,
+          "duration": 0.25,
+          "fx": { "vfx": "SmokeTrail", "sfx": "BurstDash", "anim": "ForwardRush" },
+          "cooldownKey": "dash"
+        },
+        "smash": {
+          "magnitude": 40,
+          "duration": 1.5,
+          "fx": { "vfx": "QuakeShockwave", "sfx": "Smash", "anim": "GroundPound" },
+          "cooldownKey": "smash"
+        },
+        "teleport": {
+          "duration": 2.5,
+          "childNode": {
+            "type": "Bt/Teleport",
+            "config": {
+              "castTime": 1.5,
+              "destination": { "source": "BehindTarget", "distance": 5.5 },
+              "fx": { "vfx": "VoidStep", "sfx": "Blink", "anim": "Vanish" }
+            }
+          },
+          "cooldownKey": "teleport"
+        },
+        "taunt": {
+          "lines": [
+            "You're just spamming now.",
+            "Did your fingers get stuck?",
+            "Nice... stun again? Real original."
+          ],
+          "sfx": "GPT_Taunt",
+          "cooldownKey": "taunt"
+        },
+
+        // === INTERRUPT & STUN REACT ===
+        "onStun": {
+          "sequence": [
+            {
+              "type": "Bt/PlayTaunt",
+              "config": {
+                "lines": ["Wait—what was that?!", "I... *felt* that.", "System... destabilizing..."],
+                "sfx": "StaggeredGasp"
+              }
+            },
+            {
+              "type": "Bt/SetValue",
+              "config": { "key": "Phase", "value": 2 }
+            }
+          ]
+        },
+
+        // === COMBO ===
+        "punishCombo": {
+          "sequence": [
+            { "type": "Bt/TimedExecute", "config": { "$ref": "teleport" } },
+            { "type": "Bt/Impulse",      "config": { "$ref": "dash"     } },
+            { "type": "Bt/Impulse",      "config": { "$ref": "smash"    } }
+          ]
+        }
+      }
+    }
+  ],
+
+  "btTree": {
+    "type": "Bt/Selector",
+    "children": [
+      // == PRIORITY 1: INTERRUPT REACTIONS ==
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          { "type": "Bt/Condition/BlackboardTrue", "config": { "key": "IsStunned" } },
+          { "type": "Bt/RunCombo", "config": { "$ref": "onStun" } }
+        ]
+      },
+
+      // == PRIORITY 2: ABUSE DETECTION & PUNISHMENT ==
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          {
+            "type": "Bt/Condition/PlayerRepeatingPattern",
+            "config": {
+              "key": "skillAbuse",
+              "repeatThreshold": 3
+            }
+          },
+          { "type": "Bt/RunCombo", "config": { "$ref": "punishCombo" } },
+          { "type": "Bt/PlayTaunt", "config": { "$ref": "taunt" } }
+        ]
+      },
+
+      // == PRIORITY 3: MAIN COMBAT LOGIC (with cooldown gates) ==
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          { "type": "Bt/CooldownCheck", "config": { "key": "smash" } },
+          { "type": "Bt/Impulse",       "config": { "$ref": "smash" } }
+        ]
+      },
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          { "type": "Bt/CooldownCheck", "config": { "key": "dash" } },
+          { "type": "Bt/Impulse",       "config": { "$ref": "dash" } }
+        ]
+      },
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          { "type": "Bt/CooldownCheck", "config": { "key": "teleport" } },
+          { "type": "Bt/TimedExecute",  "config": { "$ref": "teleport" } }
+        ]
+      },
+
+      // == TAUNT if everything else is locked ==
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          { "type": "Bt/CooldownCheck", "config": { "key": "taunt" } },
+          { "type": "Bt/PlayTaunt", "config": { "$ref": "taunt" } }
+        ]
+      },
+
+      // == Fallback Pause ==
+      { "type": "Bt/Pause", "config": { "duration": 1.0 } }
+    ]
+  }
+}

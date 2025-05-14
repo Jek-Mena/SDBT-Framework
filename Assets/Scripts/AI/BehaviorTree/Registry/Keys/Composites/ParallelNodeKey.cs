@@ -1,6 +1,6 @@
 public sealed class ParallelNodeKey : IBtNodeKey<BtParallelNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.Composite.Parallel;
+    public static string Alias => BehaviorTreeKeys.Alias.Composite.Parallel;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

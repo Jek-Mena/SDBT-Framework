@@ -1,6 +1,6 @@
 ﻿public sealed class SelectorNodeKey : IBtNodeKey<BtSelectorNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.Composite.Selector;
+    public static string Alias => BehaviorTreeKeys.Alias.Composite.Selector;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

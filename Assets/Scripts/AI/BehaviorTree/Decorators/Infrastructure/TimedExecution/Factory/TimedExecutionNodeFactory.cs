@@ -16,13 +16,13 @@ public class TimedExecutionNodeFactory<T> : IBtNodeFactory where T : TimedExecut
 
         var data = new TimedExecutionData()
         {
-            Key = $"{_nodeType}:{blackboard.GetHashCode()}",
-            Duration = config.Value<float?>(JsonKeys.TimedExecution.Duration) ?? 1f,
-            StartDelay = config.Value<float?>(JsonKeys.TimedExecution.StartDelay) ?? 0f,
-            Interruptible = config.Value<bool?>(JsonKeys.TimedExecution.Interruptible) ?? true,
-            FailOnInterrupt = config.Value<bool?>(JsonKeys.TimedExecution.FailOnInterrupt) ?? true,
-            ResetOnExit = config.Value<bool?>(JsonKeys.TimedExecution.ResetOnExit) ?? true,
-            mode = config.Value<string>(JsonKeys.TimedExecution.Mode) switch
+            Label = $"{_nodeType}:{blackboard.GetHashCode()}",
+            Duration = config.Value<float?>(TimedExecutionKeys.Json.Duration) ?? 1f,
+            StartDelay = config.Value<float?>(TimedExecutionKeys.Json.StartDelay) ?? 0f,
+            Interruptible = config.Value<bool?>(TimedExecutionKeys.Json.Interruptible) ?? true,
+            FailOnInterrupt = config.Value<bool?>(TimedExecutionKeys.Json.FailOnInterrupt) ?? true,
+            ResetOnExit = config.Value<bool?>(TimedExecutionKeys.Json.ResetOnExit) ?? true,
+            mode = config.Value<string>(TimedExecutionKeys.Json.Mode) switch
             {
                 "Loop" => TimerExecutionMode.Loop,
                 "UntilSuccess" => TimerExecutionMode.UntilSuccess,

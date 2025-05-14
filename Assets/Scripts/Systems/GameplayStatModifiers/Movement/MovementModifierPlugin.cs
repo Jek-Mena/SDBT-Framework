@@ -5,7 +5,6 @@
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-[Plugin(PluginKey.BtNodeModifier_Movement)]
 public class MovementModifierPlugin : BasePlugin
 {
     public override void Apply(GameObject entity, JObject jObject)

@@ -1,6 +1,6 @@
 ﻿public sealed class PauseNodeKey : IBtNodeKey<PauseNodeFactory>
 {
-    public static string Alias => JsonLiterals.Behavior.TimedExecution.Pause;
+    public static string Alias => TimedExecutionKeys.Alias.Pause;
     // This is purely structural glue.
     // It tells the compiler: “This factory is keyed by this unique type.”
     // It's "elegant" in its constraint but verbose in practice.

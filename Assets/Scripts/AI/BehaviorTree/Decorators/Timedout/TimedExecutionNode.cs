@@ -14,9 +14,9 @@ public abstract class TimedExecutionNode : IBehaviorNode
             return BtStatus.Failure;
         }
 
-        var key = string.IsNullOrEmpty(data.Key)
+        var key = string.IsNullOrEmpty(data.Label)
             ? $"TimerNode:{controller.gameObject.GetInstanceID()}"
-            : data.Key;
+            : data.Label;
 
         if (data.Interruptible && blackboard.IsStunned)
         {

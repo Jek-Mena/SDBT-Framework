@@ -10,9 +10,9 @@ public class ImpulseMoverNodeFactory : IBtNodeFactory
 
         // Validate required keys
         JsonUtils.ValidateKeysExist(config,
-            JsonKeys.Impulse.ImpulseStrength,
-            JsonKeys.Impulse.Tolerance,
-            JsonKeys.Impulse.StateTimeout);
+            MovementKeys.Json.ImpulseStrength,
+            MovementKeys.Json.Tolerance,
+            MovementKeys.Json.StateTimeout);
 
         // You could also auto-wire ImpulseMoverData here if you wanted.
         // ^^^^ Refer to the TODO note below.
