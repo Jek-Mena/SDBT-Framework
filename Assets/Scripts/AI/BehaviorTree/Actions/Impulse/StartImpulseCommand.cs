@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class StartImpulseCommand : IGameAction
+public class StartImpulseCommand : IFixedUpdateAction
 {
     private readonly IImpulseNode _dash;
     private readonly Vector3 _direction;

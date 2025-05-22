@@ -1,19 +1,20 @@
 using System;
-using System.Linq;
-using Newtonsoft.Json.Linq;
 
-public class BtParallelNodeFactory : IBtNodeFactory
+public class BtParallelNodeFactory : CompositeNodeFactory<BtParallelNode>
 {
-    public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
+    protected override BtParallelNode CreateNodeInternal(
+        System.Collections.Generic.List<IBehaviorNode> children,
+        TreeNodeData nodeData,
+        Blackboard blackboard
+    )
     {
-        var childrenToken = jObject[CoreKeys.Config];
-        if (childrenToken is not JArray childrenArray || childrenArray.Count == 0)
-            throw new Exception("[BtParallelNodeFactory] 'children' array is missing or empty.");
+        var config = nodeData.Config;
+        var exitCondition = ParallelExitCondition.FirstSuccess;
+        
+        if (config != null && config.TryGetValue(BtNodeFields.Parallel.ExitCondition, out var exitToken) 
+                           && Enum.TryParse(exitToken.ToString(), out ParallelExitCondition parsed))
+            exitCondition = parsed;
 
-        var children = childrenArray.Select(build).ToList();
-        return new BtParallelNode(children);
+        return new BtParallelNode(children, exitCondition);
     }
 }
-
-// TODO: In future, parse config["mode"] and pass into BtParallelNode
-// Currently defaults to ParallelExecutionMode.All

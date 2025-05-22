@@ -30,6 +30,8 @@ public static class CoreKeys
     /// </summary>
     public const string Prefab = "prefab";
 
+    public const string Components = "components";
+
     /// <summary>
     /// JSON field that maps to the plugin ID used for entity components.
     /// 
@@ -56,15 +58,20 @@ public static class CoreKeys
     public const string Params = "params";
 
     /// <summary>
-    /// Primary key used to identify the type of a behavior tree node.
-    /// Used in tree definitions.
+    /// Primary key used to identify the type of a behavior tree node in definitions.
+    /// Synonymous with "btKey"; both are interchangeable.
     /// 
     /// Example:
     /// {
     ///     "type": "Bt/TimeoutDecorator"
+    ///     // or
+    ///     "btKey": "Bt/TimeoutDecorator"
     /// }
     /// </summary>
     public const string Type = "type";
+
+    /// <inheritdoc cref="Type"/>
+    public const string BtKey = "btKey";
 
     /// <summary>
     /// Configuration block passed to a behavior tree node.
@@ -117,7 +124,19 @@ public static class CoreKeys
     /// }
     /// </summary>
 
-    public const string TreeId = "treeId";
+    public const string Tree = "tree";
+
+    /// <summary>
+    /// Defines a reference to a shared config block within the behavior tree setup.
+    /// Used to avoid duplicating parameters across multiple nodes by pointing to a named config inside a plugin (usually BtConfig).
+    ///
+    /// Example:
+    /// {
+    ///     "type": "Bt/MoveTo",
+    ///     "config": { "$ref": "movement" }
+    /// }
+    /// </summary>
+    public const string Ref = "$ref";
 
     /// <summary>
     /// Defines the entry point node of a behavior tree structure.
@@ -138,4 +157,77 @@ public static class CoreKeys
     /// </summary>
     public const string Root = "root";
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public const string Domain = "Domain";
+
+    /// <summary>
+    /// Defines common config block keys used to structure reusable
+    /// parameters inside Plugin/BtConfig. These keys are not type-specific,
+    /// but serve as namespaces for grouped behavior data.
+    ///
+    /// Example:
+    /// {
+    ///     "plugins": [
+    ///         {
+    ///             "type": "Plugin/BtConfig",
+    ///             "params": {
+    ///                 "movement": {
+    ///                     "speed": 3.0,
+    ///                     "acceleration": 4.0
+    ///                 },
+    ///                 "dash": {
+    ///                     "magnitude": 25.0
+    ///                 }
+    ///             }
+    ///         }
+    ///     ],
+    ///     "btTree": {
+    ///         "type": "Bt/MoveTo",
+    ///         "config": { "$ref": "movement" }
+    ///     }
+    /// }
+    /// </summary>
+    public static class ConfigBlock
+    {
+        /// <summary>
+        /// Shared configuration block name for all movement-related parameters.
+        /// Only contains physical movement settings—no targeting logic.
+        /// Used by BT nodes (e.g., MoveTo), movement plugins (e.g., NavMeshMoveToTarget), and any runtime
+        /// system that requires movement tuning.
+        /// 
+        /// Config block structure:
+        /// {
+        ///     "speed": 3.5,
+        ///     "acceleration": 4.0,
+        ///     "angularSpeed": 120.0,
+        ///     "stoppingDistance": 1.2,
+        ///     "updateThreshold": 0.25,
+        ///     ...
+        /// }
+        /// 
+        /// Do not add targeting keys here—keep all target/tag logic in a separate "targeting" config.
+        /// </summary>
+        public const string Movement = "movement";
+
+        /// <summary>
+        /// Shared configuration block name for all targeting parameters.
+        /// Purely defines how an entity selects its target—never how it moves toward it.
+        /// Used by BT nodes (e.g., MoveTo, AttackTarget), targeting plugins, and runtime AI logic.
+        /// 
+        /// Config block structure:
+        /// {
+        ///     "targetTag": "Player",
+        ///     "style": "Closest",    // TargetingStyle enum (Closest, Farthest, LowestHP, etc.)
+        ///     "maxRange": 100,
+        ///     "allowNull": false,
+        ///     // Optional: custom criteria, exclusions, etc. TODO: To be implemented if needed
+        /// }
+        /// 
+        /// Never mix movement keys here.
+        /// Targeting config should be referenced via $ref or directly wherever selection logic is needed.
+        /// </summary>
+        public const string Targeting = "targeting";
+    }
 }

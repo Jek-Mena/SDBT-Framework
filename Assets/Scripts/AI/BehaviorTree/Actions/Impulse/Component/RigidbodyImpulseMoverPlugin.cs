@@ -14,9 +14,9 @@ public class RigidbodyImpulseMoverPlugin : BasePlugin
 
         rbImpulseNode.Initialize(new ImpulseMoverData
         {
-            ImpulseStrength = JsonUtils.RequireFloat(config, MovementKeys.Json.ImpulseStrength, context),
-            Tolerance = JsonUtils.RequireFloat(config, MovementKeys.Json.Tolerance, context),
-            StateTimeout= JsonUtils.RequireFloat(config, MovementKeys.Json.StateTimeout, context)
+            ImpulseStrength = JsonUtils.RequireFloat(config, BtConfigFields.Impulse.Strength, context),
+            Tolerance = JsonUtils.RequireFloat(config, BtConfigFields.Impulse.Tolerance, context),
+            StateTimeout= JsonUtils.RequireFloat(config, BtConfigFields.Impulse.StateTimeout, context)
         });
     }
 }

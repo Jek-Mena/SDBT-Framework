@@ -1,33 +1,42 @@
-using System;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
 
 public class TimeoutDecoratorNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
-        // 1. Build child node
-        var childToken = jObject[CoreKeys.Children];
-        if (childToken == null)
-            throw new Exception("[TimeoutNodeFactory] Missing 'children' block in Timeout node.");
-
-        var childNode = build(childToken);
-
         var context = nameof(TimeoutDecoratorNodeFactory);
-        // 2. Parse config
-        var config = JsonUtils.GetConfig(jObject, context);
 
-        // 3. Key Logic: required or fallback 
-        var key = TimerKeyBuilder.Build(config, TimedExecutionKeys.Alias.TimeoutDecorator, blackboard, context);
+        // === Extract config ===
+        var config = nodeData.Config;
+        if (config == null)
+            throw new Exception($"[{context}] Missing 'config' for TimeoutDecorator node.");
 
-        // TODO: Optional flags if you want to extend TimeoutNode later.
-        // These are not working and need to use the current implementation.
-        // var interruptible = config.Value<bool?>("interruptible") ?? true;
-        // var failOnInterrupt = config.Value<bool?>("failOnInterrupt") ?? false;
+        if (config.TryGetValue(CoreKeys.Ref, out _))
+            config = BtConfigResolver.Resolve(nodeData.Raw, blackboard, context);
 
-        // Duration (fail-fast)
-        var duration = JsonUtils.RequireFloat(config, TimedExecutionKeys.Json.Duration, context);
+        // === Extract data ===
+        var timedData = TimedExecutionDataBuilder.FromConfig(config, context);
+
+        // === Validate children (0 or 1 allowed) ===
+        var children = nodeData.Children?
+            .Select(childToken => buildChildNode(new TreeNodeData((JObject)childToken)))
+            .ToList() ?? new();
+
+        if (children.Count > 1)
+            throw new Exception($"[{context}] TimeoutDecorator must have 0 or 1 child. Found: {children.Count}");
+
+        var childNode = children.FirstOrDefault();
+
+        // === Get timer system from blackboard ===
+        var timer = blackboard.TimeExecutionManager;
+        if (!timer)
+            throw new Exception($"[{context}] TimeExecutionManager not found in blackboard. Did you forget the plugin/context builder?");
+
+        var node = new TimeoutDecoratorNode(childNode, timedData);
+        node.Initialize(blackboard);
         
-        // Construct the timeout decorator node
-        return new TimeoutDecoratorNode(childNode, duration, blackboard.TimedExecutionLogic, key);
+        return node;
     }
 }

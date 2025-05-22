@@ -3,20 +3,16 @@ using Newtonsoft.Json.Linq;
 
 public class ImpulseMoverNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> _)
     {
-        // Validate and extract config
-        var config = JsonUtils.GetConfig(jObject, nameof(ImpulseMoverNodeFactory));
+        // This node does not need config, but we COULD enforce it if you want per-node overrides later.
+        // For now, leave logic injection to the plugin as discussed.
 
-        // Validate required keys
-        JsonUtils.ValidateKeysExist(config,
-            MovementKeys.Json.ImpulseStrength,
-            MovementKeys.Json.Tolerance,
-            MovementKeys.Json.StateTimeout);
+        // Optional: You can add a fail-fast check if desired
+        if (blackboard.ImpulseLogic == null)
+            throw new Exception("[ImpulseMoverNodeFactory] ImpulseLogic was not injected into the blackboard. Add the relevant plugin.");
 
-        // You could also auto-wire ImpulseMoverData here if you wanted.
-        // ^^^^ Refer to the TODO note below.
-        return new ImpulseMoverNode(); // No children — it’s a leaf node
+        return new ImpulseMoverNode();
     }
 }
 

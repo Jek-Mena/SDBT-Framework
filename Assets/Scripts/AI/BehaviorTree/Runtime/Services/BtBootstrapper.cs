@@ -1,46 +1,49 @@
 ﻿using UnityEngine;
 
-public static class BtBootStrapper
+public static class BtBootstrapper
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void Initialize()
     {
+        // Initializes the Behavior Tree system by setting up default nodes,
+        // configuring the context builder, and registering plugins for various phases.
         BtNodeRegistry.InitializeDefaults();
         // BtNodeRegistry.PrintRegisteredNodes();
 
-        // 🔧 Create modular builder and register context modules
-        var modularContextBuilder = new ModularContextBuilder();
-
-        modularContextBuilder.RegisterModule(
-            new GenericBlackboardBinder<
-                NavMeshMoveToTarget,
-                MovementSettings,
-                MovementSettingsModifierProvider>(
-                providerKey: BlackboardKeys.Movement.ProviderKey,
-                staticFieldBinder: (bb, comp) => bb.MovementLogic = comp
-            ));
+        // Initialize the blackboard builder and assign it to the context builder.
+        var btBlackboardBuilder = new BtBlackboardBuilder();
         
-        modularContextBuilder.RegisterModule(new DefaultTargetContextBuilder());        // Defaults to "Player" tag
-        modularContextBuilder.RegisterModule(new TimedExecutionContextBuilder());       // wires timer system
+        // Assigns the blackboard builder instance to the Behavior Tree context,
+        // enabling the construction and management of shared data across nodes.
+        BtServices.ContextBuilder = btBlackboardBuilder;
 
-        BtServices.ContextBuilder = modularContextBuilder;
-
-        // 1) Must run BEFORE loading the tree so that NavMeshMover.Initialize(...) happens
-        PluginMetadataStore.Register<BtLoadTreePlugin>(
-            pluginKey: BehaviorTreeKeys.Plugin.BtLoadTree,
-            schemaKey: BehaviorTreeKeys.Schema.BtLoadTree,
+        PluginMetadataStore.Register<ConfigPlugin>(
+            pluginKey: PluginMetaKeys.Core.BtConfig.Plugin,
+            schemaKey: PluginMetaKeys.Core.BtConfig.Schema,
             phase: PluginExecutionPhase.Context
         );
 
+        PluginMetadataStore.Register<BtLoadTreePlugin>(
+            pluginKey: PluginMetaKeys.Core.BtLoadTree.Plugin,
+            schemaKey: PluginMetaKeys.Core.BtLoadTree.Schema,
+            phase: PluginExecutionPhase.BtExecution
+        );
+
         PluginMetadataStore.Register<NavMeshMoveToTargetPlugin>(
-            pluginKey: MovementKeys.Plugin.NavMeshMoveToTarget,
-            schemaKey: MovementKeys.Schema.NavMeshMoveToTarget,
+            pluginKey: PluginMetaKeys.Movement.NavMeshMoveToTarget.Plugin,
+            schemaKey: PluginMetaKeys.Movement.NavMeshMoveToTarget.Schema,
+            phase: PluginExecutionPhase.Context
+        );
+
+        PluginMetadataStore.Register<TargetingPlugin>(
+            pluginKey: PluginMetaKeys.Targeting.Plugin,
+            schemaKey: PluginMetaKeys.Targeting.Schema,
             phase: PluginExecutionPhase.Context
         );
 
         PluginMetadataStore.Register<PauseNodePlugin>(
-            pluginKey: TimedExecutionKeys.Plugin.Pause,
-            schemaKey: TimedExecutionKeys.Schema.Pause,
+            pluginKey: PluginMetaKeys.TimedExecution.Pause.Plugin,
+            schemaKey: PluginMetaKeys.TimedExecution.Pause.Schema,
             phase: PluginExecutionPhase.TimedExecution
         );
 

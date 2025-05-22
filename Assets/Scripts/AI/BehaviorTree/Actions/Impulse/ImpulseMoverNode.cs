@@ -1,11 +1,8 @@
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
-
 public class ImpulseMoverNode : IBehaviorNode
 {
-    public BtStatus Tick(BtController controller)
+    public BtStatus Tick(BtContext context)
     {
-        var blackBoard = controller.Blackboard;
+        var blackBoard = context.Blackboard;
 
         if (blackBoard.ImpulseLogic == null)
             return BtStatus.Failure;

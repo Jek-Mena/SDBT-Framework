@@ -2,84 +2,75 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Explicit registration of Behavior Tree node keys and their corresponding factories.
-/// Provides type-safe mappings from alias strings to node key types and factories used during BT deserialization.
-///
-/// This avoids reflection-based discovery (e.g., [BtNode("...")]) in favor of fail-fast, compile-time-safe registration.
-/// While this requires manual updates, it ensures high clarity, IDE navigation, and safer renaming/refactoring.
-///
-/// TODO:
-/// - Add Reg<TFactory, TKey>() helper to reduce repetitive (typeof, new) boilerplate in GetAll().
-///   Example: Reg<MoveNodeFactory, MoveToNodeKey>() instead of (typeof(MoveToNodeKey), new MoveNodeFactory()).
-///
-/// - Group registrations by domain to improve readability and maintainability:
-///     - GetActionNodes()
-///     - GetDecoratorNodes()
-///     - GetTimedExecutionNodes()
-///     - GetCompositeNodes()
-///   Combine them in GetAll() via .Concat(). This allows easier batching, testing, and modular development.
-///
-/// - Consider adding Alias<TKey>() helper to reduce alias map verbosity:
-///     - Instead of: { MoveToNodeKey.Alias, typeof(MoveToNodeKey) }
-///     - Use: Alias<MoveToNodeKey>(MoveToNodeKey.Alias)
-///
-/// - Optionally automate AliasToKeyMap construction from a shared key registry later, if node count grows significantly.
-///
-/// - Maintain alphabetical or domain-based grouping for both GetAll() and AliasToKeyMap entries.
+/// Provides a centralized registry for behavior tree node factories and their associated aliases.
+/// This class facilitates the registration and retrieval of behavior tree node factories,
+/// enabling dynamic creation of behavior tree nodes at runtime.
 /// </summary>
 public static class BtNodeRegistrationList
 {
     /// <summary>
-    /// From alias string -> key type -> factory.
-    /// List of all node key/factory registrations.
-    /// Used by BtNodeRegistry to build the factory map.
+    /// Registers a behavior tree node factory with a specified alias.
     /// </summary>
-    public static IEnumerable<(Type keyType, IBtNodeFactory factory)> GetAll()
+    /// <typeparam name="TFactory">
+    /// The type of the factory to register. Must implement <see cref="IBtNodeFactory"/> and have a parameterless constructor.
+    /// </typeparam>
+    /// <param name="alias">
+    /// The alias to associate with the factory. This alias is used to identify the factory during retrieval.
+    /// </param>
+    /// <returns>
+    /// A tuple containing the alias and an instance of the registered factory.
+    /// </returns>
+    private static (string alias, IBtNodeFactory factory) Register<TFactory>(string alias)
+        where TFactory : IBtNodeFactory, new() => (alias, new TFactory());
+
+    /// <summary>
+    /// Retrieves all registered behavior tree node factories along with their associated aliases.
+    /// </summary>
+    /// <returns>
+    /// <description><c>factory</c>: An instance of <see cref="IBtNodeFactory"/> representing the factory for the behavior tree node.</description>
+    /// </returns>
+    public static IEnumerable<(string alias, IBtNodeFactory factory)> GetAll()
     {
-        return new (Type, IBtNodeFactory)[]
+        return new[]
         {
-            // Actions
-            (typeof(MoveToTargetNodeKey), new MoveToTargetNodeFactory()),
-            (typeof(ImpulseMoverNodeKey), new ImpulseMoverNodeFactory()),
+            // Movement
+            Register<MoveToTargetNodeFactory>(BtNodeAliases.Movement.MoveToTarget),
+            Register<ImpulseMoverNodeFactory>(BtNodeAliases.Movement.ImpulseMover),
             
             // Timed Execution
-            (typeof(PauseNodeKey), new PauseNodeFactory()),
+            Register<BtPauseNodeFactory>(BtNodeAliases.TimedExecution.Pause),
             
             // Decorators
-            (typeof(TimeoutDecoratorNodeKey), new TimeoutDecoratorNodeFactory()),
-            (typeof(RepeaterNodeKey), new BtRepeaterNodeFactory()),
-
+            Register<TimeoutDecoratorNodeFactory>(BtNodeAliases.Decorators.Timeout),
+            Register<BtRepeaterNodeFactory>(BtNodeAliases.Decorators.Repeater),
+            
             // Composite
-            (typeof(SequenceNodeKey), new BtSequenceNodeFactory()),
-            (typeof(ParallelNodeKey), new BtParallelNodeFactory()),
-            (typeof(SelectorNodeKey), new BtSelectorNodeFactory()),
-
+            Register<BtSequenceNodeFactory>(BtNodeAliases.Composite.Sequence),
+            Register<BtParallelNodeFactory>(BtNodeAliases.Composite.Parallel),
+            Register<BtSelectorNodeFactory>(BtNodeAliases.Composite.Selector)
+            
             // Add more here
         };
     }
 
-    /// <summary>
-    /// Maps string aliases (used in JSON) to node key types.
-    /// Used for alias-based factory lookup at runtime.
-    /// </summary>
-    public static Dictionary<string, Type> AliasToKeyMap = new()
+    // Maps aliases to their corresponding factory types for quick lookup.
+    public static readonly Dictionary<string, Type> AliasToKeyMap = new()
     {
-        // Actions
-        { MoveToTargetNodeKey.Alias, typeof(MoveToTargetNodeKey) },
-        { ImpulseMoverNodeKey.Alias, typeof(ImpulseMoverNodeKey) },
-
+        // Movement
+        { BtNodeAliases.Movement.MoveToTarget, typeof(MoveToTargetNodeFactory) },
+        { BtNodeAliases.Movement.ImpulseMover, typeof(ImpulseMoverNodeFactory) },
+        
         // Timed Execution
-        { PauseNodeKey.Alias, typeof(PauseNodeKey) },
-
+        { BtNodeAliases.TimedExecution.Pause, typeof(BtPauseNodeFactory) },
+        
         // Decorators
-        { TimeoutDecoratorNodeKey.Alias, typeof(TimeoutDecoratorNodeKey) },
-        { RepeaterNodeKey.Alias, typeof(RepeaterNodeKey) },
-
+        { BtNodeAliases.Decorators.Timeout, typeof(TimeoutDecoratorNodeFactory) },
+        { BtNodeAliases.Decorators.Repeater, typeof(BtRepeaterNodeFactory) },
+        
         // Composite
-        { SequenceNodeKey.Alias, typeof(SequenceNodeKey) },
-        { ParallelNodeKey.Alias, typeof(ParallelNodeKey) },
-        { SelectorNodeKey.Alias, typeof(SelectorNodeKey) },
-
-        // Add more here
+        { BtNodeAliases.Composite.Sequence, typeof(BtSequenceNodeFactory) },
+        { BtNodeAliases.Composite.Parallel, typeof(BtParallelNodeFactory) },
+        { BtNodeAliases.Composite.Selector, typeof(BtSelectorNodeFactory) },
     };
+
 }

@@ -5,7 +5,9 @@ using UnityEngine;
 
 public interface IMovementNode
 {
+    void ApplySettings(MovementData data);
     bool TryMoveTo(Vector3 destination);
-    void Stop();
+    void StopAgent();
+    void StartAgent();
     bool IsAtDestination();
 }

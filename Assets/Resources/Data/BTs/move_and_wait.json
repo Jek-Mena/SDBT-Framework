@@ -1,36 +1,37 @@
 {
   "root": {
     "type": "Bt/Repeater",
-    "child": {
-      "type": "Bt/Sequence",
-      "children": [
-		{
-		  "type": "Bt/Parallel",
-		  "mode": "Any",
-		  "children": [
-			{
-			  "type": "Bt/MoveTo",
-			  "config": {
-				"target": "Player",
-				"speed": 3.0,
-				"angularSpeed": 150.0,
-				"acceleration": 3.0,
-				"stoppingDistance": 0.5,
-				"updateThreshold": 0.25
-			  }
-			},
-			{
-			  "type": "Bt/Timeout",
-			  "config": {
-				"duration": 2.0
-			  }
+    "children": [
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          {
+            "type": "Bt/Parallel",
+            "config": { "exitCondition": "FirstSuccess" },
+            "children": [
+              {
+                "type": "Bt/TimeoutDecorator",
+                "config": {
+                  "label": "MoveTimeout",
+                  "duration": { "$ref": "timing.moveDuration" }
+                }
+              },
+              {
+                "type": "Bt/MoveToTarget",
+                "config": { "$ref": "movement" }
+              }
+            ]
+          },
+          {
+            "type": "Bt/Pause",
+            "config": {
+			  "label": "PauseAfterMove",
+              "duration": { "$ref": "timing.pauseDuration" },
+			  "domains": ["Domain/Movement"]
 			}
-		  ]
-		},
-        {
-          "type": "Bt/Pause"
-        }
-      ]
-    }
+          }
+        ]
+      }
+    ]
   }
 }

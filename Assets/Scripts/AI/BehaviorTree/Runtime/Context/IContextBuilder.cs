@@ -13,11 +13,30 @@
 public interface IContextBuilder
 {
     /// <summary>
-    /// Creates and returns a fully-initialized blackboard for the provided entity.
-    /// This method is responsible for coordinating all IContextBuilderModules.
+    /// Builds and returns a fully-initialized blackboard for the provided GameObject entity.
+    /// This method should run all registered IContextBuilderModules in order.
     /// </summary>
     Blackboard Build(GameObject entity);
+
+    /// <summary>
+    /// Registers a context builder module to run at the end of the build pipeline.
+    /// Modules are executed in registration order unless reordered.
+    /// </summary>
+    void RegisterModule(IContextBuilderModule module);
+
+    /// <summary>
+    /// Inserts a module at the beginning of the build pipeline.
+    /// Used for core dependencies like config injection that must happen early.
+    /// </summary>
+    void InsertModuleAtStart(IContextBuilderModule module);
+
+    /// <summary>
+    /// Creates a deep copy of the builder and its registered modules.
+    /// Used to fork context builders for per-entity customization.
+    /// </summary>
+    IContextBuilder Clone();
 }
+
 
 /*
    ┌────────────────────┐

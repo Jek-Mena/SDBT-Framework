@@ -1,0 +1,46 @@
+{
+  "entityId": "enemy_standard_laghound",
+  "prefab": "Prefabs/Enemy/Standard/enemy_standard_chaser",
+  "components": [
+    {
+      "plugin": "Plugin/BtConfig",
+      "params": {
+        "targeting": {
+          "targetTag": "Player",
+          "targetingStyle": "Closest",
+          "blackboardKey": "ChaseTarget",
+          "maxRange": 100,
+          "activationRange": 10,
+          "minRange": 2,
+          "fallOffRange": 120,
+          "searchRange": 200
+        },
+        "movement": {
+          "profileKey": "ChaserMovement",
+          "speed": 3.0,
+          "acceleration": 3.0,
+          "stoppingDistance": 0.5,
+          "angularSpeed": 150.0,
+          "updateThreshold": 0.25
+        },
+		"timing": {
+		  "moveDuration": 5.0,
+		  "pauseDuration": 5.0
+		}
+      }
+    },
+    {
+      "plugin": "Plugin/BtLoadTree",
+      "params": { "tree": "move_and_wait" }
+    },
+    {
+      "plugin": "Plugin/NavMeshMoveToTarget"
+    },
+	{ 
+	  "plugin": "Plugin/Pause" 
+	},
+	{ 
+	  "plugin": "Plugin/Targeting" 
+	}
+  ]
+}

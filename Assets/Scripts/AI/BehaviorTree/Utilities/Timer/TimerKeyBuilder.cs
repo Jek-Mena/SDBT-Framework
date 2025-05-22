@@ -10,7 +10,7 @@ public static class TimerKeyBuilder
     /// </summary>
     public static string Build(JObject config, string defaultPrefix, Blackboard blackboard, string context)
     {
-        var raw = config.Value<string>(TimedExecutionKeys.Json.Label);
+        var raw = JsonUtils.RequireString(config, BtConfigFields.Common.Label, context);
 
         if (!string.IsNullOrWhiteSpace(raw))
         {

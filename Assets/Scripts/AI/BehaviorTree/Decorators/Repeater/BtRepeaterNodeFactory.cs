@@ -3,18 +3,27 @@ using Newtonsoft.Json.Linq;
 
 public class BtRepeaterNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
-        var childToken = jObject[CoreKeys.Child];
+        var context = nameof(BtRepeaterNodeFactory);
 
-        if (childToken == null)
-            throw new Exception("[BtRepeaterNodeFactory] 'child' field required.");
+        // Support single child as "children" array (standard BT schema)
+        if (nodeData.Children == null || nodeData.Children.Count != 1)
+            throw new Exception($"[{context}] 'children' array with 1 element is required.");
 
-        var child = build(childToken);
+        var childNode = buildChildNode(new TreeNodeData((JObject)nodeData.Children.First));
 
-        var config = JsonUtils.GetConfig(jObject, nameof(BtRepeaterNodeFactory));
-        var maxRepeats = config.Value<int?>(BehaviorTreeKeys.Json.Node.MaxRepeats) ?? -1;
+        var config = nodeData.Config;
+        var maxRepeats = -1;
 
-        return new BtRepeaterNode(child, maxRepeats);
+        if (config != null)
+        {
+            if (config.TryGetValue(CoreKeys.Ref, out _))
+                config = BtConfigResolver.Resolve(nodeData.Raw, blackboard, context);
+
+            maxRepeats = JsonUtils.GetIntOrDefault(config, BtNodeFields.Repeater.MaxRepeats, -1, context);
+        }
+
+        return new BtRepeaterNode(childNode, maxRepeats);
     }
 }

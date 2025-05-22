@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Linq;
 using UnityEngine;
 
 public class EntitySpawner : MonoBehaviour
@@ -9,54 +10,76 @@ public class EntitySpawner : MonoBehaviour
     private void Start()
     {
         // 1) Load the entity definition
-        var entityData = _entityLoader.Load("Data/Units/Enemies/Standard/enemy_standard_chaser");
+        var entityData = _entityLoader.Load("Data/Units/Enemies/Standard/enemy_standard_laghound");
         var prefab = Resources.Load<GameObject>(entityData.Prefab);
 
-        if (prefab == null)
+        if (!prefab)
         {
             Debug.LogError($"Prefab not found for '{entityData.Prefab}'");
             return;
         }
+        var entity = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
+        Debug.Log($"'{entity.name}' successfully spawned.");
 
-        // 2) Instantiate at your designated spawnPoint
-        var go = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
-        if (go == null)
+        // 2) Build components array and root JSON for plugins
+        var compsArray = new JArray(
+            entityData.Components.Select(comp =>
+                new JObject
+                {
+                    [CoreKeys.Plugin] = comp.PluginKey,
+                    [CoreKeys.Params] = comp.@params ?? new JObject()
+                }
+            )
+        );
+        var rootJson = new JObject { [CoreKeys.Components] = compsArray };
+
+        // 3) Extract BtConfig from plugin list
+        var configComponent = compsArray
+            .OfType<JObject>()
+            .FirstOrDefault(c => c[CoreKeys.Plugin]?.ToString() == PluginMetaKeys.Core.BtConfig.Plugin);
+
+        if (configComponent == null)
         {
-            Debug.LogError($"Failed to spawn '{prefab.name}'.");
+            Debug.LogError("[EntitySpawner] BtConfig plugin not found in components. You must include a Plugin/BtConfig entry.");
             return;
         }
-        Debug.Log($"'{go.name}' successfully spawned.");
 
-        // 3) Build a root JObject mapping each component key to its params
-        var configRoot = new JObject();
-        foreach (var comp in entityData.Components)
+        var configParams = configComponent[CoreKeys.Params] as JObject;
+        if (configParams == null)
         {
-            var key = comp.PluginKey;
-            var parameters = comp.@params ?? new JObject();
-            configRoot.Add(key, parameters);
+            Debug.LogError("[EntitySpawner] BtConfig plugin found, but Params block is missing or invalid.");
+            return;
         }
 
-        // 4) Apply all plugins in the correct order
-        BtLoader.ApplyAll(go, configRoot);
+        var configData = new ConfigData { RawJson = configParams };
+
+        // 5) Create context builder with injected BtConfig
+        var contextBuilder = ContextBuilderFactory.CreateWithBtConfig(configData);
+
+        // 6) Build blackboard + wire runtime context (BtController will receive it)
+        contextBuilder.Build(entity);
+        
+        // 7.) Apply all plugins in the correct order
+        BtLoader.ApplyAll(entity, rootJson);
     }
 }
 
 /*
-[EntitySpawner]
-       ↓
-[BtLoader.ApplyAll]
-       ↓
-[ContextBuilder.Build] — builds blackboard
-       ↓
-[Each ContextModule] — injects logic + targeting
-       ↓
-[Each Plugin] — applies runtime config to logic components
-       ↓
-[BT Tree Built] — factories create nodes
-       ↓
-[BtController.Update()] — ticks nodes
-       ↓
-[Nodes Use Blackboard] — call logic systems
-       ↓
-[Runtime Behavior] — entity moves, reacts, etc.
+Bootstrapper (scene load)
+    ↓
+Registers factories, plugins, context modules (BtServices.ContextBuilder)
+    ↓
+EntitySpawner: Start()
+    ↓
+Instantiate prefab
+    ↓
+Create/assign Blackboard to BtController
+    ↓
+Inject BtConfig into Blackboard from JSON
+    ↓
+ModularContextBuilder.Build(go) // context modules wire up blackboard (TargetingData, Movement, etc)
+    ↓
+BtLoader.ApplyAll(go, root) // plugins applied, BT loaded and assigned
+    ↓
+Game loop: BtController.Update()
 */

@@ -6,30 +6,19 @@ using UnityEngine;
 
 public static class BtLoader
 {
-    private const string TreePathPrefix = "Data/BTs/";
-
-    public static JToken LoadJsonTreeBtId(string treeId)
-    {
-        var asset = Resources.Load<TextAsset>($"{TreePathPrefix}{treeId}");
-        if (asset == null)
-            throw new Exception($"BT tree JSON not found at: Resources/{TreePathPrefix}{treeId}.json");
-
-        return JToken.Parse(asset.text);
-    }
-
     public static void ApplyAll(GameObject entity, JObject jObject)
     {
         var controller = entity.RequireComponent<BtController>();
 
-        // Ensure blackboard is built BEFORE running any plugins
+        // Ensure blackboard exist BEFORE running any plugins
         if (controller.Blackboard == null)
+            throw new System.Exception($"[BtLoader] Blackboard missing on '{entity.name}' when applying plugins. You must build context before calling ApplyAll.");
+        
+        var components = jObject[CoreKeys.Components] as JArray;
+        if (components == null)
         {
-            BtServices.ContextBuilder?.Build(entity);
-            if (controller.Blackboard == null)
-            {
-                Debug.LogError($"[BtLoader] ContextBuilder failed to build blackboard for {entity.name}.");
-                return;
-            }
+            Debug.LogError($"[BtLoader] No '{CoreKeys.Components}' array found in {entity.name}.");
+            return;
         }
 
         // Group plugins by phase and sort phases
@@ -47,17 +36,19 @@ public static class BtLoader
 
             foreach (var meta in sorted)
             {
-                var config = JsonUtils.GetConfig(jObject, nameof(BtLoader));
+                var matchingComponent = components
+                    .OfType<JObject>()
+                    .FirstOrDefault(c => c[CoreKeys.Plugin]?.ToString() == meta.PluginKey);
 
-                var pluginKey = meta.PluginKey;
-                if (!config.TryGetValue(pluginKey, out var pluginParams))
+                if (matchingComponent == null)
                 {
-                    Debug.LogError($"[BtLoader] Missing config for plugin '{pluginKey}'.");
-                    throw new Exception($"[BtLoader] Missing config for plugin '{pluginKey}'.");
+                    Debug.LogError($"[BtLoader] Missing plugin! '{meta.PluginKey}' — not present in 'components' list.");
+                    continue;
                 }
 
+                var pluginParams = matchingComponent[CoreKeys.Params] as JObject ?? new JObject();
                 var plugin = (BasePlugin)Activator.CreateInstance(meta.PluginType);
-                plugin.Apply(entity, pluginParams as JObject);
+                plugin.Apply(entity, pluginParams);
             }
         }
     }

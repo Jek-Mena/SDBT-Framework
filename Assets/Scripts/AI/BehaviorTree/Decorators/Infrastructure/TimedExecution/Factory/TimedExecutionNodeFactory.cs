@@ -1,37 +1,49 @@
-using Newtonsoft.Json.Linq;
 using System;
 
-public class TimedExecutionNodeFactory<T> : IBtNodeFactory where T : TimedExecutionNode, new()
+public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBehaviorNode
 {
-    private readonly string _nodeType;
+    private readonly string _alias;
 
-    public TimedExecutionNodeFactory(string nodeType)
+    protected TimedExecutionNodeFactory(string alias)
     {
-        _nodeType = nodeType;
+        _alias = alias;
     }
 
-    public IBehaviorNode CreateNode(JObject jObject, Blackboard blackboard, Func<JToken, IBehaviorNode> build)
+    public virtual IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
-        var config = JsonUtils.GetConfig(jObject, nameof(TimedExecutionNodeFactory<T>));
+        var timeData = BuildTimedExecutionData(nodeData, blackboard);
 
-        var data = new TimedExecutionData()
+        // Instantiate the node (expects a TNode(TimedExecutionData) constructor)
+        var node = (IBehaviorNode)Activator.CreateInstance(typeof(TNode), timeData);
+
+        if (node is TimedExecutionNode timedNode)
+            timedNode.Initialize(blackboard);
+
+        blackboard.TimerData = timeData;
+        return node;
+    }
+
+    protected TimedExecutionData BuildTimedExecutionData(TreeNodeData nodeData, Blackboard blackboard)
+    {
+        var context = typeof(TNode).Name;
+        var config = nodeData.Config;
+
+        return new TimedExecutionData()
         {
-            Label = $"{_nodeType}:{blackboard.GetHashCode()}",
-            Duration = config.Value<float?>(TimedExecutionKeys.Json.Duration) ?? 1f,
-            StartDelay = config.Value<float?>(TimedExecutionKeys.Json.StartDelay) ?? 0f,
-            Interruptible = config.Value<bool?>(TimedExecutionKeys.Json.Interruptible) ?? true,
-            FailOnInterrupt = config.Value<bool?>(TimedExecutionKeys.Json.FailOnInterrupt) ?? true,
-            ResetOnExit = config.Value<bool?>(TimedExecutionKeys.Json.ResetOnExit) ?? true,
-            mode = config.Value<string>(TimedExecutionKeys.Json.Mode) switch
+            Label = $"{_alias}:{blackboard.GetHashCode()}",
+            Duration = JsonUtils.GetFloatOrDefault(config, BtConfigFields.Common.Duration, 1f, context),
+            StartDelay = JsonUtils.GetFloatOrDefault(config, BtConfigFields.Common.StartDelay, 0f, context),
+            Interruptible = JsonUtils.GetBoolOrDefault(config, BtConfigFields.Common.Interruptible, true, context),
+            FailOnInterrupt =
+                JsonUtils.GetBoolOrDefault(config, BtConfigFields.Common.FailOnInterrupt, true, context),
+            ResetOnExit = JsonUtils.GetBoolOrDefault(config, BtConfigFields.Common.ResetOnExit, true, context),
+            Mode = config.Value<string>(BtConfigFields.Common.Mode) switch
             {
-                "Loop" => TimerExecutionMode.Loop,
-                "UntilSuccess" => TimerExecutionMode.UntilSuccess,
-                "UntilFailure" => TimerExecutionMode.UntilFailure,
-                _ => TimerExecutionMode.Normal
+                "Loop" => TimeExecutionMode.Loop,
+                "UntilSuccess" => TimeExecutionMode.UntilSuccess,
+                "UntilFailure" => TimeExecutionMode.UntilFailure,
+                _ => TimeExecutionMode.Normal
             }
         };
-
-        blackboard.TimerData = data;
-        return new T();
     }
 }

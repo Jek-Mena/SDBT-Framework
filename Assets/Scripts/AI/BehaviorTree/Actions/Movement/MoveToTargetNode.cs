@@ -1,28 +1,56 @@
-﻿// MoveNode (Behavior Tree)
+﻿using UnityEngine;
+// MoveNode (Behavior Tree)
 // • What it does: Says “Move to that position.”
 // • What it should not do: Decide how often to update destination, or whether it's “close enough.”
 public class MoveToTargetNode : IBehaviorNode
 {
-    // Intent in -> Tick -> Status out.
-    public BtStatus Tick(BtController controller)
-    {
-        var blackboard = controller.Blackboard;
-        var movementLogic = blackboard.MovementLogic;
-        var target = blackboard.Target;
+    private readonly MovementData _movementData;
+    private readonly string _targetKey; 
 
+    public MoveToTargetNode(MovementData movementData)
+    {
+        _movementData = movementData;
+    }
+
+    // Intent in -> Tick -> Status out.
+    public BtStatus Tick(BtContext context)
+    {
+        var controller = context.Controller;
+        if (!controller)
+        {
+            Debug.LogError("[MoveToTargetNode] Controller is missing from BtController");
+            return BtStatus.Failure;
+        }
+        
+        var blackboard = controller.Blackboard;
+        if (blackboard  == null)
+        {
+            Debug.LogError("[MoveToTargetNode] Blackboard is missing from BtController");
+            return BtStatus.Failure;
+        }
+
+        // Pull TargetingData at runtime; supports BT runtime swap, etc.
+        var targetingData = blackboard.TargetingData;
+        if (targetingData == null)
+        {
+            Debug.LogError("[MoveToTargetNode] TargetingData is missing from blackboard.");
+            return BtStatus.Failure;
+        }
+
+        var resolver = blackboard.TargetResolver ?? TargetResolverRegistry.Get(targetingData.Style);
+        var target = resolver.ResolveTarget(controller.gameObject, targetingData);
+
+        var movementLogic = blackboard.MovementLogic;
         if (movementLogic == null)
         {
-            UnityEngine.Debug.Log($"[MoveToTargetNode] movementLogic: {movementLogic}");
+            Debug.LogError("[MoveToTargetNode] movementLogic: null");
             return BtStatus.Failure;
         }
 
-        if (target == null)
-        {
-            UnityEngine.Debug.Log($"[MoveToTargetNode] target: {target}");
-            return BtStatus.Failure;
-        }
+        // Optionally: Configure movement logic with this node’s settings
+        movementLogic.ApplySettings(_movementData);
 
-        UnityEngine.Debug.Log($"[MoveToTargetNode] Tick — MovementLogic: {movementLogic}, Target: {target}");
+        
         var canMove = blackboard.MovementLogic.TryMoveTo(target.position);
 
         if (!canMove)

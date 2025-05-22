@@ -1,0 +1,116 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+/// <summary>
+/// Manages the application, removal, and tracking of status effects within the game.
+/// </summary>
+/// <remarks>
+/// This class is responsible for maintaining a list of active status effects and ensuring their proper application and removal.
+/// It also provides mechanisms to notify other systems when domains are blocked or unblocked due to status effects.
+/// </remarks>
+public class StatusEffectManager : MonoBehaviour, IBlocker
+{
+    // Called when a new domain block is applied
+    public event Action<string> DomainBlocked;
+    // Called when a domain in unblocked (effect removed)
+    public event Action<string> DomainUnblocked;
+
+    // Tracks all currently active status effects
+    private List<StatusEffect> _activeEffects = new();
+
+    // Retrieves all currently active status effects
+    public IEnumerable<StatusEffect> GetActiveEffects() => _activeEffects;
+    
+    // Removes inactive status effects at the end of the frame
+    private void LateUpdate()
+    {
+        var expired = _activeEffects.Where(e => !e.IsActive()).ToList();
+
+        foreach (var effect in expired)
+        {
+            RemoveEffects(effect);
+        }
+    }
+
+    // Applies a new status effect to the manager.
+    // This adds the effect to the active list and triggers any relevant domain block events.
+    public void ApplyEffect(StatusEffect effect)
+    {
+        _activeEffects.Add(effect);
+        foreach (var domain in effect.Domains)
+        {
+            if(IsFirstBlock(domain))
+                DomainBlocked.Invoke(domain);
+        }
+        // TODO: Handle stacking, priority, expiry, etc. (reuse ModifierMeta/Stack pattern)
+    }
+    
+    // Removes a specific status effect from the manager
+    public void RemoveEffects(StatusEffect effect)
+    {
+        _activeEffects.Remove(effect);
+        foreach (var domain in effect.Domains)
+        {
+            if (!IsBlocked(domain))
+                DomainUnblocked.Invoke(domain);
+        }
+
+    }
+    // Checks if this is the first time the given domain is being blocked.
+    // Returns true if no other active effects are already blocking the domain; otherwise, returns false.
+    private bool IsFirstBlock(string domain)
+    {
+        var count = 0;
+        foreach (var effect in _activeEffects)
+        {
+            if (effect.IsActive() && effect.AffectsDomain(domain))
+                count++;
+            
+        }
+        // 0 before add, 1 after (this is first)
+        return count == 1;
+    }
+    
+    // Checks if the specified domain is currently blocked by any active status effect.
+    // Iterates through all active effects to determine if any affect the given domain
+    // and are still active. Returns true if a match is found; otherwise, returns false.
+    public bool IsBlocked(string domain)
+    {
+        foreach (var effect in _activeEffects)
+        {
+            if (effect.AffectsDomain(domain) && effect.IsActive())
+                return true;
+        }
+
+        return false;
+    }
+    
+}
+
+/*
+Systems/
+    StatusEffectSystem/
+    StatusEffectManager.cs    // (Central orchestrator, all effects)
+IBlocker.cs                   // (Generic "Blocker" interface for all domains)
+BlockedDomain.cs              // (enum: Movement, Attack, Cast, etc.)
+StatusEffect.cs               // (Effect metadata/model)
+GameplayStatModifiers/
+    (leave as is for now: ModifierMeta, ModifierStack, etc.)
+AI/
+    BehaviorTree/
+    Runtime/
+    Context/
+    Blackboard.cs         // (extend if needed)
+BtController.cs
+    ...
+Actions/
+    Movement/
+    NavMeshMoveToTarget.cs (refactored to use StatusEffectManager)
+        ...
+Actions/
+    Pause/
+    BtPauseNode.cs        (refactored for orchestrator)
+...
+*/

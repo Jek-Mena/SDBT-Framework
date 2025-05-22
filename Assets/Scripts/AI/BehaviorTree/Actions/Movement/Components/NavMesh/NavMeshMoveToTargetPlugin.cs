@@ -6,46 +6,34 @@ public class NavMeshMoveToTargetPlugin : BasePlugin
 {
     public override void Apply(GameObject entity, JObject jObject)
     {
-        Debug.Log($"[NavMeshMoveToTargetPlugin] Applying plugin to: {entity.name}");
-
         var context = nameof(NavMeshMoveToTargetPlugin);
-        var config = JsonUtils.GetConfig(jObject, context);
-
-        var data = new MovementData
-        {
-            Speed = JsonUtils.RequireFloat(config, MovementKeys.Json.Speed, context),
-            AngularSpeed = JsonUtils.RequireFloat(config, MovementKeys.Json.AngularSpeed, context),
-            Acceleration = JsonUtils.RequireFloat(config, MovementKeys.Json.Acceleration, context),
-            StoppingDistance = JsonUtils.RequireFloat(config, MovementKeys.Json.StoppingDistance, context),
-            UpdateThreshold = JsonUtils.RequireFloat(config, MovementKeys.Json.UpdateThreshold, context)
-        };
-        
+        var controller = entity.RequireComponent<BtController>();
         var mover = entity.RequireComponent<NavMeshMoveToTarget>();
-        if (mover != null)
+        var blackboard = controller.Blackboard;
+
+        var config = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin)
+            ?.RawJson?[CoreKeys.ConfigBlock.Movement] as JObject;
+
+        if (config == null)
         {
-            mover.Initialize(data);
-            Debug.Log($"[NavMeshMoveToTargetPlugin] Initialized with " +
-                      $"Speed: {data.Speed} " +
-                      $"AngularSpeed: {data.AngularSpeed} " +
-                      $"Acceleration: {data.Acceleration} " +
-                      $"StoppingDistance: {data.StoppingDistance} " +
-                      $"UpdateThreshold: {data.UpdateThreshold}");
+            Debug.LogError($"[{context}] Missing config block: '{CoreKeys.ConfigBlock.Movement}'");
+            return;
         }
-        else
-        {
-            Debug.LogError($"[NavMeshMoveToTargetPlugin] NavMeshMoveToTarget not found on {entity.name}");
-        }
+
+        // Assigns the movement logic to the blackboard for runtime use.
+        blackboard.MovementLogic = mover;
+        
+        var data = MovementDataBuilder.FromConfig(config, context);
+
+        mover.SetStatusEffectManager(blackboard.StatusEffectManager);
+        mover.Initialize(data);
+        
+        Debug.Log($"[NavMeshMoveToTargetPlugin] Plugins applied to {entity.name} " +
+                  $"and initialized with " +
+                  $"Speed: {data.Speed} " +
+                  $"AngularSpeed: {data.AngularSpeed} " +
+                  $"Acceleration: {data.Acceleration} " +
+                  $"StoppingDistance: {data.StoppingDistance} " +
+                  $"UpdateThreshold: {data.UpdateThreshold}"); 
     }
-
-    public static PluginMetadata Metadata => new()
-    {
-        PluginKey = MovementKeys.Plugin.NavMeshMoveToTarget,
-        SchemaKey = MovementKeys.Schema.NavMeshMoveToTarget,
-        PluginType = typeof(NavMeshMoveToTargetPlugin),
-        Domain = MovementKeys.Domain.Default,
-        ExecutionPhase = MovementKeys.ExecutionPhase.Default,
-        DependsOn = Array.Empty<Type>() // Or null, based on PluginRegistry default handling
-    };
-
-
 }

@@ -7,5 +7,5 @@ public class TimedExecutionData
     public bool FailOnInterrupt = true;   // Whether BT returns Failure if interrupted
     public bool ResetOnExit = true;       // If false, retains progress when node re-enters
 
-    public TimerExecutionMode mode = TimerExecutionMode.Normal; // Optional: ticking mode
+    public TimeExecutionMode Mode = TimeExecutionMode.Normal; // Optional: ticking mode
 }

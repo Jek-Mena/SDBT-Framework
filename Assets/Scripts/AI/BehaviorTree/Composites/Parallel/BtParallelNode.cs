@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Parallel node that ticks all children every frame.
@@ -14,62 +15,52 @@
 public class BtParallelNode : IBehaviorNode
 {
     private readonly List<IBehaviorNode> _children;
+    private readonly ParallelExitCondition _exitCondition;
 
-    public BtParallelNode(List<IBehaviorNode> children)
+    public BtParallelNode(List<IBehaviorNode> children, ParallelExitCondition exitCondition)
     {
         _children = children;
+        _exitCondition = exitCondition;
     }
 
-    public BtStatus Tick(BtController controller)
+    public BtStatus Tick(BtContext context)
     {
-        var allSucceeded = true;
         var anyRunning = false;
+        var anySuccess = false;
+        var anyFailure = false;
 
         foreach (var child in _children)
         {
-            var status = child.Tick(controller);
+            var status = child.Tick(context);
 
-            if (status == BtStatus.Failure)
-                return BtStatus.Failure;
-
-            if (status == BtStatus.Running)
-                anyRunning = true;
-
-            if(status != BtStatus.Success)
-                allSucceeded = false;
+            if (status == BtStatus.Running) anyRunning = true;
+            if (status == BtStatus.Success) anySuccess = true;
+            if (status == BtStatus.Failure) anyFailure = true;
         }
 
-        if (anyRunning) return BtStatus.Running;
-        return allSucceeded ? BtStatus.Success : BtStatus.Running;
+        switch (_exitCondition)
+        {
+            case ParallelExitCondition.FirstSuccess:
+                if (anySuccess) return BtStatus.Success;
+                if (anyRunning) return BtStatus.Running;
+                return BtStatus.Failure;
+
+            case ParallelExitCondition.FirstFailure:
+                if (anyFailure) return BtStatus.Failure;
+                if (anyRunning) return BtStatus.Running;
+                return BtStatus.Success;
+
+            // Extend for AllSuccess, AllFailure if needed
+            default:
+                throw new Exception("[BtParallelNode] Unknown or unsupported exit condition.");
+        }
     }
 }
 
-// TODO: Extend BtParallelNode with support for configurable execution mode.
-//
-// Currently this node implements Parallel (Success-on-ALL):
-// - Returns Failure immediately if ANY child fails
-// - Returns Running if ANY child is still running
-// - Returns Success ONLY if ALL children succeed
-//
-// 🔜 Planned Extension: Add support for Success-on-ANY (aka Fail-on-All)
-//
-// New config format:
-// {
-//     "type": "Parallel",
-//     "config": {
-//         "mode": "All" // or "Any"
-//     },
-//     "children": [ ... ]
-// }
-//
-// Design plan:
-// - Add enum ParallelExecutionMode { All, Any }
-// - Pass mode via constructor
-// - Adjust logic to:
-//   - All: current implementation (fail on any failure)
-//   - Any: succeed on first success, fail only if all fail
-//
-// Optional enhancements:
-// - Timeout handling for runaway parallel nodes
-// - Logging tick summary for debugging ("3 Success / 1 Running / 0 Failures")
-// - Tracking which child triggered success/failure for visual debugging
+public enum ParallelExitCondition
+{
+    FirstSuccess,
+    FirstFailure,
+    AllSuccess,
+    AllFailure
+}

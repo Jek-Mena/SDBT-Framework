@@ -8,11 +8,11 @@ public class BtSelectorNode : IBehaviorNode
         _children = children;
     }
 
-    public BtStatus Tick(BtController controller)
+    public BtStatus Tick(BtContext context)
     {
         foreach (var child in _children)
         {
-            var status = child.Tick(controller);
+            var status = child.Tick(context);
             if (status == BtStatus.Success)
                 return BtStatus.Success;
             if (status == BtStatus.Running)

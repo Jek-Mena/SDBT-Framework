@@ -13,9 +13,9 @@ public class BtRepeaterNode : IBehaviorNode
         _repeatCount = 0;
     }
 
-    public BtStatus Tick(BtController controller)
+    public BtStatus Tick(BtContext context)
     {
-        var status = _child.Tick(controller);
+        var status = _child.Tick(context);
 
         if (status is BtStatus.Success or BtStatus.Failure)
         {

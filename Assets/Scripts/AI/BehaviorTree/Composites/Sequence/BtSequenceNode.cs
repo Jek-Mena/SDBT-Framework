@@ -12,12 +12,12 @@ public class BtSequenceNode : IBehaviorNode
         _currentIndex = 0;
     }
 
-    public BtStatus Tick(BtController controller)
+    public BtStatus Tick(BtContext context)
     {
         while (_currentIndex < _children.Count)
         {
             Debug.Log($"[BT Sequence] Ticking child {_currentIndex}");
-            var status = _children[_currentIndex].Tick(controller);
+            var status = _children[_currentIndex].Tick(context);
 
             switch (status)
             {

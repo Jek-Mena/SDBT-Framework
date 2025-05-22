@@ -6,9 +6,10 @@ using UnityEngine;
 public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode, IInitializeBehavior<ImpulseMoverData>
 {
     private BtController _btController;
-    private Rigidbody _rb;
-    private UpdatePhaseExecutor _actionExecutor;
+    private Rigidbody _rigidBody;
+    private UpdatePhaseExecutor _updatePhaseExecutor;
     private Vector3 _direction;
+    private ImpulseMoverData _impulseMoverData;
     private float _impulseStrength;
     private float _stateTimeout;
     private float _tolerance;
@@ -17,27 +18,26 @@ public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode, IInitializeBeha
 
     [SerializeField] private ImpulseDirectionMode _directionMode = ImpulseDirectionMode.Forward;
 
-    private void Awake()
-    {
-        _rb = this.RequireComponent<Rigidbody>();
-        _actionExecutor = this.RequireComponent<UpdatePhaseExecutor>();
-        _btController = this.RequireComponent<BtController>();
-    }
-    
     public void Initialize(ImpulseMoverData data)
     {
-        _impulseStrength = data.ImpulseStrength;
-        _tolerance = data.Tolerance;
-        _stateTimeout = data.StateTimeout;
+        _impulseMoverData = data;
+        
+        _rigidBody = this.RequireComponent<Rigidbody>();
+        _btController = this.RequireComponent<BtController>();
     }
 
+    public void SetUpdatePhaseExecutor(UpdatePhaseExecutor updatePhaseExecutor)
+    {
+        _updatePhaseExecutor = updatePhaseExecutor;
+    }
+    
     public bool TryImpulse()
     {
-        if (_dashing || _actionExecutor == null) return false;
+        if (_dashing || _updatePhaseExecutor == null) return false;
 
         var impulseDirection = ResolveDirection();
 
-        _actionExecutor.EnqueueFixedUpdate(new StartImpulseCommand(this, impulseDirection));
+        _updatePhaseExecutor.Enqueue(new StartImpulseCommand(this, impulseDirection));
         return true;
     }
     private Vector3 ResolveDirection()
@@ -65,8 +65,8 @@ public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode, IInitializeBeha
 
     public void PerformImpulse(Vector3 direction)
     {
-        _rb.linearVelocity = Vector3.zero; // stop prior movement
-        _rb.AddForce(direction.normalized * _impulseStrength, ForceMode.Impulse);
+        _rigidBody.linearVelocity = Vector3.zero; // stop prior movement
+        _rigidBody.AddForce(direction.normalized * _impulseStrength, ForceMode.Impulse);
         _elapsed = 0f;
         _dashing = true;
     }
@@ -80,10 +80,10 @@ public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode, IInitializeBeha
         if (_elapsed >= _stateTimeout)
         {
             _dashing = false;
-            _rb.linearVelocity = Vector3.zero;
+            _rigidBody.linearVelocity = Vector3.zero;
         }
 
-        Debug.DrawRay(transform.position, _rb.linearVelocity, Color.red, 0.1f);
+        Debug.DrawRay(transform.position, _rigidBody.linearVelocity, Color.red, 0.1f);
     }
 
     public bool IsImpulsing() => _dashing;

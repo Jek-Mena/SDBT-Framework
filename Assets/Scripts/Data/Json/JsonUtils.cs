@@ -1,4 +1,4 @@
-// TODO [Refactor: Consolidate JSON Utilities]
+﻿// TODO [Refactor: Consolidate JSON Utilities]
 // Consolidate JTokenExtensions.cs and JsonUtils.cs into a single, coherent JSON utility system.
 // Retain only the most robust and context-aware methods; remove redundant or duplicate logic.
 
@@ -32,6 +32,7 @@
 
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -41,9 +42,9 @@ public static class JsonUtils
 {
     /// <summary>
     /// Retrieves a required string value from a JObject.
-    /// Throws if the key is missing or value is null/empty.
+    /// Throws if the key string is missing or value is null/empty.
     /// </summary>
-    public static string RequireKey(JObject config, string key, string context)
+    public static string RequireString(JObject config, string key, string context)
     {
         var value = config.Value<string>(key);
         if (string.IsNullOrWhiteSpace(value))
@@ -53,20 +54,76 @@ public static class JsonUtils
     }
 
     /// <summary>
-    /// Retrieves a required float value from a JObject.
-    /// Throws if the key is missing or not parseable as a float.
+    /// Retrieves a required int value from a JObject.
+    /// Throws if the key is missing or not parseable as an int.
     /// </summary>
-    public static float RequireFloat(JObject config, string key, string context)
+    public static int RequireInt(JObject config, string key, string context)
     {
         if (!config.TryGetValue(key, out var token))
-            throw new Exception($"[JsonUtils] Required float key '{key}' not found in context: {context}");
+            throw new Exception($"[JsonUtils] Required int key '{key}' not found in context: {context}");
 
-        var result = token.Value<float?>();
+        var result = token.Value<int?>();
 
         if (result == null)
-            throw new Exception($"[JsonUtils] Key '{key}' could not be parsed as float in context: {context}");
+            throw new Exception($"[JsonUtils] Key '{key}' could not be parsed as int in context: {context}");
 
         return result.Value;
+    }
+
+    /// <summary>
+    /// Retrieves an integer value from a <see cref="JObject"/> by the specified key.
+    /// If the key is not present or the value is not a valid integer, the provided fallback value is returned.
+    /// Throws an exception if the key exists but the value is not a valid integer or integer string.
+    /// </summary>
+    /// <param name="config">The <see cref="JObject"/> to retrieve the value from.</param>
+    /// <param name="key">The key of the value to retrieve.</param>
+    /// <param name="fallback">The fallback value to return if the key is not present or the value is invalid.</param>
+    /// <param name="context">The context in which this operation is performed, used for error reporting.</param>
+    /// <returns>The integer value associated with the specified key, or the fallback value if the key is not present or invalid.</returns>
+    /// <exception cref="Exception">
+    /// Thrown if the key exists but the value is not a valid integer or integer string.
+    /// </exception>
+    public static int GetIntOrDefault(JObject config, string key, int fallback, string context)
+    {
+        if (config == null || !config.TryGetValue(key, out var token)) return fallback;
+        
+        if (token.Type == JTokenType.Integer)
+            return token.Value<int>();
+        if (token.Type == JTokenType.String)
+        {
+            if (int.TryParse(token.ToString(), out var result))
+                return result;
+            throw new Exception($"[JsonUtils] Key '{key}' present but not a valid integer string in context: {context}");
+        }
+        throw new Exception($"[JsonUtils] Key '{key}' present but not an integer or integer string in context: {context}");
+    }
+
+    public static float RequireFloat(JObject config, string key, string context)
+    {
+        var token = config[key];
+        if (token == null)
+            throw new Exception($"[{context}] Required float key '{key}' not found in config.");
+
+        // Defensive: Support int, float, or parseable string
+        if (token.Type == JTokenType.Float || token.Type == JTokenType.Integer)
+            return token.Value<float>();
+        if (token.Type == JTokenType.String && float.TryParse(token.ToString(), out var val))
+            return val;
+
+        throw new Exception($"[{context}] Key '{key}' is not a float/int/string. Got {token.Type}: {token}");
+    }
+
+    // Like above, but with default
+    public static float GetFloatOrDefault(JObject config, string key, float fallback, string context)
+    {
+        var token = config[key];
+        if (token == null)
+            return fallback;
+        if (token.Type == JTokenType.Float || token.Type == JTokenType.Integer)
+            return token.Value<float>();
+        if (token.Type == JTokenType.String && float.TryParse(token.ToString(), out var val))
+            return val;
+        return fallback;
     }
 
     /// <summary>
@@ -100,7 +157,7 @@ public static class JsonUtils
     }
 
     /// <summary>
-    /// Logs a warning if any keys are missing � for soft validation (dev/debug mode).
+    /// Logs a warning if any keys are missing — for soft validation (dev/debug mode).
     /// </summary>
     public static void WarnIfMissing(JObject config, string context, params string[] keys)
     {
@@ -114,13 +171,120 @@ public static class JsonUtils
     }
 
     /// <summary>
-    /// Retrieves the 'config' block from the JSON object or throws if missing � for strict validation during node construction.
+    /// Retrieves the 'config' block from the JSON object or throws if missing — for strict validation during node construction.
     /// </summary>
-    public static JObject GetConfig(JObject json, string context)
+    [System.Obsolete] // To use Resolve and rename resolve to GetConfig
+    public static JObject GetConfig(JObject jObject, string context)
     {
-        var config = json[CoreKeys.Config] as JObject ?? json;
+        var config = jObject[CoreKeys.Config] as JObject ?? jObject;
         if (config == null)
             throw new Exception($"{context} Missing or invalid 'config' block.");
         return config;
+    }
+    
+    /// <summary>
+    /// Retrieves a boolean value from the specified JSON object using the provided key. 
+    /// If the key is not present, the fallback value is returned. 
+    /// If the value is present but not a valid boolean or boolean string, an exception is thrown.
+    /// </summary>
+    /// <param name="config">The JSON object to retrieve the value from.</param>
+    /// <param name="key">The key associated with the boolean value.</param>
+    /// <param name="fallback">The default value to return if the key is not found.</param>
+    /// <param name="context">The context in which this operation is performed, used for error reporting.</param>
+    /// <returns>The boolean value associated with the key, or the fallback value if the key is not found.</returns>
+    /// <exception cref="Exception">
+    /// Thrown if the key is present but the value is not a valid boolean or boolean string.
+    /// </exception>
+    public static bool GetBoolOrDefault(JObject config, string key, bool fallback, string context)
+    {
+        if (!config.TryGetValue(key, out var token)) return fallback;
+        
+        if (token.Type == JTokenType.Boolean)
+            return token.Value<bool>();
+        
+        if (token.Type == JTokenType.String)
+        {
+            if (bool.TryParse(token.ToString(), out var result))
+                return result;
+            throw new Exception($"[JsonUtils] Key '{key}' present but not a valid boolean string in context: {context}");
+        }
+        throw new Exception($"[JsonUtils] Key '{key}' present but not a boolean or boolean string in context: {context}");
+    }
+
+    /*
+    • Responsibility: Given a root JSON object and a dot-path string, it navigates the object tree and returns the value at that path.
+    • It is a pure helper function.
+    • It should NOT know about the blackboard, plugins, or any of your game’s logic.
+    • It does NOT recurse a whole tree; it just finds a value at a path.
+    • Keep this utility. It’s your core “pointer” mechanic.
+     */
+    /// <summary>Resolves a dot-path (e.g., "timing.moveDuration") within a JObject tree.</summary>
+    public static JToken ResolveDotPath(JObject root, string path, string context)
+    {
+        var parts = path.Split('.');
+        JToken current = root;
+
+        foreach (var part in parts)
+        {
+            if (current is JObject obj && obj.TryGetValue(part, out var next))
+                current = next;
+            else
+                throw new Exception($"[{context}] Cannot resolve path '{path}' — failed at '{part}'");
+        }
+
+        return current;
+    }
+
+    /*
+    • Responsibility: Recursively traverse a JSON tree (such as a behavior tree node config).
+        • Wherever it finds an object of the form { "$ref": "some.path" }, it uses ResolveDotPath on your config to replace that node with the value it points to.
+        • It is a tree transformer.
+    • It is the “ref expander” that makes all your JSON references work.
+    • This is what you call on your config or tree before you hand it off to anything else.
+    • Keep this, but make it always use ResolveDotPath.
+    • Never use “flat key” blackboard lookups anymore.
+     */
+    /// <summary>
+    /// Recursively walks the given JSON node, replacing all objects of the form { "$ref": "some.path" }
+    /// with the resolved value from the BtConfig in the blackboard, using dot-paths.
+    /// </summary>
+    public static void ResolveRefs(JToken node, Blackboard blackboard)
+    {
+        // Get config root ONCE for performance; throw if missing.
+        var configData = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin);
+        if (configData?.RawJson == null)
+            throw new Exception("[ResolveRefs] BtConfig missing or invalid in blackboard. Ensure Plugin/BtConfig runs first!");
+
+        ResolveRefsRecursive(node, configData.RawJson);
+    }
+
+    // Internal: recursive helper. DO NOT call this directly outside this file.
+    private static void ResolveRefsRecursive(JToken node, JObject configRoot)
+    {
+        if (node.Type == JTokenType.Object)
+        {
+            var obj = (JObject)node;
+            foreach (var prop in obj.Properties().ToList()) // .ToList() because you may mutate the collection
+            {
+                if (prop.Value is JObject child && child.TryGetValue(CoreKeys.Ref, out var refKeyToken))
+                {
+                    var path = refKeyToken.Value<string>();
+                    // Use dot-path resolution, always.
+                    var value = ResolveDotPath(configRoot, path, "ResolveRefs");
+                    // Replace the entire { "$ref": ... } with the resolved value.
+                    obj[prop.Name] = value is JToken jt ? jt : JToken.FromObject(value);
+                }
+                else
+                {
+                    // Continue recursing for all properties
+                    ResolveRefsRecursive(prop.Value, configRoot);
+                }
+            }
+        }
+        else if (node.Type == JTokenType.Array)
+        {
+            foreach (var item in node.Children())
+                ResolveRefsRecursive(item, configRoot);
+        }
     }
 }

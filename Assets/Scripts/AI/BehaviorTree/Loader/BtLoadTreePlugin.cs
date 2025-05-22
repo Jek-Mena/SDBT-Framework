@@ -1,5 +1,6 @@
+﻿using System;
+using System.Linq;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using UnityEngine;
 
 public class BtLoadTreePlugin : BasePlugin
@@ -8,35 +9,50 @@ public class BtLoadTreePlugin : BasePlugin
 
     public override void Apply(GameObject entity, JObject jObject)
     {
-        if (jObject == null)
-        {
-            Debug.LogError("[BtLoadTreePlugin] config == null; ensure your JSON includes a component: { \"plugin\": \"BtLoadTree\", \"params\": { \"treeId\": \"�\" } }");
-            return;
-        }
-
+        var context = nameof(BtLoadTreePlugin);
         var controller = entity.RequireComponent<BtController>();
-        
-        var treeId = jObject[CoreKeys.TreeId]?.Value<string>();
-        if (string.IsNullOrEmpty(treeId))
+        var blackboard = controller.Blackboard;
+
+        if (blackboard == null)
         {
-            Debug.LogError($"Missing JSON key {CoreKeys.TreeId}.");
+            Debug.LogError("[BtLoadTreePlugin] blackboard == null;");
             return;
         }
 
-        var context = controller.Blackboard;
-        controller.InitContext(context);
-
-        var treeJson = BtLoader.LoadJsonTreeBtId(treeId);
-
-        var rootToken = treeJson[CoreKeys.Root] ?? treeJson;
-
-        if (rootToken[CoreKeys.Type] == null)
+        // Inject BtConfig if present
+        if (jObject.TryGetValue(CoreKeys.Config, out var configToken))
         {
-            Debug.LogError($"[BT Loader] Missing 'btKey' in root node:\n{rootToken.ToString(Formatting.Indented)}");
-            return;
+            var configData = new ConfigData { RawJson = (JObject)configToken };
+            blackboard.Set(PluginMetaKeys.Core.BtConfig.Plugin, configData);
         }
 
-        var root = BtTreeBuilder.Build(rootToken, context);
-        controller.LoadBtFromRunTime(root);
+        // 🔨 Load behavior tree from inline or "params" block
+        var treeToken = jObject[CoreKeys.Tree]
+                        ?? jObject[CoreKeys.Params]?[CoreKeys.Tree];
+
+        if (treeToken == null)
+            throw new Exception($"[{context}] Missing 'tree' field (inline [{CoreKeys.Params}] or treeId: [{CoreKeys.Tree}])");
+
+        IBehaviorNode root;
+
+        if (treeToken.Type == JTokenType.Object)
+        {
+            // Inline tree definition
+            root = BtTreeBuilder.Build(treeToken, blackboard);
+        }
+        else if (treeToken.Type == JTokenType.String)
+        {
+            var treeId = treeToken.ToString();
+            root = BtTreeBuilder.Load(treeId, blackboard);
+        }
+        else
+        {
+            throw new Exception(
+                $"[{context}] Invalid 'tree' format: expected JObject or string, got: {treeToken.Type}");
+        }
+
+        controller.SetTree(root);
+
+        Debug.Log($"[{context}] Behavior tree built and assigned.");
     }
 }

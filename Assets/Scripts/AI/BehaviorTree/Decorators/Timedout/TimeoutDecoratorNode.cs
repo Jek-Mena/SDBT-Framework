@@ -1,40 +1,34 @@
 using UnityEngine;
 
-public class TimeoutDecoratorNode : IBehaviorNode
+public class TimeoutDecoratorNode : TimedExecutionNode
 {
     private readonly IBehaviorNode _child;
-    private readonly float _duration;
-    private readonly ITimedExecutionNode _timer;
-    private readonly string _key;
-
-    public TimeoutDecoratorNode(IBehaviorNode child, float duration, ITimedExecutionNode timer, string key)
+    
+    public TimeoutDecoratorNode(IBehaviorNode child, TimedExecutionData data) : base(data)
     {
         _child = child;
-        _duration = duration;
-        _timer = timer;
-        _key = key;
     }
 
-    public BtStatus Tick(BtController controller)
+    public override BtStatus Tick(BtContext context)
     {
-        if (_timer == null)
+        EnsureTimerStarted();
+        
+        if (Timer == null)
         {
-            Debug.LogError("[TimeoutNode] Timer system is null — did you forget to add TimeoutNodePlugin?");
+            Debug.LogError("[TimeoutNode] Timer system is null.");
             return BtStatus.Failure;
         }
 
-        Debug.Log($"[TimeoutNode] Duration set to {_duration}");
+        var timerStatus = CheckTimerStatus();
 
-        // Start Timer once
-        if (!_timer.IsRunning(_key) && !_timer.IsComplete(_key))
-            _timer.StartTime(_key, _duration);
+        // If no child, behave purely as a timer node.
+        if (_child == null)
+            return timerStatus;
 
-        // 2) Let your child (e.g. MoveTo) run every frame for up to _duration seconds
-        var childStatus = _child.Tick(controller);
-        // 3) If either the move completes OR the timer expires, we’re done
-        if (childStatus == BtStatus.Success || _timer.IsComplete(_key))
-            return BtStatus.Success;
+        var childStatus = _child.Tick(context);
 
-        return BtStatus.Running;
+        return childStatus == BtStatus.Success || timerStatus == BtStatus.Success
+            ? BtStatus.Success
+            : BtStatus.Running;
     }
 }
