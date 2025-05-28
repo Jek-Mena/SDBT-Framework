@@ -14,6 +14,6 @@ public static class TargetResolverRegistry
     public static ITargetResolver Get(TargetingStyle style)
         => _resolvers.TryGetValue(style, out var resolver) ? resolver : _resolvers[TargetingStyle.Closest];
 
-    // Optional: Register at runtime (mod support, DLC, etc.)
+    // Optional: RegisterSchema at runtime (mod support, DLC, etc.)
     public static void Register(TargetingStyle style, ITargetResolver resolver) => _resolvers[style] = resolver;
 }

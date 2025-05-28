@@ -20,7 +20,7 @@ public class TimeoutDecoratorNodePlugin : BasePlugin
         var id = controller.gameObject.GetInstanceID();
         blackboard.TimerData = new TimedExecutionData
         {
-            Label = $"Timer:{id} : Alias: {BtNodeAliases.TimedExecution.TimeoutDecorator}",
+            Label = $"Timer:{id} : Alias: {BtNodeAliases.Decorators.Timeout}",
             Duration = JsonUtils.RequireFloat(config, BtConfigFields.Common.Duration, context),
             Interruptible = JsonUtils.GetBoolOrDefault(config, BtConfigFields.Common.Interruptible, false, context),
             FailOnInterrupt = JsonUtils.GetBoolOrDefault(config, BtConfigFields.Common.FailOnInterrupt, false, context)

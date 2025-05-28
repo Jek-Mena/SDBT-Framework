@@ -1,146 +1,201 @@
 {
-  "components": [
-    {
-      "plugin": "Plugin/BtConfig",
-      "params": {
+  "root": {
+    "type": "Bt/Parallel",
+    "config": { "exitCondition": "AllSuccess" },
+    "children": [
+      { "$ref": "#PhaseControl" },
+      {
+        "type": "Bt/SwitchByBlackboard",
         "config": {
-          "state": {
-            "stunStateKey": "IsStunned",
-            "knockbackKey": "WasKnockedBack",
-            "lastUsedKey": "LastSkillUsed"
-          },
-          "cooldowns": {
-            "dash": 5.0,
-            "smash": 8.0,
-            "teleport": 12.0,
-            "taunt": 10.0
-          },
-          "fx": {
-            "dash": { "vfx": "SmokeTrail", "sfx": "BurstDash", "anim": "ForwardRush" },
-            "smash": { "vfx": "QuakeShockwave", "sfx": "Smash", "anim": "GroundPound" },
-            "teleport": { "vfx": "VoidStep", "sfx": "Blink", "anim": "Vanish" }
-          },
-          "text": {
-            "taunt": [
-              "You're just spamming now.",
-              "Did your fingers get stuck?",
-              "Nice... stun again? Real original."
-            ],
-            "onStun": [
-              "Wait—what was that?!",
-              "I... *felt* that.",
-              "System... destabilizing..."
-            ]
-          },
-          "behavior": {
-            "look": {
-              "target": "Player",
-              "rotateSpeed": 100
-            },
-            "dash": {
-              "direction": "forward",
-              "magnitude": 25,
-              "duration": 0.25,
-              "cooldownKey": "dash"
-            },
-            "smash": {
-              "magnitude": 40,
-              "duration": 1.5,
-              "cooldownKey": "smash"
-            },
-            "teleport": {
-              "duration": 2.5,
-              "childNode": {
-                "type": "Bt/Teleport",
-                "config": {
-                  "castTime": 1.5,
-                  "destination": { "source": "BehindTarget", "distance": 5.5 }
-                }
-              },
-              "cooldownKey": "teleport"
-            },
-            "taunt": {
-              "lines": { "$ref": "text.taunt" },
-              "sfx": "GPT_Taunt",
-              "cooldownKey": "taunt"
-            },
-            "onStun": {
-              "sequence": [
-                {
-                  "type": "Bt/PlayTaunt",
-                  "config": {
-                    "lines": { "$ref": "text.onStun" },
-                    "sfx": "StaggeredGasp"
-                  }
-                },
-                {
-                  "type": "Bt/SetValue",
-                  "config": { "key": "Phase", "value": 2 }
-                }
-              ]
-            },
-            "punishCombo": {
-              "sequence": [
-                { "type": "Bt/TimedExecute", "config": { "$ref": "behavior.teleport" } },
-                { "type": "Bt/Impulse", "config": { "$ref": "behavior.dash" } },
-                { "type": "Bt/Impulse", "config": { "$ref": "behavior.smash" } }
-              ]
-            }
+          "field": "BehaviorMode",
+          "routes": {
+            "Aggressive": { "$ref": "#CombatLoop" },
+            "Reactive": { "$ref": "#ReactiveTriggers" },
+            "Mocking": { "$ref": "#TauntHandler" }
           }
         }
       }
+    ]
+  },
+
+  "PhaseControl": {
+    "type": "Bt/Condition",
+    "config": {
+      "label": "FinalPhaseTrigger",
+      "check": { "type": "HealthBelow", "value": 10 }
+    },
+    "child": {
+      "type": "Bt/Sequence",
+      "children": [
+        {
+          "type": "Bt/PlayAnimation",
+          "config": {
+            "animation": "phase_transition",
+            "layer": "UpperBody"
+          }
+        },
+        {
+          "type": "Bt/PlayFX",
+          "config": {
+            "fx": "fx.phaseChange",
+            "attachTo": "root"
+          }
+        },
+        {
+          "type": "Bt/Taunt",
+          "config": {
+            "lines": ["My final form is... disappointment."],
+            "voice": "vo.finalForm"
+          }
+        },
+        {
+          "type": "Bt/ExecuteSkill",
+          "config": {
+            "skill": "teleport",
+            "cooldownKey": "teleport",
+            "fx": "fx.teleport",
+            "animation": "anim.teleport"
+          }
+        },
+        {
+          "type": "Bt/Loop",
+          "config": { "count": 3 },
+          "child": {
+            "type": "Bt/Sequence",
+            "children": [
+              {
+                "type": "Bt/ExecuteSkill",
+                "config": {
+                  "skill": "smash",
+                  "cooldownKey": "smash",
+                  "animation": "anim.smash",
+                  "fx": "fx.smash",
+                  "telegraph": "telegraph.smash"
+                }
+              },
+              {
+                "type": "Bt/TimeoutDecorator",
+                "config": { "duration": 0.75 }
+              }
+            ]
+          }
+        },
+        {
+          "type": "Bt/Taunt",
+          "config": {
+            "lines": ["You still here?"],
+            "voice": "vo.disappointed"
+          }
+        }
+      ]
     }
-  ],
-  "btTree": {
-    "type": "Bt/Selector",
+  },
+
+  "CombatLoop": {
+    "type": "Bt/Repeater",
+    "child": {
+      "type": "Bt/Sequence",
+      "children": [
+        {
+          "type": "Bt/Parallel",
+          "config": { "exitCondition": "AnyFailure" },
+          "children": [
+            {
+              "type": "Bt/Selector",
+              "children": [
+                {
+                  "type": "Bt/Condition",
+                  "config": {
+                    "label": "StunLoopTrigger",
+                    "check": { "type": "WasStunnedNTimes", "count": 2 }
+                  },
+                  "child": {
+                    "type": "Bt/RepeatSkill",
+                    "config": {
+                      "skill": "smash",
+                      "times": 4,
+                      "interval": 0.5,
+                      "cooldownKey": "smash",
+                      "animation": "anim.smash",
+                      "fx": "fx.smash",
+                      "telegraph": "telegraph.smash"
+                    }
+                  }
+                },
+                {
+                  "type": "Bt/ExecuteSkill",
+                  "config": {
+                    "skill": "dash",
+                    "cooldownKey": "dash",
+                    "fx": "fx.dash",
+                    "animation": "anim.dash",
+                    "telegraph": "telegraph.dash"
+                  }
+                },
+                {
+                  "type": "Bt/MoveToTarget",
+                  "config": {
+                    "$ref": "movement"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Bt/TimeoutDecorator",
+              "config": { "duration": 1.25 }
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  "ReactiveTriggers": {
+    "type": "Bt/Sequence",
     "children": [
       {
-        "type": "Bt/Sequence",
-        "children": [
-          { "type": "Bt/Condition/BlackboardTrue", "config": { "key": "IsStunned" } },
-          { "type": "Bt/RunCombo", "config": { "$ref": "behavior.onStun" } }
-        ]
+        "type": "Bt/Condition",
+        "config": {
+          "label": "CornerTrapTrigger",
+          "check": { "type": "PlayerInCorner" }
+        },
+        "child": {
+          "type": "Bt/ExecuteSkill",
+          "config": {
+            "skill": "teleport",
+            "cooldownKey": "teleport",
+            "animation": "anim.teleport",
+            "fx": "fx.teleport",
+            "telegraph": "telegraph.teleport"
+          }
+        }
+      }
+    ]
+  },
+
+  "TauntHandler": {
+    "type": "Bt/RandomSelector",
+    "config": { "interval": 10 },
+    "children": [
+      {
+        "type": "Bt/Taunt",
+        "config": {
+          "lines": { "$ref": "text.taunt" },
+          "domains": ["Combat", "PlayerInput"],
+          "select": "weighted",
+          "voice": "vo.randomCombat"
+        }
       },
       {
-        "type": "Bt/Sequence",
-        "children": [
-          {
-            "type": "Bt/Condition/PlayerRepeatingPattern",
-            "config": { "key": "skillAbuse", "repeatThreshold": 3 }
-          },
-          { "type": "Bt/RunCombo", "config": { "$ref": "behavior.punishCombo" } },
-          { "type": "Bt/PlayTaunt", "config": { "$ref": "behavior.taunt" } }
-        ]
-      },
-      {
-        "type": "Bt/Sequence",
-        "children": [
-          { "type": "Bt/CooldownCheck", "config": { "key": "smash" } },
-          { "type": "Bt/Impulse", "config": { "$ref": "behavior.smash" } }
-        ]
-      },
-      {
-        "type": "Bt/Sequence",
-        "children": [
-          { "type": "Bt/CooldownCheck", "config": { "key": "dash" } },
-          { "type": "Bt/Impulse", "config": { "$ref": "behavior.dash" } }
-        ]
-      },
-      {
-        "type": "Bt/Sequence",
-        "children": [
-          { "type": "Bt/CooldownCheck", "config": { "key": "teleport" } },
-          { "type": "Bt/TimedExecute", "config": { "$ref": "behavior.teleport" } }
-        ]
-      },
-      {
-        "type": "Bt/Sequence",
-        "children": [
-          { "type": "Bt/CooldownCheck", "config": { "key": "taunt" } },
-          { "type": "Bt/PlayTaunt", "config": { "$ref": "behavior.taunt" } }
-        ]
-      },
-      { "type": "Bt/Pause", "config": { "duration": 1.0 } }
+        "type": "Bt/ExecuteSkill",
+        "config": {
+          "skill": "lockdown",
+          "cooldownKey": "lockdown",
+          "animation": "anim.lockdown",
+          "fx": "fx.lockdown",
+          "telegraph": "telegraph.lockdown"
+        }
+      }
     ]
   }
 }

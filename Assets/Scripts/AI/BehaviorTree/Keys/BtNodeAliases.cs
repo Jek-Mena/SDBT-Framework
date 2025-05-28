@@ -24,7 +24,6 @@ public static class BtNodeAliases
     public static class TimedExecution
     {
         public const string Pause = "Bt/Pause";
-        public const string TimeoutDecorator = "Bt/TimeoutDecorator";
         public const string Sleep = "Bt/Sleep";
         public const string Channeling = "Bt/Channeling";
         public const string StandStill = "Bt/StandStill"; // Optional: alias with purpose
@@ -33,7 +32,6 @@ public static class BtNodeAliases
     public static class Decorators
     {
         public const string Timeout = "Bt/TimeoutDecorator";
-        
         public const string Inverter = "Bt/Inverter";
         public const string Repeater = "Bt/Repeater";
     }

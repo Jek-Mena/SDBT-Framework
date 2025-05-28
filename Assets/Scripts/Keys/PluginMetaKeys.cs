@@ -3,7 +3,7 @@
 /// This ensures fail-fast behavior, reduces duplication, and simplifies future tooling support.
 ///
 /// Example usage:
-/// PluginMetadataStore.Register<NavMeshMoveToTargetPlugin>(
+/// PluginMetadataStore.RegisterSchema<NavMeshMoveToTargetPlugin>(
 ///     PluginMetaKeys.Movement.NavMeshMoveToTarget.Plugin,
 ///     PluginMetaKeys.Movement.NavMeshMoveToTarget.Schema,
 ///     PluginExecutionPhase.Configurable
@@ -23,7 +23,7 @@ public static class PluginMetaKeys
         /// and reference this plugin within the system.
         /// 
         /// Example usage found at BtBootstrapper:
-        /// PluginMetadataStore.Register(
+        /// PluginMetadataStore.RegisterSchema(
         ///     PluginMetaKeys.Core.BtLoadTree.Plugin,
         ///     PluginMetaKeys.Core.BtLoadTree.Schema,
         ///     PluginExecutionPhase.Initialization

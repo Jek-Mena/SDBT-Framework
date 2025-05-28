@@ -6,9 +6,7 @@ public static class BtBootstrapper
     public static void Initialize()
     {
         // Initializes the Behavior Tree system by setting up default nodes,
-        // configuring the context builder, and registering plugins for various phases.
-        BtNodeRegistry.InitializeDefaults();
-        // BtNodeRegistry.PrintRegisteredNodes();
+        BtNodeRegistrationList.InitializeDefaults();
 
         // Initialize the blackboard builder and assign it to the context builder.
         var btBlackboardBuilder = new BtBlackboardBuilder();
@@ -46,6 +44,7 @@ public static class BtBootstrapper
             schemaKey: PluginMetaKeys.TimedExecution.Pause.Schema,
             phase: PluginExecutionPhase.TimedExecution
         );
+        
 
         // (and register any others…)
         // BtNodeRegistry.AutoRegisterAllFactories();

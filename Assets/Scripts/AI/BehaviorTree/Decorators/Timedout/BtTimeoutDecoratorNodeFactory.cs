@@ -2,11 +2,11 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 
-public class TimeoutDecoratorNodeFactory : IBtNodeFactory
+public class BtTimeoutDecoratorNodeFactory : IBtNodeFactory
 {
     public IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
-        var context = nameof(TimeoutDecoratorNodeFactory);
+        var context = nameof(BtTimeoutDecoratorNodeFactory);
 
         // === Extract config ===
         var config = nodeData.Config;
