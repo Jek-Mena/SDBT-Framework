@@ -49,7 +49,6 @@ public class MoveToTargetNode : IBehaviorNode
 
         // Optionally: Configure movement logic with this node’s settings
         movementLogic.ApplySettings(_movementData);
-
         
         var canMove = blackboard.MovementLogic.TryMoveTo(target.position);
 

@@ -42,7 +42,7 @@ public static class BtLoader
 
                 if (matchingComponent == null)
                 {
-                    Debug.LogError($"[BtLoader] Missing plugin! '{meta.PluginKey}' — not present in 'components' list.");
+                    Debug.LogError($"[BtLoader] Missing plugin! '{meta.PluginKey}' ï¿½ not present in 'components' list.");
                     continue;
                 }
 
@@ -53,7 +53,7 @@ public static class BtLoader
         }
     }
 
-    // Kahn’s algorithm (for dependency ordering)
+    // Kahnï¿½s algorithm (for dependency ordering)
     private static List<T> TopoSort<T>(
         IEnumerable<T> items,
         Func<T, HashSet<Type>> getDeps,

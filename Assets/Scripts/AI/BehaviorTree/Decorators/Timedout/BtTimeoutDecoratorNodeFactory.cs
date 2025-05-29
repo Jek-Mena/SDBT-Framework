@@ -9,12 +9,9 @@ public class BtTimeoutDecoratorNodeFactory : IBtNodeFactory
         var context = nameof(BtTimeoutDecoratorNodeFactory);
 
         // === Extract config ===
-        var config = nodeData.Config;
+        var config = nodeData.Settings;
         if (config == null)
             throw new Exception($"[{context}] Missing 'config' for TimeoutDecorator node.");
-
-        if (config.TryGetValue(CoreKeys.Ref, out _))
-            config = BtConfigResolver.Resolve(nodeData.Raw, blackboard, context);
 
         // === Extract data ===
         var timedData = TimedExecutionDataBuilder.FromConfig(config, context);

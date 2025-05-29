@@ -8,13 +8,13 @@ public class BtParallelNodeFactory : CompositeNodeFactory<BtParallelNode>
         Blackboard blackboard
     )
     {
-        var config = nodeData.Config;
+        var config = nodeData.Settings;
         var exitCondition = ParallelExitCondition.FirstSuccess;
         
         if (config != null && config.TryGetValue(BtNodeFields.Parallel.ExitCondition, out var exitToken) 
                            && Enum.TryParse(exitToken.ToString(), out ParallelExitCondition parsed))
             exitCondition = parsed;
-
+        
         return new BtParallelNode(children, exitCondition);
     }
 }

@@ -1,7 +1,7 @@
 /// <summary>
 /// CoreKeys defines the universal JSON grammar shared across all
 /// entity and behavior tree configurations. These keys are NOT
-/// domain-specific — they are the structure that wraps all other keys.
+/// domain-specific ï¿½ they are the structure that wraps all other keys.
 /// 
 /// Use these constants to access standard fields like "plugin",
 /// "params", or "btKey" safely across your systems.
@@ -70,11 +70,8 @@ public static class CoreKeys
     /// </summary>
     public const string Type = "type";
 
-    /// <inheritdoc cref="Type"/>
-    public const string BtKey = "btKey";
-
     /// <summary>
-    /// Configuration block passed to a behavior tree node.
+    /// Configuration or Settings block passed to a behavior tree node.
     /// 
     /// Example:
     /// {
@@ -189,11 +186,11 @@ public static class CoreKeys
     ///     }
     /// }
     /// </summary>
-    public static class ConfigBlock
+    public static class SettingsBlock
     {
         /// <summary>
         /// Shared configuration block name for all movement-related parameters.
-        /// Only contains physical movement settings—no targeting logic.
+        /// Only contains physical movement settingsï¿½no targeting logic.
         /// Used by BT nodes (e.g., MoveTo), movement plugins (e.g., NavMeshMoveToTarget), and any runtime
         /// system that requires movement tuning.
         /// 
@@ -207,13 +204,13 @@ public static class CoreKeys
         ///     ...
         /// }
         /// 
-        /// Do not add targeting keys here—keep all target/tag logic in a separate "targeting" config.
+        /// Do not add targeting keys hereï¿½keep all target/tag logic in a separate "targeting" config.
         /// </summary>
         public const string Movement = "movement";
 
         /// <summary>
         /// Shared configuration block name for all targeting parameters.
-        /// Purely defines how an entity selects its target—never how it moves toward it.
+        /// Purely defines how an entity selects its targetï¿½never how it moves toward it.
         /// Used by BT nodes (e.g., MoveTo, AttackTarget), targeting plugins, and runtime AI logic.
         /// 
         /// Config block structure:

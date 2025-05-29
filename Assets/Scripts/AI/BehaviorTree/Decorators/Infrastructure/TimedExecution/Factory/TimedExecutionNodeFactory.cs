@@ -26,7 +26,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
     protected TimedExecutionData BuildTimedExecutionData(TreeNodeData nodeData, Blackboard blackboard)
     {
         var context = typeof(TNode).Name;
-        var config = nodeData.Config;
+        var config = nodeData.Settings;
 
         return new TimedExecutionData()
         {

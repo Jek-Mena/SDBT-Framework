@@ -1,12 +1,12 @@
 {
   "root": {
     "type": "Bt/Parallel",
-    "config": { "exitCondition": "AllSuccess" },
+    "settings": { "exitCondition": "AllSuccess" },
     "children": [
       { "$ref": "#PhaseControl" },
       {
         "type": "Bt/SwitchByBlackboard",
-        "config": {
+        "settings": {
           "field": "BehaviorMode",
           "routes": {
             "Aggressive": { "$ref": "#CombatLoop" },
@@ -20,7 +20,7 @@
 
   "PhaseControl": {
     "type": "Bt/Condition",
-    "config": {
+    "settings": {
       "label": "FinalPhaseTrigger",
       "check": { "type": "HealthBelow", "value": 10 }
     },
@@ -29,28 +29,28 @@
       "children": [
         {
           "type": "Bt/PlayAnimation",
-          "config": {
+          "settings": {
             "animation": "phase_transition",
             "layer": "UpperBody"
           }
         },
         {
           "type": "Bt/PlayFX",
-          "config": {
+          "settings": {
             "fx": "fx.phaseChange",
             "attachTo": "root"
           }
         },
         {
           "type": "Bt/Taunt",
-          "config": {
+          "settings": {
             "lines": ["My final form is... disappointment."],
             "voice": "vo.finalForm"
           }
         },
         {
           "type": "Bt/ExecuteSkill",
-          "config": {
+          "settings": {
             "skill": "teleport",
             "cooldownKey": "teleport",
             "fx": "fx.teleport",
@@ -59,13 +59,13 @@
         },
         {
           "type": "Bt/Loop",
-          "config": { "count": 3 },
+          "settings": { "count": 3 },
           "child": {
             "type": "Bt/Sequence",
             "children": [
               {
                 "type": "Bt/ExecuteSkill",
-                "config": {
+                "settings": {
                   "skill": "smash",
                   "cooldownKey": "smash",
                   "animation": "anim.smash",
@@ -75,14 +75,14 @@
               },
               {
                 "type": "Bt/TimeoutDecorator",
-                "config": { "duration": 0.75 }
+                "settings": { "duration": 0.75 }
               }
             ]
           }
         },
         {
           "type": "Bt/Taunt",
-          "config": {
+          "settings": {
             "lines": ["You still here?"],
             "voice": "vo.disappointed"
           }
@@ -98,20 +98,20 @@
       "children": [
         {
           "type": "Bt/Parallel",
-          "config": { "exitCondition": "AnyFailure" },
+          "settings": { "exitCondition": "AnyFailure" },
           "children": [
             {
               "type": "Bt/Selector",
               "children": [
                 {
                   "type": "Bt/Condition",
-                  "config": {
+                  "settings": {
                     "label": "StunLoopTrigger",
                     "check": { "type": "WasStunnedNTimes", "count": 2 }
                   },
                   "child": {
                     "type": "Bt/RepeatSkill",
-                    "config": {
+                    "settings": {
                       "skill": "smash",
                       "times": 4,
                       "interval": 0.5,
@@ -124,7 +124,7 @@
                 },
                 {
                   "type": "Bt/ExecuteSkill",
-                  "config": {
+                  "settings": {
                     "skill": "dash",
                     "cooldownKey": "dash",
                     "fx": "fx.dash",
@@ -134,7 +134,7 @@
                 },
                 {
                   "type": "Bt/MoveToTarget",
-                  "config": {
+                  "settings": {
                     "$ref": "movement"
                   }
                 }
@@ -142,7 +142,7 @@
             },
             {
               "type": "Bt/TimeoutDecorator",
-              "config": { "duration": 1.25 }
+              "settings": { "duration": 1.25 }
             }
           ]
         }
@@ -155,13 +155,13 @@
     "children": [
       {
         "type": "Bt/Condition",
-        "config": {
+        "settings": {
           "label": "CornerTrapTrigger",
           "check": { "type": "PlayerInCorner" }
         },
         "child": {
           "type": "Bt/ExecuteSkill",
-          "config": {
+          "settings": {
             "skill": "teleport",
             "cooldownKey": "teleport",
             "animation": "anim.teleport",
@@ -175,11 +175,11 @@
 
   "TauntHandler": {
     "type": "Bt/RandomSelector",
-    "config": { "interval": 10 },
+    "settings": { "interval": 10 },
     "children": [
       {
         "type": "Bt/Taunt",
-        "config": {
+        "settings": {
           "lines": { "$ref": "text.taunt" },
           "domains": ["Combat", "PlayerInput"],
           "select": "weighted",
@@ -188,7 +188,7 @@
       },
       {
         "type": "Bt/ExecuteSkill",
-        "config": {
+        "settings": {
           "skill": "lockdown",
           "cooldownKey": "lockdown",
           "animation": "anim.lockdown",

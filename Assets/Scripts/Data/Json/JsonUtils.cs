@@ -258,6 +258,30 @@ public static class JsonUtils
         ResolveRefsRecursive(node, configData.RawJson);
     }
 
+    /// <summary>
+    /// Determines whether a JToken contains any unresolved references.
+    /// Considers a reference unresolved if it contains a key matching CoreKeys.Ref
+    /// or has nested tokens that do.
+    /// </summary>
+    /// <param name="token">The JToken to search for unresolved references.</param>
+    /// <returns>True if any unresolved references are found; otherwise, false.</returns>
+    public static bool HasUnresolvedRefs(JToken token)
+    {
+        if (token.Type == JTokenType.Object)
+        {
+            var obj = (JObject)token;
+            if (obj.ContainsKey(CoreKeys.Ref)) return true;
+
+            return obj.Properties().Any(prop => HasUnresolvedRefs(prop.Value));
+        }
+        else if (token.Type == JTokenType.Array)
+        {
+            return token.Children().Any(HasUnresolvedRefs);
+        }
+
+        return false;
+    }
+    
     // Internal: recursive helper. DO NOT call this directly outside this file.
     private static void ResolveRefsRecursive(JToken node, JObject configRoot)
     {

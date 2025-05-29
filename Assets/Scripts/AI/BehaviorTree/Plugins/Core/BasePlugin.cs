@@ -8,7 +8,7 @@ using UnityEngine;
 public abstract class BasePlugin : IEntityComponentPlugin
 {
     /// <summary>
-    /// Apply behavior to the given entity using this plugin’s config.
+    /// Apply behavior to the given entity using this plugin's config.
     /// Override in derived classes.
     /// </summary>
     public abstract void Apply(GameObject entity, JObject jObject);

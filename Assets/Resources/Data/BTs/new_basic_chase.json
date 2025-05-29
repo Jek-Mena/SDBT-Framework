@@ -4,7 +4,7 @@
     "children": [
       {
         "type": "Bt/MoveToTarget",
-        "config": { "$ref": "movement" }
+        "settings": { "$ref": "movement" }
       }
     ]
   }

@@ -20,7 +20,7 @@ public class TargetingPlugin : BasePlugin
             return;
         }
 
-        var targetingConfig = configData.RawJson[CoreKeys.ConfigBlock.Targeting] as JObject;
+        var targetingConfig = configData.RawJson[CoreKeys.SettingsBlock.Targeting] as JObject;
         if (targetingConfig == null)
         {
             Debug.LogError($"[{context}] Missing 'targeting' block in BtConfig.");

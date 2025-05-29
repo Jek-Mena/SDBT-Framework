@@ -11,7 +11,7 @@ public class BtPauseNodeFactory : TimedExecutionNodeFactory<BtPauseNode>
 
         // Parse domains as before
         string[] domains = null;
-        var config = nodeData.Config;
+        var config = nodeData.Settings;
         if (config != null && config.TryGetValue(CoreKeys.Domain, out var domainsToken))
         {
             if (domainsToken.Type == JTokenType.Array)

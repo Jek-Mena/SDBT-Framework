@@ -68,7 +68,7 @@ public static class BtJsonValidator
         }
 
         // Validate node type
-        if (!obj.TryGetValue(CoreKeys.Type, out var typeToken) && !obj.TryGetValue(CoreKeys.BtKey, out typeToken))
+        if (!obj.TryGetValue(CoreKeys.Type, out var typeToken))
         {
             result.Errors.Add($"[{path}] Missing required field: either 'type' or 'btKey' must be present.");
             return;

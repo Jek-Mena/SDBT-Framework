@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
@@ -9,20 +10,20 @@ using System.Linq;
 public class TreeNodeData
 {
     /// <summary>
-    /// Teh raw JSON object representing the entire node (including type, config, children, etc.)
+    /// The raw JSON object representing the entire node (including type, config, children, etc.)
     /// </summary>
     public JObject Raw { get; }
 
     /// <summary>
     /// The node's type or alias key (e.g. "Bt/MoveTo", "Bt/Selector").
     /// </summary>
-    public string BtKey => Raw[CoreKeys.BtKey]?.ToString() ?? Raw[CoreKeys.Type]?.ToString();
+    public string BtType => Raw[CoreKeys.Type]?.ToString();
 
     /// <summary>
     /// The configuration/settings object for this node (e.g. parameters, options).
     /// Returns null if not present.
     /// </summary>
-    public JObject Config => Raw[CoreKeys.Config] as JObject;
+    public JObject Settings => Raw[CoreKeys.Config] as JObject;
 
     /// <summary>
     /// The list of child nodes (composite, decorators).
@@ -42,10 +43,28 @@ public class TreeNodeData
     public bool HasChildren => Children != null && Children.Count > 0;
 
     /// <summary>
+    /// Returns the first (and only) child node. Supports both "child" and "children" keys.
+    /// Throws if zero or multiple children found.
+    /// </summary>
+    public TreeNodeData GetSingleChild(string context)
+    {
+        // Priority: explicit "child" key
+        var single = Raw[CoreKeys.Child] as JObject;
+        if (single != null)
+            return new TreeNodeData(single);
+
+        // Fallback: array with exactly one
+        if (HasChildren && Children.Count == 1)
+            return new TreeNodeData((JObject)Children[0]);
+
+        throw new Exception($"[{context}] Expected exactly one child (via 'child' or 'children'), found {Children?.Count ?? 0}.");
+    }
+    
+    /// <summary>
     /// Returns a readable summary for debugging/
     /// </summary>
     public override string ToString()
     {
-        return $"[TreeNodeData: BtKey={BtKey}, ConfigKeys={Config?.Properties()?.Count() ?? 0}, Children={Children?.Count ?? 0}]";
+        return $"[TreeNodeData: BtKey={BtType}, ConfigKeys={Settings?.Properties()?.Count() ?? 0}, Children={Children?.Count ?? 0}]";
     }
 }

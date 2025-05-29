@@ -21,7 +21,7 @@ public class EntitySpawner : MonoBehaviour
         var entity = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
         Debug.Log($"'{entity.name}' successfully spawned.");
 
-        // 2) Build components array and root JSON for plugins
+        // 2) Build component array and root JSON for plugins
         var compsArray = new JArray(
             entityData.Components.Select(comp =>
                 new JObject
@@ -33,7 +33,7 @@ public class EntitySpawner : MonoBehaviour
         );
         var rootJson = new JObject { [CoreKeys.Components] = compsArray };
 
-        // 3) Extract BtConfig from plugin list
+        // 3) Extract BtConfig from pluginlist
         var configComponent = compsArray
             .OfType<JObject>()
             .FirstOrDefault(c => c[CoreKeys.Plugin]?.ToString() == PluginMetaKeys.Core.BtConfig.Plugin);
@@ -77,7 +77,7 @@ Create/assign Blackboard to BtController
     ↓
 Inject BtConfig into Blackboard from JSON
     ↓
-ModularContextBuilder.Build(go) // context modules wire up blackboard (TargetingData, Movement, etc)
+ModularContextBuilder.Build(go) // context modules wire up blackboard (TargetingData, Movement, etc.)
     ↓
 BtLoader.ApplyAll(go, root) // plugins applied, BT loaded and assigned
     ↓

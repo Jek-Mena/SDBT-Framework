@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -26,31 +25,12 @@ public class BtLoadTreePlugin : BasePlugin
             blackboard.Set(PluginMetaKeys.Core.BtConfig.Plugin, configData);
         }
 
-        // 🔨 Load behavior tree from inline or "params" block
-        var treeToken = jObject[CoreKeys.Tree]
-                        ?? jObject[CoreKeys.Params]?[CoreKeys.Tree];
-
+        // Load behavior tree from the inline or "params" block
+        var treeToken = jObject[CoreKeys.Tree] ?? jObject[CoreKeys.Params]?[CoreKeys.Tree];
         if (treeToken == null)
             throw new Exception($"[{context}] Missing 'tree' field (inline [{CoreKeys.Params}] or treeId: [{CoreKeys.Tree}])");
-
-        IBehaviorNode root;
-
-        if (treeToken.Type == JTokenType.Object)
-        {
-            // Inline tree definition
-            root = BtTreeBuilder.Build(treeToken, blackboard);
-        }
-        else if (treeToken.Type == JTokenType.String)
-        {
-            var treeId = treeToken.ToString();
-            root = BtTreeBuilder.Load(treeId, blackboard);
-        }
-        else
-        {
-            throw new Exception(
-                $"[{context}] Invalid 'tree' format: expected JObject or string, got: {treeToken.Type}");
-        }
-
+        
+        var root = BtTreeBuilder.LoadFromToken(treeToken, blackboard);
         controller.SetTree(root);
 
         Debug.Log($"[{context}] Behavior tree built and assigned.");

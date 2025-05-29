@@ -10,9 +10,9 @@ public static class BtTreeBuilder
         return Build(new TreeNodeData((JObject)json), blackboard, nodeData => Build(nodeData, blackboard));
     }
 
-    public static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> recurse)
+    private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> recurse)
     {
-        var alias = nodeData.BtKey;
+        var alias = nodeData.BtType;
         if (string.IsNullOrEmpty(alias))
             throw new Exception($"[BtTreeBuilder] Missing or empty 'type'/'btKey' in node: {nodeData}");
 
@@ -47,14 +47,15 @@ public static class BtTreeBuilder
             var rootToken = fileJson[CoreKeys.Root] ?? fileJson;
 
             JsonUtils.ResolveRefs(rootToken, blackboard);
+            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{context}] Unresolved {CoreKeys.Ref} found post-resolution.");
             
             if (rootToken is not JObject rootNode)
                 throw new Exception($"[{context}] Invalid tree structure: '{CoreKeys.Root}' must be an object with a '{CoreKeys.Type}' field.");
 
             if (string.IsNullOrEmpty(rootNode[CoreKeys.Type]?.ToString()))
                 throw new Exception($"[{context}] Missing or empty '{CoreKeys.Type}' in root node.");
-
-            return BtTreeBuilder.Build(rootNode, blackboard);
+            
+            return Build(rootNode, blackboard);
         }
         catch (Exception ex)
         {
@@ -62,10 +63,36 @@ public static class BtTreeBuilder
         }
     }
 
+    // Use this to handle string or inline object format from any plugin or context
+    public static IBehaviorNode LoadFromToken(JToken treeToken, Blackboard blackboard)
+    {
+        var context = nameof(BtTreeBuilder);
+
+        if (treeToken.Type == JTokenType.String)
+        {
+            var treeId = treeToken.ToString();
+            return Load(treeId, blackboard);
+        }
+        else if (treeToken.Type == JTokenType.Object)
+        {
+            var obj = (JObject)treeToken;
+            var rootToken = obj[CoreKeys.Root] ?? obj;
+            
+            JsonUtils.ResolveRefs(rootToken, blackboard);
+            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{context}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            
+            return Build(rootToken, blackboard);
+        }
+        else
+        {
+            throw new Exception($"[{context}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
+        }
+    }
+    
     // Overload for recursive calls with TreeNodeData
     private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard)
     {
-        // Recursion with correct delegate signature
+        // Recursion with the correct delegate signature
         return Build(nodeData, blackboard, childNodeData => Build(childNodeData, blackboard));
     }
 }

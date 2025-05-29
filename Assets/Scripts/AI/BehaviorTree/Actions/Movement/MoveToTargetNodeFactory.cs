@@ -7,18 +7,9 @@ public class MoveToTargetNodeFactory : IBtNodeFactory
     {
         var context = nameof(MoveToTargetNodeFactory);
 
-        // Resolve config, including $ref
-        var config = nodeData.Config;
-        if (config == null)
-            throw new Exception($"[{context}] Missing 'config' for MoveToTarget node.");
+        var config = nodeData.Settings ?? throw new Exception($"[{context}] Missing 'config' for MoveToTarget node.");
 
-        // After ref resolution, config IS the movement config
-        JObject movementConfig = config as JObject;
-
-        if (movementConfig == null)
-            throw new Exception($"[{context}] Could not resolve movement config for MoveToTargetNodeFactory.");
-
-        var movementData = MovementDataBuilder.FromConfig(movementConfig, context);
+        var movementData = MovementDataBuilder.FromConfig(config, context);
         return new MoveToTargetNode(movementData);
     }
 }

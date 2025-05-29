@@ -30,7 +30,7 @@ public static class BtConfigResolver
             if (current is JObject obj && obj.TryGetValue(part, out var next))
                 current = next;
             else
-                throw new Exception($"[BtConfigResolver] Cannot resolve path '{path}' — failed at '{part}'");
+                throw new Exception($"[BtConfigResolver] Cannot resolve path '{path}' ï¿½ failed at '{part}'");
         }
 
         return current;
