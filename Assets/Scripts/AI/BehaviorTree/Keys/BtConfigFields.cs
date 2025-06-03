@@ -44,6 +44,13 @@ public static class BtConfigFields
         public const string UpdateThreshold = "updateThreshold";
     }
 
+    public static class Rotation
+    {
+        public const string Speed = "speed";
+        public const string AngleThreshold = "angleThreshold";
+        public const string UpdateThreshold = "updateThreshold";
+    }
+    
     /// <summary>
     /// Impulse movement settings, especially for dash-style behaviors using RigidbodyImpulseMover.
     /// </summary>

@@ -11,7 +11,13 @@ public static class TargetResolverRegistry
         // { TargetingStyle.Farthest, new FarthestTargetResolver() }, // Implement as needed
     };
 
-    public static ITargetResolver Get(TargetingStyle style)
+    /// <summary>
+    /// Retrieves the corresponding <see cref="ITargetResolver"/> for the specified <see cref="TargetingStyle"/>.
+    /// If the specified style is not found, the resolver for <see cref="TargetingStyle.Closest"/> is returned as a fallback.
+    /// </summary>
+    /// <param name="style">The targeting style for which to retrieve the corresponding resolver.</param>
+    /// <returns>The <see cref="ITargetResolver"/> associated with the specified targeting style, or the resolver for <see cref="TargetingStyle.Closest"/> if not found.</returns>
+    public static ITargetResolver TryGetValue(TargetingStyle style)
         => _resolvers.TryGetValue(style, out var resolver) ? resolver : _resolvers[TargetingStyle.Closest];
 
     // Optional: RegisterSchema at runtime (mod support, DLC, etc.)

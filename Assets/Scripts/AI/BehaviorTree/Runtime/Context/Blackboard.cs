@@ -27,6 +27,10 @@ public class Blackboard
     /// <summary>Impulse-based movement logic (e.g., knockbacks, pushes)</summary>
     public IImpulseNode ImpulseLogic;
 
+    // --- Rotation System
+    
+    /// <summary>Rotation controller</summary>
+    public IRotationNode RotationLogic { get; set; }
     
     // --- Timed Execution System ---
     

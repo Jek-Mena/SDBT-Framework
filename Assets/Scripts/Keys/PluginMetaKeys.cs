@@ -87,6 +87,15 @@ public static class PluginMetaKeys
         }
     }
 
+    public static class Rotation
+    {
+        public static class TransformLookAtTarget
+        {
+            public const string Plugin = "Plugin/TransformLookAtTarget";
+            public const string Schema = "Schema/TransformLookAtTarget";
+        }
+    }
+    
     public static class Status
     {
         public static class Pause

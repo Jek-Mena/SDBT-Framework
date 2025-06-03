@@ -1,3 +1,5 @@
+using AI.BehaviorTree.Actions.Rotate;
+
 /// <summary>
 /// Provides a centralized registry for behavior tree node factories and their associated aliases.
 /// This class facilitates the registration and retrieval of behavior tree node factories,
@@ -15,21 +17,32 @@ public static class BtNodeRegistrationList
     {
         var entries = new (string alias, IBtNodeFactory factory)[]
         {
-            // Actions / Leaves
-            MakeEntry<MoveToTargetNodeFactory>(BtNodeAliases.Movement.MoveToTarget),
-            MakeEntry<ImpulseMoverNodeFactory>(BtNodeAliases.Movement.ImpulseMover),
+            // --- Actions / Leaves ---
+            // Movement
+            MakeEntry<MoveToTargetNodeFactory>(BtNodeTypes.Movement.MoveToTarget),
+            MakeEntry<ImpulseMoverNodeFactory>(BtNodeTypes.Movement.ImpulseMover),
             
-            // Timed Execution
-            MakeEntry<BtPauseNodeFactory>(BtNodeAliases.TimedExecution.Pause),
+            // Rotation
+            MakeEntry<RotateToTargetNodeFactory>(BtNodeTypes.Rotation.RotateToTarget),
+            // --- End Actions / Leaves ---
             
-            // Decorators
-            MakeEntry<BtTimeoutDecoratorNodeFactory>(BtNodeAliases.Decorators.Timeout),
-            MakeEntry<BtRepeaterNodeFactory>(BtNodeAliases.Decorators.Repeater),
             
-            // Composite
-            MakeEntry<BtSequenceNodeFactory>(BtNodeAliases.Composite.Sequence),
-            MakeEntry<BtParallelNodeFactory>(BtNodeAliases.Composite.Parallel),
-            MakeEntry<BtSelectorNodeFactory>(BtNodeAliases.Composite.Selector)
+            // --- Timed Execution
+            MakeEntry<BtPauseNodeFactory>(BtNodeTypes.TimedExecution.Pause),
+            // --- End Timed Execution ---
+            
+            
+            // --- Decorators ---
+            MakeEntry<TimeoutNodeFactory>(BtNodeTypes.Decorators.Timeout),
+            MakeEntry<BtRepeaterNodeFactory>(BtNodeTypes.Decorators.Repeater),
+            // --- End Decorators ---
+            
+            
+            // --- Composite ---
+            MakeEntry<BtSequenceNodeFactory>(BtNodeTypes.Composite.Sequence),
+            MakeEntry<BtParallelNodeFactory>(BtNodeTypes.Composite.Parallel),
+            MakeEntry<BtSelectorNodeFactory>(BtNodeTypes.Composite.Selector)
+            // --- End Composite ---
             
             // Add more here
         };

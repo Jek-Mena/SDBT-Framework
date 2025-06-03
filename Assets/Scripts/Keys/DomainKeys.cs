@@ -14,7 +14,7 @@ public static class DomainKeys
     public const string AI = "Domain/AI";
     public const string Navigation = "Domain/Navigation";
     public const string Animation = "Domain/Animation";
-
+    public const string TimedExecution = "Domain/TimedExecution";
     // Optional: Alias for default pause/stun behavior
     public const string Default = Movement;
 }

@@ -1,18 +1,12 @@
-// Deprecrated
 {
   "root": {
     "type": "Bt/Sequence",
     "children": [
       {
-        "type": "Bt/MoveTo",
-        "settings": {
-			"target": "Player",
-			"speed": 3.0,
-			"angularSpeed": 150.0,
-			"acceleration": 3.0,
-			"stoppingDistance": 0.5,
-			"updateThreshold": 0.25
-		}
+        "type": "Bt/MoveToTarget",
+        "config": {
+          "$ref": "movement"
+        }
       }
     ]
   }

@@ -33,6 +33,12 @@ public static class BtBootstrapper
             phase: PluginExecutionPhase.Context
         );
 
+        PluginMetadataStore.Register<QuaternionLookAtPlugin>(
+            pluginKey: PluginMetaKeys.Rotation.TransformLookAtTarget.Plugin,
+            schemaKey: PluginMetaKeys.Rotation.TransformLookAtTarget.Schema,
+            phase: PluginExecutionPhase.Context
+        );
+        
         PluginMetadataStore.Register<TargetingPlugin>(
             pluginKey: PluginMetaKeys.Targeting.Plugin,
             schemaKey: PluginMetaKeys.Targeting.Schema,

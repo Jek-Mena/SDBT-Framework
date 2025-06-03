@@ -6,7 +6,7 @@
       "plugin": "Plugin/BtConfig",
       "params": {
         "targeting": {
-          "targetTag": "Ally",
+          "targetTag": "Player",
           "targetingStyle": "Closest",
           "blackboardKey": "ChaseTarget",
           "maxRange": 100,
@@ -27,10 +27,13 @@
     },
     {
       "plugin": "Plugin/BtLoadTree",
-      "params": { "tree": "new_basic_chase" }
+      "params": { "tree": "basic_dash_maneuver" }
     },
     {
       "plugin": "Plugin/NavMeshMoveToTarget"
-    }
+    },
+	{ 
+	  "plugin": "Plugin/Targeting" 
+	}
   ]
 }

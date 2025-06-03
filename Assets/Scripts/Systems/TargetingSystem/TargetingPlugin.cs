@@ -20,7 +20,7 @@ public class TargetingPlugin : BasePlugin
             return;
         }
 
-        var targetingConfig = configData.RawJson[CoreKeys.SettingsBlock.Targeting] as JObject;
+        var targetingConfig = configData.RawJson[CoreKeys.ParamSections.Targeting] as JObject;
         if (targetingConfig == null)
         {
             Debug.LogError($"[{context}] Missing 'targeting' block in BtConfig.");
@@ -32,7 +32,7 @@ public class TargetingPlugin : BasePlugin
         blackboard.TargetingData = TargetingDataBuilder.FromConfig(targetingConfig, context);
         
         // Retrieve the appropriate TargetResolver based on the targeting style.
-        blackboard.TargetResolver = TargetResolverRegistry.Get(blackboard.TargetingData.Style);
+        blackboard.TargetResolver = TargetResolverRegistry.TryGetValue(blackboard.TargetingData.Style);
         
         // Resolve and assign the target entity based on the configured targeting style.
         blackboard.Target = blackboard.TargetResolver.ResolveTarget(entity, blackboard.TargetingData);

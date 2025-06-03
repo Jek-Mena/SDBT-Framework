@@ -10,7 +10,7 @@ public class EntitySpawner : MonoBehaviour
     private void Start()
     {
         // 1) Load the entity definition
-        var entityData = _entityLoader.Load("Data/Units/Enemies/Standard/enemy_standard_laghound");
+        var entityData = _entityLoader.Load("Data/Units/Enemies/Standard/enemy_standard_dasher");
         var prefab = Resources.Load<GameObject>(entityData.Prefab);
 
         if (!prefab)

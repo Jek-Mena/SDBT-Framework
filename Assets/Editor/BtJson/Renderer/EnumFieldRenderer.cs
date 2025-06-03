@@ -13,7 +13,7 @@ public class EnumFieldRenderer : IJsonFieldRenderer
     {
         var selectedIndex = 0;
 
-        string[] options = field.EnumValues.ToArray();
+        var options = field.EnumValues.ToArray();
         var current = currentValue?.ToString() ?? options[0];
 
         for (int i = 0; i < options.Length; i++)

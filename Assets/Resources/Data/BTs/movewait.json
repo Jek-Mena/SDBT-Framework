@@ -1,0 +1,48 @@
+{
+  "root": {
+    "type": "Bt/Repeater",
+    "config": {
+      "maxRepeats": -1
+    },
+    "children": [
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          {
+            "type": "Bt/Parallel",
+            "config": {
+              "exitCondition": "FirstSuccess"
+            },
+            "children": [
+              {
+                "type": "Bt/MoveToTarget",
+                "config": {
+                  "$ref": "movement"
+                }
+              },
+              {
+                "type": "Bt/TimeoutDecorator",
+                "config": {
+                  "label": "MoveTimeout",
+                  "duration": {
+                    "$ref": 5.0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "Bt/Pause",
+            "config": {
+              "label": "PauseAfterMove",
+              "duration": 5.0,
+              "domains": {
+                "$ref": "Domain/Movement"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

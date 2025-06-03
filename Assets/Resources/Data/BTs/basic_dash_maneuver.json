@@ -1,0 +1,11 @@
+{
+  "root": {
+    "type": "Bt/Sequence",
+    "children": [
+      {
+        "type": "Bt/MoveToTarget",
+        "config": { "$ref": "movement" }
+      }
+    ]
+  }
+}

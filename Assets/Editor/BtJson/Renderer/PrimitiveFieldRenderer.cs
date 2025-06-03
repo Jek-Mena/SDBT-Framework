@@ -24,8 +24,16 @@ public class PrimitiveFieldRenderer : IJsonFieldRenderer
                 var intVal = currentValue?.Value<int>() ?? 0;
                 return new JValue(EditorGUILayout.IntField(intVal));
             case JTokenType.Float:
-                var floatVal = currentValue?.Value<float>() ?? 0; 
-                return new JValue(EditorGUILayout.FloatField(floatVal));
+                var floatVal = 0f;
+                var raw = currentValue?.ToString();
+
+                if (!string.IsNullOrWhiteSpace(raw) && float.TryParse(raw, out var parsedFloat))
+                    floatVal = parsedFloat;
+                else
+                    EditorGUILayout.HelpBox($"Invalid float input for '{key}': '{raw}'", MessageType.Warning);
+
+                var newVal = EditorGUILayout.FloatField(floatVal);
+                return new JValue(newVal);
             default:
                 EditorGUILayout.LabelField("Unsupported primitive type");
                 return currentValue;

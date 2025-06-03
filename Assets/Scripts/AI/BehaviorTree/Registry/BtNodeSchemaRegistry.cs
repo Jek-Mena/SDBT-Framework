@@ -17,12 +17,11 @@ public static class BtNodeSchemaRegistry
         return Schemas.ContainsKey(alias);
     }
 
-
     public static bool TryGet(string alias, out IBtNodeSchema schema)
     {
         return Schemas.TryGetValue(alias, out schema);
     }
 
-    public static IEnumerable<string> AllRegisteredAliases => Schemas.Keys;
+    public static IEnumerable<string> GetAllNodeTypes => Schemas.Keys;
 
 }

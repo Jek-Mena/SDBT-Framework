@@ -51,7 +51,7 @@
                         }
                       },
                       {
-                        "type": "Bt/MoveToTarget",
+                        "type": "Bt/LookAtTarget",
                         "config": {
                           "profileKey": "ChaserMovement",
                           "speed": 3.0,

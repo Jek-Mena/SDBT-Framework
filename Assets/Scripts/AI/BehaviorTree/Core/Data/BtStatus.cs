@@ -2,5 +2,7 @@ public enum BtStatus
 {
     Success,
     Failure,
-    Running
+    Running,
+    Idle,
+    Warning
 }

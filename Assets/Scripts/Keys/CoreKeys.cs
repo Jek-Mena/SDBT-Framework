@@ -129,7 +129,7 @@ public static class CoreKeys
     ///
     /// Example:
     /// {
-    ///     "type": "Bt/MoveTo",
+    ///     "type": "Bt/MoveToTarget",
     ///     "config": { "$ref": "movement" }
     /// }
     /// </summary>
@@ -154,8 +154,12 @@ public static class CoreKeys
     /// </summary>
     public const string Root = "root";
 
+    
+    public const string ExitCondition = "exitCondition";
+
     /// <summary>
-    /// 
+    /// Represents the JSON field that specifies the domain or category context
+    /// within which a particular entity or operation is applicable.
     /// </summary>
     public const string Domain = "Domain";
 
@@ -186,11 +190,11 @@ public static class CoreKeys
     ///     }
     /// }
     /// </summary>
-    public static class SettingsBlock
+    public static class ParamSections
     {
         /// <summary>
         /// Shared configuration block name for all movement-related parameters.
-        /// Only contains physical movement settings�no targeting logic.
+        /// Only contains physical movement settings, no targeting logic.
         /// Used by BT nodes (e.g., MoveTo), movement plugins (e.g., NavMeshMoveToTarget), and any runtime
         /// system that requires movement tuning.
         /// 
@@ -208,6 +212,18 @@ public static class CoreKeys
         /// </summary>
         public const string Movement = "movement";
 
+        /// <summary>
+        /// Represents the JSON field key for the timing settings block (Temporal Condition).
+        /// This key is used to identify and map timing-related configurations in the JSON data structure.
+        /// </summary>
+        public const string Timing = "timing";
+
+        /// <summary>
+        /// JSON field that corresponds to the setting for the rotation component within a configuration block.
+        /// This can be used to define or modify rotation behavior in relevant systems.
+        /// </summary>
+        public const string Rotation = "rotation";
+        
         /// <summary>
         /// Shared configuration block name for all targeting parameters.
         /// Purely defines how an entity selects its target�never how it moves toward it.

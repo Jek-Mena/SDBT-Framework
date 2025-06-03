@@ -40,16 +40,18 @@ public static class BtNodeRegistry
 
     private static readonly HashSet<string> KnownNodeTypes = new()
     {
-        BtNodeAliases.Composite.Sequence,
-        BtNodeAliases.Composite.Parallel,
-        BtNodeAliases.Composite.Selector,
+        BtNodeTypes.Composite.Sequence,
+        BtNodeTypes.Composite.Parallel,
+        BtNodeTypes.Composite.Selector,
         
-        BtNodeAliases.Movement.MoveToTarget,
-        BtNodeAliases.Movement.ImpulseMover,
+        BtNodeTypes.Movement.MoveToTarget,
+        BtNodeTypes.Movement.ImpulseMover,
         
-        BtNodeAliases.TimedExecution.Pause,
+        BtNodeTypes.Rotation.RotateToTarget,
         
-        BtNodeAliases.Decorators.Timeout,
+        BtNodeTypes.TimedExecution.Pause,
+        
+        BtNodeTypes.Decorators.Timeout,
         // Add more as needed
     };
 }
