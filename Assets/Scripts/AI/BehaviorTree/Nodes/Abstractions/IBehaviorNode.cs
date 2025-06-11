@@ -2,6 +2,7 @@ using System;
 
 public interface IBehaviorNode
 {
+    // Intent in -> Tick -> Status out.
     BtStatus Tick(BtContext context);
 
     // TEMPORARY: Legacy fallback

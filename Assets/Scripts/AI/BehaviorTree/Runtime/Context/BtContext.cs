@@ -9,9 +9,9 @@ using UnityEngine;
 /// </summary>
 public class BtContext
 {
-    public GameObject Self;
-    public Blackboard Blackboard;
-    public BtController Controller;
+    public GameObject Agent { get; }
+    public Blackboard Blackboard { get; }
+    public BtController Controller { get; }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="BtContext"/> class.
@@ -28,7 +28,24 @@ public class BtContext
     public BtContext(BtController controller)
     {
         Controller = controller;
-        Self = controller.gameObject;
+        Agent = controller.gameObject;
         Blackboard = controller.Blackboard;
     }
+    
+    // Facade Properties for leaf node convenience.
+
+    public TargetingData TargetingData => Blackboard.TargetingData;
+    public ITargetResolver TargetResolver =>
+        Blackboard.TargetResolver ?? TargetResolverRegistry.TryGetValue(TargetingData.Style);
+    public IMovementNode Movement => Blackboard.MovementLogic;
+    public IRotationNode Rotation => Blackboard.RotationLogic;
+    public TimerExecutionMono Timers => Blackboard.TimeExecutionManager;
+    public StatusEffectManager StatusEffectManager => Blackboard.StatusEffectManager;
+    public UpdatePhaseExecutor UpdatePhaseExecutor => Blackboard.UpdatePhaseExecutor;
+
+    public bool IsValid =>
+        Controller is not null &&
+        Blackboard != null &&
+        Movement != null &&
+        TargetingData != null;
 }

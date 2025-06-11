@@ -11,13 +11,16 @@ public class TimeoutNode : TimedExecutionNode
 
     public override BtStatus Tick(BtContext context)
     {
-        EnsureTimerStarted();
-        
-        if (Timer == null)
+        if (!BtValidator.Require(context)
+                .Timers()
+                .Check(out var error)
+           )
         {
-            Debug.LogError("[TimeoutNode] Timer system is null.");
-            return BtStatus.Failure;
+            Debug.Log(error);
+            return BtStatus.Failure;           
         }
+        
+        EnsureTimerStarted();
 
         var timerStatus = CheckTimerStatus();
 

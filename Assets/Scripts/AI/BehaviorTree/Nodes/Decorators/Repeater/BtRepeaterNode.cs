@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BtRepeaterNode : IBehaviorNode
@@ -15,13 +16,24 @@ public class BtRepeaterNode : IBehaviorNode
 
     public BtStatus Tick(BtContext context)
     {
+        if (!BtValidator.Require(context)
+                .RequireChild(_child)
+                .Check(out var error))
+        {
+            Debug.LogError(error);
+            return BtStatus.Failure;
+        }
+        
         var status = _child.Tick(context);
 
         if (status is BtStatus.Success or BtStatus.Failure)
         {
             _repeatCount++;
             if (_maxRepeats > 0 && _repeatCount >= _maxRepeats)
+            {
+                _repeatCount = 0; // Reset to allow reuse
                 return BtStatus.Success;
+            }
         }
 
         return BtStatus.Running;

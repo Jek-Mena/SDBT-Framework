@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Parallel node that ticks all children every frame.
@@ -25,42 +26,84 @@ public class BtParallelNode : IBehaviorNode
 
     public BtStatus Tick(BtContext context)
     {
+        if (!BtValidator.Require(context)
+                .Children(_children)
+                .Check(out var error)
+            )
+        {
+            Debug.Log(error);
+            return BtStatus.Failure;
+        }
+        
         var anyRunning = false;
         var anySuccess = false;
         var anyFailure = false;
+        var allSuccess = true;
+        var allFailure = true;
 
         foreach (var child in _children)
         {
             var status = child.Tick(context);
 
-            if (status == BtStatus.Running) anyRunning = true;
-            if (status == BtStatus.Success) anySuccess = true;
-            if (status == BtStatus.Failure) anyFailure = true;
+            switch (status)
+            {
+                case BtStatus.Running:
+                    anyRunning = true;
+                    allSuccess = false;
+                    allFailure = false;
+                    break;
+                case BtStatus.Success:
+                    anySuccess = true;
+                    allFailure = false;
+                    break;
+                case BtStatus.Failure:
+                    anyFailure = true;
+                    allSuccess = false;
+                    break;
+            }
         }
 
-        switch (_exitCondition)
+        return _exitCondition switch
         {
-            case ParallelExitCondition.FirstSuccess:
-                if (anySuccess) return BtStatus.Success;
-                if (anyRunning) return BtStatus.Running;
-                return BtStatus.Failure;
+            ParallelExitCondition.FirstSuccess => anySuccess ? BtStatus.Success :
+                anyRunning ? BtStatus.Running :
+                BtStatus.Failure,
 
-            case ParallelExitCondition.FirstFailure:
-                if (anyFailure) return BtStatus.Failure;
-                if (anyRunning) return BtStatus.Running;
-                return BtStatus.Success;
+            ParallelExitCondition.FirstFailure => anyFailure ? BtStatus.Failure :
+                anyRunning ? BtStatus.Running :
+                BtStatus.Success,
 
-            // Extend for AllSuccess, AllFailure if needed
-            default:
-                throw new Exception("[BtParallelNode] Unknown or unsupported exit condition.");
-        }
+            ParallelExitCondition.AllSuccess => allSuccess ? BtStatus.Success :
+                anyRunning ? BtStatus.Running :
+                BtStatus.Failure,
+
+            ParallelExitCondition.AllFailure => allFailure ? BtStatus.Failure :
+                anyRunning ? BtStatus.Running :
+                BtStatus.Success,
+
+            _ => throw new ArgumentOutOfRangeException(nameof(_exitCondition),
+                "[BtParallelNode] Unknown or unsupported exit condition.")
+        };
     }
 }
 
-public enum ParallelExitCondition
+/// <summary>
+/// Defines the conditions under which a parallel node will exit or return a result.
+/// Determines how the behavior of the parallel node is evaluated based on child node outcomes.
+/// The possible exit conditions are:
+/// - FirstSuccess: The node returns Success as soon as any child returns Success.
+/// - FirstFailure: The node returns Failure as soon as any child returns Failure.
+/// - AllSuccess: The node returns Success only when all children return Success.
+/// - AllFailure: The node returns Failure only when all children return Failure.
+/// These conditions dictate the evaluation logic across all child nodes and control how the overall
+/// behavior tree proceeds based on the aggregated results of its children.
+///
+/// Additionally, ": byte" makse the enum non-extensible at runtime.
+/// </summary>
+public enum ParallelExitCondition : byte
 {
-    FirstSuccess,
-    FirstFailure,
-    AllSuccess,
-    AllFailure
+    FirstSuccess = 0,
+    FirstFailure = 1,
+    AllSuccess = 2,
+    AllFailure = 3
 }

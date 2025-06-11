@@ -37,27 +37,22 @@ public class WithinRangeCondition : BtConditionNode
     }
     public override BtStatus Tick(BtContext context)
     {
-        var blackboard = context.Blackboard;
-        if (blackboard == null)
+        if (!BtValidator.Require(context)
+                .Blackboard()
+                .KeyExists<GameObject>(_targetKey)
+                .Check(out var error))
         {
-            Debug.LogError("[WithinRangeCondition] Blackboard is null.");
+            Debug.LogError(error);
             return BtStatus.Failure;
         }
-
-        var target = blackboard.Get<GameObject>(_targetKey);
-        if (target == null)
-        {
-            Debug.LogWarning("[WithinRangeCondition] No target found.");
-            return BtStatus.Failure;
-        }
-
-        var distance = Vector3.Distance(context.Self.transform.position, target.transform.position);
+        
+        var target =context.Blackboard.Get<GameObject>(_targetKey);
+        var distance = Vector3.Distance(context.Agent.transform.position, target.transform.position);
         var inRange = distance <= _maxDistance;
 
-        if (!inRange)
-            return BtStatus.Failure;
-
-        return _child != null ? _child.Tick(context) : BtStatus.Success; // backward-compatible
+        return !inRange
+            ? BtStatus.Failure
+            : _child?.Tick(context) ?? BtStatus.Success;
     }
 }
 

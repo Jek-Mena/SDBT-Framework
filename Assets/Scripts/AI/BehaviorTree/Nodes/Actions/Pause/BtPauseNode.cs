@@ -9,16 +9,20 @@ public class BtPauseNode : TimedExecutionNode
 
     public BtPauseNode(TimedExecutionData timeData, string[] domains = null) : base(timeData)
     {
-        // If domains not specified, default to Movement
         _domains = domains ?? new[] { BlockedDomain.Movement };
     }
 
     public override BtStatus Tick(BtContext context)
     {
-        var controller = context.Controller;
-        
-        if(!_effectManager)
-            _effectManager = controller.Blackboard.StatusEffectManager;
+        if (!BtValidator.Require(context)
+                .Timers()
+                .Effects()
+                .Check(out var error)
+           )
+        {
+            Debug.Log(error);
+            return BtStatus.Failure;
+        }
         
         EnsureTimerStarted();
         
