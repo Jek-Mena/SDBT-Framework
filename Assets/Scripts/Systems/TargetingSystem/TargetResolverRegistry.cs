@@ -10,7 +10,19 @@ public static class TargetResolverRegistry
         // { TargetingStyle.LowestHP, new LowestHpTargetResolver() }, // Implement as needed
         // { TargetingStyle.Farthest, new FarthestTargetResolver() }, // Implement as needed
     };
+    
+    /// <summary>
+    /// Retrieves the resolver for the specified style. Throws if not registered.
+    /// </summary>
+    public static ITargetResolver Get(TargetingStyle style)
+    {
+        if (_resolvers.TryGetValue(style, out var resolver))
+            return resolver;
 
+        // Throw explicit exception instead of fallback
+        throw new KeyNotFoundException($"No TargetResolver registered for style: {style}");
+    }
+    
     /// <summary>
     /// Retrieves the corresponding <see cref="ITargetResolver"/> for the specified <see cref="TargetingStyle"/>.
     /// If the specified style is not found, the resolver for <see cref="TargetingStyle.Closest"/> is returned as a fallback.
