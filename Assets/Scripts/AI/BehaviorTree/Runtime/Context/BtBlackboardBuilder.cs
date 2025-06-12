@@ -5,9 +5,9 @@ using UnityEngine;
 /// Constructs and injects runtime blackboards with modular services required by Behavior Tree plugins and nodes.
 /// This serves as the main orchestrator for assembling per-entity context (e.g., movement logic, timers, targeting).
 /// 
-/// • Each context field is added by a separate IContextBuilderModule (e.g., MovementContextBuilder).
-/// • ContextBuilder does *not* inject behavior — it only wires data and logic used by plugins/nodes.
-/// • Modules are registered during startup (via BtBootStrapper) and executed in registration order.
+/// â€¢ Each context field is added by a separate IContextBuilderModule (e.g., MovementContextBuilder).
+/// â€¢ ContextBuilder does *not* inject behavior, it only wires data and logic used by plugins/nodes.
+/// â€¢ Modules are registered during startup (via BtBootStrapper) and executed in registration order.
 ///
 /// - Supports future extensions such as Roslyn-generated modules for dynamic BT behaviors.
 /// </summary>
@@ -22,11 +22,11 @@ public class BtBlackboardBuilder : IContextBuilder
     /// <summary>
     /// Builds the full runtime context (blackboard) for an entity.
     /// 
-    /// • Skips build if already processed (prevents redundant context initialization)
-    /// • Ensures BtController exists (throws if missing)
-    /// • Creates a fresh blackboard
-    /// • Runs all registered modules to populate shared services
-    /// • Assigns blackboard to BtController
+    /// â€¢ Skips build if already processed (prevents redundant context initialization)
+    /// â€¢ Ensures BtController exists (throws if missing)
+    /// â€¢ Creates a fresh blackboard
+    /// â€¢ Runs all registered modules to populate shared services
+    /// â€¢ Assigns blackboard to BtController
     /// 
     /// ! Each module must be idempotent and safe (i.e., no hard assumptions about components).
     /// ! Will reuse existing context if already built for the entity.
@@ -80,8 +80,8 @@ public class BtBlackboardBuilder : IContextBuilder
     /// <summary>
     /// Registers a new module into the builder pipeline.
     /// 
-    /// • Must be called during startup (e.g., inside BtBootStrapper)
-    /// • Call order matters if modules depend on each other
+    /// ï¿½ Must be called during startup (e.g., inside BtBootStrapper)
+    /// ï¿½ Call order matters if modules depend on each other
     /// </summary>
     public void RegisterModule(IContextBuilderModule module) => _modules.Add(module);
     

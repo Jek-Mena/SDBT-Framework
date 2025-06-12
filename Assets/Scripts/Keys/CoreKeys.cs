@@ -241,6 +241,6 @@ public static class CoreKeys
         /// Never mix movement keys here.
         /// Targeting config should be referenced via $ref or directly wherever selection logic is needed.
         /// </summary>
-        public const string Targeting = "targeting";
+        public const string Targeting = "targetingProfiles";
     }
 }

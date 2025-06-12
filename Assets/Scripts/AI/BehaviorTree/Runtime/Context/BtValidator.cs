@@ -57,7 +57,7 @@ public class BtValidator
     
     public BtValidator Effects()
     {
-        if (!_context.Blackboard?.StatusEffectManager)
+        if (!_context.Blackboard.StatusEffectManager)
             _errors.Add("[BtValidator] StatusEffectManager missing.");
         return this;
     }

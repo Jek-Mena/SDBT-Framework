@@ -2,7 +2,6 @@
 
 public class BtPauseNode : TimedExecutionNode
 {
-    private StatusEffectManager _effectManager;
     private StatusEffect _pauseEffect;
     private bool _applied;
     private readonly string[] _domains;
@@ -36,7 +35,8 @@ public class BtPauseNode : TimedExecutionNode
                 TimeApplied = Time.time,
                 Domains = _domains
             };
-            _effectManager.ApplyEffect(_pauseEffect);
+
+            context.StatusEffectManager.ApplyEffect(_pauseEffect);
             _applied = true;
         }
 
@@ -44,7 +44,7 @@ public class BtPauseNode : TimedExecutionNode
 
         if (status != BtStatus.Running && _applied)
         {
-            _effectManager.RemoveEffects(_pauseEffect);
+            context.StatusEffectManager.RemoveEffects(_pauseEffect);
             _applied = false;
         }
 

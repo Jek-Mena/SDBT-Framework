@@ -12,7 +12,18 @@ public class Blackboard
     // ───────────────
 
     // --- Targeting System ---
+    // Add near your other explicit fields
+    public Dictionary<string, TargetingData> TargetingProfiles { get; set; } = new();
+
+    public TargetingData GetTargetingProfile(string key)
+    {
+        if (TargetingProfiles != null && TargetingProfiles.TryGetValue(key, out var data))
+            return data;
+        throw new System.Exception($"[Blackboard] Targeting profile '{key}' not found.");
+    }
+    
     /// <summary>Runtime data associated with targeting systems</summary>
+    [System.Obsolete("Use TargetingProfiles for all new code. This will be removed once migration is complete.")]
     public TargetingData TargetingData { get; set; }
     /// <summary>Strategy object that dynamically selects and returns the current target Transform based on TargetingData—supports hot-swapping for advanced AI (e.g., tower defense targeting rules).</summary>
     public ITargetResolver TargetResolver { get; set; }
