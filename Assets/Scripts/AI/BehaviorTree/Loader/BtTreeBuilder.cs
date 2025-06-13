@@ -4,12 +4,47 @@ using UnityEngine;
 
 public static class BtTreeBuilder
 {
-    public static IBehaviorNode Build(JToken json, Blackboard blackboard)
+    // Use this to handle string or inline object format from any plugin or context
+    public static IBehaviorNode LoadFromToken(JToken treeToken, Blackboard blackboard)
+    {
+        var context = nameof(BtTreeBuilder);
+
+        if (treeToken.Type == JTokenType.String)
+        {
+            var treeId = treeToken.ToString();
+            return Load(treeId, blackboard);
+        }
+        else if (treeToken.Type == JTokenType.Object)
+        {
+            var obj = (JObject)treeToken;
+            var rootToken = obj[CoreKeys.Root] ?? obj;
+            
+            JsonUtils.ResolveRefs(rootToken, blackboard);
+            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{context}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            
+            BtProfileResolver.ResolveAllProfiles(rootToken as JObject, blackboard);
+            
+            return Build(rootToken, blackboard);
+        }
+        else
+        {
+            throw new Exception($"[{context}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
+        }
+    }
+    
+    private static IBehaviorNode Build(JToken json, Blackboard blackboard)
     {
         // Recursively build with the correct delegate signature
         return Build(new TreeNodeData((JObject)json), blackboard, nodeData => Build(nodeData, blackboard));
     }
-
+    
+    // Overload for recursive calls with TreeNodeData
+    private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard)
+    {
+        // Recursion with the correct delegate signature
+        return Build(nodeData, blackboard, childNodeData => Build(childNodeData, blackboard));
+    }
+    
     private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> recurse)
     {
         var alias = nodeData.BtType;
@@ -25,14 +60,14 @@ public static class BtTreeBuilder
 
         return node;
     }
-
+    
     /// <summary>
     /// Loads a behavior tree from a JSON text asset under Resources/BTrees/{treeId}.json.
     /// Supports both:
     /// - Wrapped format: { "name": "treeName", "root": { ... } }
     /// - Raw node format: { "type": "Bt/Sequence", ... }
     /// </summary>
-    public static IBehaviorNode Load(string treeId, Blackboard blackboard)
+    private static IBehaviorNode Load(string treeId, Blackboard blackboard)
     {
         var context = nameof(BtTreeBuilder);
         var path = $"Data/BTs/{treeId}";
@@ -61,38 +96,5 @@ public static class BtTreeBuilder
         {
             throw new Exception($"[{context}] Failed to parse behavior tree '{treeId}': {ex.Message}", ex);
         }
-    }
-
-    // Use this to handle string or inline object format from any plugin or context
-    public static IBehaviorNode LoadFromToken(JToken treeToken, Blackboard blackboard)
-    {
-        var context = nameof(BtTreeBuilder);
-
-        if (treeToken.Type == JTokenType.String)
-        {
-            var treeId = treeToken.ToString();
-            return Load(treeId, blackboard);
-        }
-        else if (treeToken.Type == JTokenType.Object)
-        {
-            var obj = (JObject)treeToken;
-            var rootToken = obj[CoreKeys.Root] ?? obj;
-            
-            JsonUtils.ResolveRefs(rootToken, blackboard);
-            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{context}] Unresolved {CoreKeys.Ref} found post-resolution.");
-            
-            return Build(rootToken, blackboard);
-        }
-        else
-        {
-            throw new Exception($"[{context}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
-        }
-    }
-    
-    // Overload for recursive calls with TreeNodeData
-    private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard)
-    {
-        // Recursion with the correct delegate signature
-        return Build(nodeData, blackboard, childNodeData => Build(childNodeData, blackboard));
     }
 }

@@ -5,17 +5,19 @@
     {
       "plugin": "Plugin/BtConfig",
       "params": {
-        "targeting": {
-          "targetTag": "Player",
-          "targetingStyle": "Closest",
-          "blackboardKey": "ChaseTarget",
-          "maxRange": 100,
-          "activationRange": 10,
-          "minRange": 2,
-          "fallOffRange": 120,
-          "searchRange": 200
+        "targetingProfile": {
+          "ChaseTarget": {
+            "targetTag": "Player",
+            "targetingStyle": "Closest",
+            "blackboardKey": "ChaseTarget",
+            "maxRange": 100,
+            "activationRange": 10,
+            "minRange": 2,
+            "fallOffRange": 120,
+            "searchRange": 200
+          }
         },
-        "movement": {
+        "movementProfile": {
           "profileKey": "ChaserMovement",
           "speed": 3.0,
           "acceleration": 3.0,
@@ -26,7 +28,13 @@
 		"timing": {
 		  "moveDuration": 5.0,
 		  "pauseDuration": 5.0
-		}
+		},
+		"rotation": {
+          "profileKey": "FaceTarget",
+          "speed": 120.0,
+          "angleThreshold": 3.0,
+          "updateThreshold": 0.05,
+        }
       }
     },
     {
@@ -41,6 +49,9 @@
 	},
 	{ 
 	  "plugin": "Plugin/Targeting" 
-	}
+	},
+	{
+      "plugin": "Plugin/TransformLookAtTarget"
+    },
   ]
 }

@@ -12,7 +12,7 @@ public class MovementActionBuilder
     /// <returns>
     /// A JSON object containing the type and configuration fields for the movement target.
     /// </returns>
-    public JObject MoveToTarget(string movementKey = CoreKeys.ParamSections.Movement)
+    public JObject MoveToTarget(string movementKey = CoreKeys.Profiles.Movement)
     {
         return new JObject
         {

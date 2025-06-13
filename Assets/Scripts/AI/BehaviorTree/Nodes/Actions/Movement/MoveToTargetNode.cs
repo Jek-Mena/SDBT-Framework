@@ -5,10 +5,12 @@
 public class MoveToTargetNode : IBehaviorNode
 {
     private readonly MovementData _movementData;
+    private readonly TargetingData _targetingData;
     
-    public MoveToTargetNode(MovementData movementData)
+    public MoveToTargetNode(MovementData movementData, TargetingData targetingData)
     {
         _movementData = movementData;
+        _targetingData = targetingData;
     }
     
     public BtStatus Tick(BtContext context)

@@ -190,7 +190,7 @@ public static class CoreKeys
     ///     }
     /// }
     /// </summary>
-    public static class ParamSections
+    public static class Profiles
     {
         /// <summary>
         /// Shared configuration block name for all movement-related parameters.
@@ -210,7 +210,7 @@ public static class CoreKeys
         /// 
         /// Do not add targeting keys here�keep all target/tag logic in a separate "targeting" config.
         /// </summary>
-        public const string Movement = "movement";
+        public const string Movement = "movementProfile";
 
         /// <summary>
         /// Represents the JSON field key for the timing settings block (Temporal Condition).
@@ -241,6 +241,12 @@ public static class CoreKeys
         /// Never mix movement keys here.
         /// Targeting config should be referenced via $ref or directly wherever selection logic is needed.
         /// </summary>
-        public const string Targeting = "targetingProfiles";
+        public const string Targeting = "targetingProfile";
+    }
+
+    public static class ResolvedProfiles
+    {
+        public const string Resolved = "resolved";
+        public const string Targeting = Resolved + Profiles.Targeting;
     }
 }

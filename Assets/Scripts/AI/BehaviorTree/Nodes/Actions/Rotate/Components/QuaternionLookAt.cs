@@ -75,12 +75,12 @@ public class QuaternionLookAt : MonoBehaviour, IRotationNode, IInitializeBehavio
 
     public void StopRotation()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Stopping rotation.");
     }
 
     public void StartRotation()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Starting rotation.");
     }
 
     public bool IsFacingTarget(Vector3 targetPosition)

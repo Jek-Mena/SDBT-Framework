@@ -19,7 +19,10 @@
               },
               {
                 "type": "Bt/MoveToTarget",
-                "config": { "$ref": "movement" }
+                "config": { 
+				  "targetProfile": "ChaseTarget",
+				  "$ref": "movementProfile" 
+				}
               }
             ]
           },

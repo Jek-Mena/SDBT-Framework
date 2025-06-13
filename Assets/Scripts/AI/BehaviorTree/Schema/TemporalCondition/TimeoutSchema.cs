@@ -10,7 +10,7 @@ public class TimeoutSchema : BtNodeSchema
             JsonType = JTokenType.String,
             IsRequired = true,
             AllowRef = false,
-            ParamSection = CoreKeys.ParamSections.Timing
+            ParamSection = CoreKeys.Profiles.Timing
         });
         AddField(new BtNodeSchemaField
         {
@@ -18,7 +18,7 @@ public class TimeoutSchema : BtNodeSchema
             JsonType = JTokenType.Float,
             IsRequired = true,
             AllowRef = true,
-            ParamSection = CoreKeys.ParamSections.Timing
+            ParamSection = CoreKeys.Profiles.Timing
         });
     }
 

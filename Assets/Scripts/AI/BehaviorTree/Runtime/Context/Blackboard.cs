@@ -12,7 +12,6 @@ public class Blackboard
     // ───────────────
 
     // --- Targeting System ---
-    // Add near your other explicit fields
     public Dictionary<string, TargetingData> TargetingProfiles { get; set; } = new();
 
     public TargetingData GetTargetingProfile(string key)
@@ -32,6 +31,14 @@ public class Blackboard
 
     
     // --- Movement System ---
+    public Dictionary<string, MovementData> MovementProfiles { get; set; } = new();
+
+    public MovementData GetMovementProfile(string key)
+    {
+        if (MovementProfiles != null && MovementProfiles.TryGetValue(key, out var data))
+            return data;
+        throw new System.Exception($"[Blackboard] Movement profile '{key}' not found.");
+    }
     
     /// <summary>Navigation or pathfinding movement controller (e.g., NavMesh, grid, etc.)</summary>
     public IMovementNode MovementLogic { get; set; }

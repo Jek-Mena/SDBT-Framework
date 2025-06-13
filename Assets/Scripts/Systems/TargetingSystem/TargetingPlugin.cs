@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -20,7 +21,34 @@ public class TargetingPlugin : BasePlugin
             return;
         }
 
-        var targetingConfig = configData.RawJson[CoreKeys.ParamSections.Targeting] as JObject;
+        // TODO replace or rename targetingProfiles into skillBlock. Written 12-06-2025 9:43pm 
+        // Get targetingProfiles block for multiple profiles
+
+        var profileBlock = configData.RawJson[CoreKeys.Profiles.Targeting] as JObject;
+        if (profileBlock != null)
+        {
+            var profiles = new Dictionary<string, TargetingData>();
+            foreach (var prop in profileBlock.Properties())
+            {
+                profiles[prop.Name] = TargetingDataBuilder.FromConfig(prop.Value as JObject, prop.Name);
+            }
+
+            blackboard.TargetingProfiles = profiles;
+            Debug.Log("[TargetingPlugin] Injected TargetingProfiles into blackboard.");
+            
+            // Optional: For backward compatibility, you may assign a default TargetingData
+            // e.g., use "ChaseTarget" as the default if present
+            if (profiles.TryGetValue("ChaseTarget", out var defaultProfile))
+            {
+                blackboard.TargetingData = defaultProfile;
+                blackboard.TargetResolver = TargetResolverRegistry.TryGetValue(defaultProfile.Style);
+                blackboard.Target = blackboard.TargetResolver.ResolveTarget(entity, defaultProfile);
+            }
+            return; // We're done; don't process old targeting block
+        }
+
+        // Old: Fallback for single targeting block (legacy support)
+        var targetingConfig = configData.RawJson[CoreKeys.Profiles.Targeting] as JObject;
         if (targetingConfig == null)
         {
             Debug.LogError($"[{context}] Missing 'targeting' block in BtConfig.");
@@ -28,15 +56,14 @@ public class TargetingPlugin : BasePlugin
         }
 
         // Inject TargetingData into the blackboard using the configuration data.
-        // This step ensures the TargetResolver and Target are properly initialized.
         blackboard.TargetingData = TargetingDataBuilder.FromConfig(targetingConfig, context);
-        
+
         // Retrieve the appropriate TargetResolver based on the targeting style.
         blackboard.TargetResolver = TargetResolverRegistry.TryGetValue(blackboard.TargetingData.Style);
-        
+
         // Resolve and assign the target entity based on the configured targeting style.
         blackboard.Target = blackboard.TargetResolver.ResolveTarget(entity, blackboard.TargetingData);
-        
+
         Debug.Log("[TargetingPlugin] TargetingData injected into blackboard.");
     }
 }

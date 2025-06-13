@@ -61,3 +61,23 @@ sysinfo.txt
 
 # --- Plastic SCM (expanded) ---
 .plastic*
+
+# --- Unity metadata and asset import settings
+*.meta
+*.pidb.meta
+*.pdb.meta
+*.mdb
+*.mdb.meta
+
+# Asset pipeline
+*.apk
+*.aab
+*.zip
+*.unitypackage
+
+# Crash logs and analytics
+sysinfo.txt
+
+# Rider
+.idea/
+*.sln.iml

@@ -12,7 +12,7 @@ public class RotationActionBuilder
     /// <returns>
     /// A JSON object containing the type and configuration fields for the rotation target.
     /// </returns>
-    public JObject RotateToTarget(string rotationKey = CoreKeys.ParamSections.Rotation) =>
+    public JObject RotateToTarget(string rotationKey = CoreKeys.Profiles.Rotation) =>
         new JObject()
         {
             [CoreKeys.Type] = BtNodeTypes.Rotation.RotateToTarget,
