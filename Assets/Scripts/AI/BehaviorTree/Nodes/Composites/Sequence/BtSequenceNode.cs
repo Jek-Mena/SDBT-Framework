@@ -14,6 +14,15 @@ public class BtSequenceNode : IBehaviorNode
 
     public BtStatus Tick(BtContext context)
     {
+        if(!BtValidator.Require(context)
+               .Children(_children)
+               .Check(out var error)
+          )
+        {
+            Debug.Log(error);
+            return BtStatus.Failure;
+        }
+        
         while (_currentIndex < _children.Count)
         {
             Debug.Log($"[BT Sequence] Ticking child {_currentIndex}");

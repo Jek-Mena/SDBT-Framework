@@ -34,7 +34,7 @@ public class BtValidator
 
     public BtValidator Timers()
     {
-        if (!_context.Timers)
+        if (!_context.TimeExecutionManager)
             _errors.Add("[BtValidator] Timer system missing.");
         return this;
     }

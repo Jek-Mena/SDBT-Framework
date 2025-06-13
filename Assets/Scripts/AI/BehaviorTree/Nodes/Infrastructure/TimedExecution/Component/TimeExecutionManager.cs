@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimerExecutionMono : MonoBehaviour, ITimedExecutionNode
+/// <summary>
+/// [2025-06-13] Refactored for TimerExecutionMono to TimerExecutionManager
+/// </summary>
+public class TimeExecutionManager : MonoBehaviour, ITimedExecutionNode
 {
     private class TimerData
     {

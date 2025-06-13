@@ -28,7 +28,6 @@ public class Blackboard
     public ITargetResolver TargetResolver { get; set; }
     /// <summary>The actual Transform to target (set by DynamicTargetContextBuilder)</summary>
     public Transform Target; // To be replaced by Targeting System
-
     
     // --- Movement System ---
     public Dictionary<string, MovementData> MovementProfiles { get; set; } = new();
@@ -53,7 +52,7 @@ public class Blackboard
     // --- Timed Execution System ---
     
     /// <summary>Timed execution logic for decorators or cooldown systems</summary>
-    public TimerExecutionMono TimeExecutionManager { get; set; }
+    public TimeExecutionManager TimeExecutionManager { get; set; }
     /// <summary>Runtime data associated with timing systems</summary>
     public TimedExecutionData TimerData { get; set; }
 
@@ -125,5 +124,33 @@ public class Blackboard
     /// </summary>
     public IEnumerable<KeyValuePair<string, object>> DumpDynamic() => _data;
 
+    /// <summary>
+    /// [2025-06-13] Added DumpContents for diagnostics after context build.
+    ///
+    /// Add/adjust fields to match blackboard structure.
+    /// </summary>
+    public string DumpContents()
+    {
+        var lines = new List<string>();
+        
+        void Add(string label, object val) => lines.Add($"- {label}: {(val != null ? "OK" : "MISSING")}");
+        Add(BlackboardKeys.Core.Profiles.TargetingProfiles, TargetingProfiles);
+        Add(BlackboardKeys.Core.Profiles.MovementProfiles, MovementProfiles);
+        
+        Add(BlackboardKeys.Core.Data.TargetingData, TargetingData);
+        Add(BlackboardKeys.Core.Data.TimerData, TimerData);
+        
+        Add(BlackboardKeys.Core.Actions.MovementLogic, MovementLogic);
+        Add(BlackboardKeys.Core.Actions.ImpulseLogic, ImpulseLogic);
+        Add(BlackboardKeys.Core.Actions.RotationLogic, RotationLogic);
+        
+        Add(BlackboardKeys.Core.Resolver.TargetResolver, TargetResolver);
+        
+        Add(BlackboardKeys.Core.Managers.TimeExecutionManager, TimeExecutionManager);
+        Add(BlackboardKeys.Core.Managers.StatusEffectManager, StatusEffectManager);
+        Add(BlackboardKeys.Core.Managers.UpdatePhaseExecutor, UpdatePhaseExecutor);
+        return string.Join("\n", lines);
+    }
+    
     // TODO: Add [DebuggableBlackboard] attribute support for runtime GUI/Inspector visibility
 }

@@ -39,7 +39,7 @@ public class BtContext
         Blackboard.TargetResolver ?? TargetResolverRegistry.TryGetValue(TargetingData.Style);
     public IMovementNode Movement => Blackboard.MovementLogic;
     public IRotationNode Rotation => Blackboard.RotationLogic;
-    public TimerExecutionMono Timers => Blackboard.TimeExecutionManager;
+    public TimeExecutionManager TimeExecutionManager => Blackboard.TimeExecutionManager;
     public StatusEffectManager StatusEffectManager => Blackboard.StatusEffectManager;
     public UpdatePhaseExecutor UpdatePhaseExecutor => Blackboard.UpdatePhaseExecutor;
 
