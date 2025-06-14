@@ -9,8 +9,9 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
         _alias = alias;
     }
 
-    public virtual IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+    public virtual IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
+        var blackboard = context.Blackboard;
         var timeData = BuildTimedExecutionData(nodeData, blackboard);
 
         // Instantiate the node (expects a TNode(TimedExecutionData) constructor)

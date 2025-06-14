@@ -3,13 +3,13 @@ using Newtonsoft.Json.Linq;
 
 public class ImpulseMoverNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> _)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> _)
     {
         // This node does not need config, but we COULD enforce it if you want per-node overrides later.
         // For now, leave logic injection to the plugin as discussed.
 
         // Optional: You can add a fail-fast check if desired
-        if (blackboard.ImpulseLogic == null)
+        if (context.Blackboard.ImpulseLogic == null)
             throw new Exception("[ImpulseMoverNodeFactory] ImpulseLogic was not injected into the blackboard. Add the relevant plugin.");
 
         return new ImpulseMoverNode();

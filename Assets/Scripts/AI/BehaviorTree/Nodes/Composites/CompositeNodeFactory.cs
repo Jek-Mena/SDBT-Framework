@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 public abstract class CompositeNodeFactory<TNode> : IBtNodeFactory
     where TNode : IBehaviorNode
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
         var childrenArray = nodeData.Children;
         if (childrenArray== null || childrenArray.Count == 0)
@@ -21,7 +21,7 @@ public abstract class CompositeNodeFactory<TNode> : IBtNodeFactory
             .ToList();
 
         // By default, assumes TNode(List<IBehaviorNode>)
-        return CreateNodeInternal(children, nodeData, blackboard);
+        return CreateNodeInternal(children, nodeData);
     }
 
     /// <summary>
@@ -30,8 +30,7 @@ public abstract class CompositeNodeFactory<TNode> : IBtNodeFactory
     /// </summary>
     protected virtual TNode CreateNodeInternal(
         System.Collections.Generic.List<IBehaviorNode> children,
-        TreeNodeData nodeData,
-        Blackboard blackboard
+        TreeNodeData nodeData
     )
     {
         // This default is for nodes like Sequence, Selector, etc.

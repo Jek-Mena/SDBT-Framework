@@ -248,8 +248,9 @@ public static class JsonUtils
     /// Recursively walks the given JSON node, replacing all objects of the form { "$ref": "some.path" }
     /// with the resolved value from the BtConfig in the blackboard, using dot-paths.
     /// </summary>
-    public static void ResolveRefs(JToken node, Blackboard blackboard)
+    public static void ResolveRefs(JToken node, BtContext context)
     {
+        var blackboard = context.Blackboard;
         // Get config root ONCE for performance; throw if missing.
         var configData = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin);
         if (configData?.RawJson == null)

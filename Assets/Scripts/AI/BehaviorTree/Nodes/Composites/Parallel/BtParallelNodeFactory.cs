@@ -4,8 +4,7 @@ public class BtParallelNodeFactory : CompositeNodeFactory<BtParallelNode>
 {
     protected override BtParallelNode CreateNodeInternal(
         System.Collections.Generic.List<IBehaviorNode> children,
-        TreeNodeData nodeData,
-        Blackboard blackboard
+        TreeNodeData nodeData
     )
     {
         var config = nodeData.Settings;

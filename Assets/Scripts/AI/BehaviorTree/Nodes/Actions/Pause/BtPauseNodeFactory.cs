@@ -5,8 +5,9 @@ public class BtPauseNodeFactory : TimedExecutionNodeFactory<BtPauseNode>
 {
     public BtPauseNodeFactory() : base(BtNodeTypes.TimedExecution.Pause) { }
     
-    public override IBehaviorNode CreateNode(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> _)
+    public override IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> _)
     {
+        var blackboard = context.Blackboard;
         var timeData = BuildTimedExecutionData(nodeData, blackboard); // Call base logic
 
         // Parse domains as before

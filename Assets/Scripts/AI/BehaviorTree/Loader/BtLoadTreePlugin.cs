@@ -8,10 +8,11 @@ public class BtLoadTreePlugin : BasePlugin
 
     public override void Apply(GameObject entity, JObject jObject)
     {
-        var context = nameof(BtLoadTreePlugin);
+        var scriptName = nameof(BtLoadTreePlugin);
         var controller = entity.RequireComponent<BtController>();
-        var blackboard = controller.Blackboard;
-
+        var context = new BtContext(controller);
+        var blackboard = context.Blackboard;
+        
         if (blackboard == null)
         {
             Debug.LogError("[BtLoadTreePlugin] blackboard == null;");
@@ -28,11 +29,11 @@ public class BtLoadTreePlugin : BasePlugin
         // Load behavior tree from the inline or "params" block
         var treeToken = jObject[CoreKeys.Tree] ?? jObject[CoreKeys.Params]?[CoreKeys.Tree];
         if (treeToken == null)
-            throw new Exception($"[{context}] Missing 'tree' field (inline [{CoreKeys.Params}] or treeId: [{CoreKeys.Tree}])");
+            throw new Exception($"[{scriptName}] Missing 'tree' field (inline [{CoreKeys.Params}] or treeId: [{CoreKeys.Tree}])");
         
-        var root = BtTreeBuilder.LoadFromToken(treeToken, blackboard);
+        var root = BtTreeBuilder.LoadFromToken(treeToken, context);
         controller.SetTree(root);
 
-        Debug.Log($"[{context}] Behavior tree built and assigned.");
+        Debug.Log($"[{scriptName}] Behavior tree built and assigned.");
     }
 }

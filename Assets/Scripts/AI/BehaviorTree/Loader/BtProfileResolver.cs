@@ -10,7 +10,7 @@ public static class BtProfileResolver
     /// dictionary from the blackboard and injects the resolved profile data as 'resolved{ProfileKey}'.
     /// Example: { "targetProfile": "ChaseTarget" } will add { "resolvedTargetProfile": ... }
     /// </summary>
-    public static void ResolveAllProfiles(JObject node, Blackboard blackboard)
+    public static void ResolveAllProfiles(JObject node, BtContext context)
     {
         // Map config key (e.g. "targetProfile") to blackboard dictionary property
         var profileSources = new Dictionary<string, Func<Blackboard, IDictionary<string, object>>>
@@ -20,7 +20,7 @@ public static class BtProfileResolver
             // Extend here for more profile systems, e.g. movementProfile, attackProfile, etc.
         };
 
-        ResolveProfilesRecursive(node, blackboard, profileSources);
+        ResolveProfilesRecursive(node, context, profileSources);
     }
 
     /// <summary>
@@ -32,9 +32,10 @@ public static class BtProfileResolver
     /// <param name="blackboard">The blackboard containing runtime data, including profile dictionaries.</param>
     /// <param name="profileSources">A dictionary mapping profile keys to functions that retrieve the associated profile dictionaries from the blackboard.</param>
     /// <exception cref="Exception">Thrown when a profile cannot be resolved for a specified key in the JSON node configuration.</exception>
-    private static void ResolveProfilesRecursive(JObject node, Blackboard blackboard,
+    private static void ResolveProfilesRecursive(JObject node, BtContext context,
         Dictionary<string, Func<Blackboard, IDictionary<string, object>>> profileSources)
     {
+        var blackboard = context.Blackboard;
         // Always work on config, or fall back to the node itself
         var config = node[CoreKeys.Config] as JObject ?? node;
 
@@ -63,7 +64,7 @@ public static class BtProfileResolver
         {
             foreach (var child in children.OfType<JObject>())
             {
-                ResolveProfilesRecursive(child, blackboard, profileSources);
+                ResolveProfilesRecursive(child, context, profileSources);
             }
         }
     }

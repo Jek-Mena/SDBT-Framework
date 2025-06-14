@@ -5,54 +5,54 @@ using UnityEngine;
 public static class BtTreeBuilder
 {
     // Use this to handle string or inline object format from any plugin or context
-    public static IBehaviorNode LoadFromToken(JToken treeToken, Blackboard blackboard)
+    public static IBehaviorNode LoadFromToken(JToken treeToken, BtContext context)
     {
-        var context = nameof(BtTreeBuilder);
+        var scriptName = nameof(BtTreeBuilder);
 
         if (treeToken.Type == JTokenType.String)
         {
             var treeId = treeToken.ToString();
-            return Load(treeId, blackboard);
+            return Load(treeId, context);
         }
         else if (treeToken.Type == JTokenType.Object)
         {
             var obj = (JObject)treeToken;
             var rootToken = obj[CoreKeys.Root] ?? obj;
             
-            JsonUtils.ResolveRefs(rootToken, blackboard);
-            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{context}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            JsonUtils.ResolveRefs(rootToken, context);
+            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
             
-            BtProfileResolver.ResolveAllProfiles(rootToken as JObject, blackboard);
+            BtProfileResolver.ResolveAllProfiles(rootToken as JObject, context);
             
-            return Build(rootToken, blackboard);
+            return Build(rootToken, context);
         }
         else
         {
-            throw new Exception($"[{context}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
+            throw new Exception($"[{scriptName}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
         }
     }
     
-    private static IBehaviorNode Build(JToken json, Blackboard blackboard)
+    private static IBehaviorNode Build(JToken json, BtContext context)
     {
         // Recursively build with the correct delegate signature
-        return Build(new TreeNodeData((JObject)json), blackboard, nodeData => Build(nodeData, blackboard));
+        return Build(new TreeNodeData((JObject)json), context, nodeData => Build(nodeData, context));
     }
     
     // Overload for recursive calls with TreeNodeData
-    private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard)
+    private static IBehaviorNode Build(TreeNodeData nodeData, BtContext context)
     {
         // Recursion with the correct delegate signature
-        return Build(nodeData, blackboard, childNodeData => Build(childNodeData, blackboard));
+        return Build(nodeData, context, childNodeData => Build(childNodeData, context));
     }
     
-    private static IBehaviorNode Build(TreeNodeData nodeData, Blackboard blackboard, Func<TreeNodeData, IBehaviorNode> recurse)
+    private static IBehaviorNode Build(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> recurse)
     {
         var alias = nodeData.BtType;
         if (string.IsNullOrEmpty(alias))
             throw new Exception($"[BtTreeBuilder] Missing or empty 'type'/'btKey' in node: {nodeData}");
 
         var factory = BtNodeRegistry.GetFactoryByAlias(alias);
-        var node = factory.CreateNode(nodeData, blackboard, recurse);
+        var node = factory.CreateNode(nodeData, context, recurse);
 
         // Wrap with lifecycle if needed
         if (node is IExitableBehavior)
@@ -67,34 +67,34 @@ public static class BtTreeBuilder
     /// - Wrapped format: { "name": "treeName", "root": { ... } }
     /// - Raw node format: { "type": "Bt/Sequence", ... }
     /// </summary>
-    private static IBehaviorNode Load(string treeId, Blackboard blackboard)
+    private static IBehaviorNode Load(string treeId, BtContext context)
     {
-        var context = nameof(BtTreeBuilder);
+        var scriptName = nameof(BtTreeBuilder);
         var path = $"Data/BTs/{treeId}";
         var textAsset = Resources.Load<TextAsset>(path);
 
         if (textAsset == null)
-            throw new Exception($"[{context}] Could not load BT file at Resources/{path}.json");
+            throw new Exception($"[{scriptName}] Could not load BT file at Resources/{path}.json");
 
         try
         {
             var fileJson = JObject.Parse(textAsset.text);
             var rootToken = fileJson[CoreKeys.Root] ?? fileJson;
 
-            JsonUtils.ResolveRefs(rootToken, blackboard);
-            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{context}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            JsonUtils.ResolveRefs(rootToken, context);
+            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
             
             if (rootToken is not JObject rootNode)
-                throw new Exception($"[{context}] Invalid tree structure: '{CoreKeys.Root}' must be an object with a '{CoreKeys.Type}' field.");
+                throw new Exception($"[{scriptName}] Invalid tree structure: '{CoreKeys.Root}' must be an object with a '{CoreKeys.Type}' field.");
 
             if (string.IsNullOrEmpty(rootNode[CoreKeys.Type]?.ToString()))
-                throw new Exception($"[{context}] Missing or empty '{CoreKeys.Type}' in root node.");
+                throw new Exception($"[{scriptName}] Missing or empty '{CoreKeys.Type}' in root node.");
             
-            return Build(rootNode, blackboard);
+            return Build(rootNode, context);
         }
         catch (Exception ex)
         {
-            throw new Exception($"[{context}] Failed to parse behavior tree '{treeId}': {ex.Message}", ex);
+            throw new Exception($"[{scriptName}] Failed to parse behavior tree '{treeId}': {ex.Message}", ex);
         }
     }
 }
