@@ -5,16 +5,31 @@ public static class BtBootstrapper
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void Initialize()
     {
+        // 1. Register all node factories
         // Initializes the Behavior Tree system by setting up default nodes,
         BtNodeRegistrationList.InitializeDefaults();
-
+        
+        // 2. Register all node schemas
         // Initialize the blackboard builder and assign it to the context builder.
+        // ---> Currently handled by the editor <---
+        
+        // 3. Register all plugins
+        RegisterPlugins();
+        
+        // 4. Set up and register context builder and context modules
         var btBlackboardBuilder = new BtBlackboardBuilder();
+        ContextModuleRegistration.RegisterAll(btBlackboardBuilder);
         
         // Assigns the blackboard builder instance to the Behavior Tree context,
         // enabling the construction and management of shared data across nodes.
         BtServices.ContextBuilder = btBlackboardBuilder;
+        
+        // (and register any others…)
+        // BtNodeRegistry.AutoRegisterAllFactories();
+    }
 
+    private static void RegisterPlugins()
+    {
         PluginMetadataStore.Register<ConfigPlugin>(
             pluginKey: PluginMetaKeys.Core.BtConfig.Plugin,
             schemaKey: PluginMetaKeys.Core.BtConfig.Schema,
@@ -50,10 +65,6 @@ public static class BtBootstrapper
             schemaKey: PluginMetaKeys.TimedExecution.Pause.Schema,
             phase: PluginExecutionPhase.TimedExecution
         );
-        
-
-        // (and register any others…)
-        // BtNodeRegistry.AutoRegisterAllFactories();
     }
 }
 

@@ -8,12 +8,29 @@
 MemoryCaptures/
 UserSettings/
 
+# --- Unity metadata and asset import settings
+*.meta
+*.pidb.meta
+*.pdb.meta
+*.mdb
+*.mdb.meta
+
+# Asset pipeline
+*.apk
+*.aab
+*.zip
+*.unitypackage
+
+# --- Unity Cache (optional) ---
+/Assets/AssetStoreTools*
+
 # --- Config files ---
 *.conf
 
 # --- Rider / VS / JetBrains ---
 .idea/
 *.sln
+*.sln.iml
 *.csproj
 *.unityproj
 *.pidb
@@ -32,6 +49,9 @@ UserSettings/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# --- Git
+*.patch
 
 # --- Packages (optional: if you're using local ones) ---
 *.tgz
@@ -53,31 +73,8 @@ sysinfo.txt
 .vs/
 .vscode/
 
-# --- Unity Cache (optional) ---
-/Assets/AssetStoreTools*
-
 # --- Build system metadata ---
 /BuildReports/
 
 # --- Plastic SCM (expanded) ---
 .plastic*
-
-# --- Unity metadata and asset import settings
-*.meta
-*.pidb.meta
-*.pdb.meta
-*.mdb
-*.mdb.meta
-
-# Asset pipeline
-*.apk
-*.aab
-*.zip
-*.unitypackage
-
-# Crash logs and analytics
-sysinfo.txt
-
-# Rider
-.idea/
-*.sln.iml
