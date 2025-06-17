@@ -5,10 +5,10 @@ public class MovementContextBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
+        var scriptName = nameof(MovementContextBuilderModule);
         var entity = context.Agent;
         var blackboard = context.Blackboard;
         
-        var scriptName = nameof(MovementContextBuilderModule);
         // Try to find any IMovementNode component (generic, could be NavMeshMoveToTarget or another)
         var movementNode = entity.GetComponent<IMovementNode>();
         if (movementNode == null) 

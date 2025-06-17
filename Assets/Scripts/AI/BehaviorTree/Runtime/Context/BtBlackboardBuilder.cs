@@ -50,12 +50,7 @@ public class BtBlackboardBuilder : IContextBuilder
         var blackboard = new Blackboard();
         // Create a preliminary context with what you have
         var context = new BtContext(controller, blackboard, agent);
-        
-        // Core dependency check and assignment
-        InjectOrThrow<TimeExecutionManager>(agent, blackboard, nameof(TimeExecutionManager));
-        InjectOrThrow<StatusEffectManager>(agent, blackboard, nameof(StatusEffectManager));
-        InjectOrThrow<UpdatePhaseExecutor>(agent, blackboard, nameof(UpdatePhaseExecutor));
-        
+
         Debug.Log($"[{nameof(BtBlackboardBuilder)}] Starting context build for '{agent.name}' using {_modules.Count} modules: " +
                   string.Join(", ", _modules.ConvertAll(m => m.GetType().Name)));
 

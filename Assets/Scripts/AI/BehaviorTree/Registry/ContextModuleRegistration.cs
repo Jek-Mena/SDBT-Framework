@@ -12,9 +12,9 @@ public static class ContextModuleRegistration
     {
         var modules = new IContextBuilderModule[]
         {
-            new CoreContextModules.TimerContextBuilder(),
-            new CoreContextModules.StatusEffectContextBuilder(),
-            new CoreContextModules.UpdatePhaseExecutorContextBuilder(),
+            new TimerContextBuilder(),
+            new StatusEffectContextBuilder(),
+            new UpdatePhaseExecutorContextBuilder(),
             
             new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
