@@ -1,14 +1,10 @@
 ﻿using UnityEngine;
-
 /// <summary>
-/// Represents a single domain-specific context injector (e.g., movement, timer, targeting).
-///
-/// Each implementation should:
-/// - Be stateless and reusable
-/// - Only modify its own part of the blackboard
-/// - Handle missing components gracefully
-/// - Avoid side effects or assumptions about plugin order
-///
+/// [ARCHITECTURE UPDATE -- 2025-06-17]
+/// All context builder modules receive the full BtContext,
+/// ensuring access to the Agent, Blackboard, Controller, and all other shared runtime systems.
+/// This avoids fragmenting the pipeline between GameObject/Blackboard-only phases and full-context phases.
+/// 
 /// ⚠️ NOTE: Do not confuse this with IContextBuilder. ⚠️
 /// This interface is for a single piece of logic (e.g., MovementContextBuilder),
 /// not for building the entire blackboard.
@@ -22,7 +18,7 @@ public interface IContextBuilderModule
     /// - Called once per entity during BtLoader.ApplyAll().
     /// - All modules operate on the same shared Blackboard instance.
     /// </summary>
-    void Build(GameObject entity, Blackboard blackboard);
+    void Build(BtContext context);
 }
 
 /*

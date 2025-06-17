@@ -13,23 +13,11 @@ public class BtContext
     public Blackboard Blackboard { get; }
     public BtController Controller { get; }
     
-    /// <summary>
-    /// Initializes a new instance of the <see cref="BtContext"/> class.
-    /// </summary>
-    /// <param name="self">
-    /// The <see cref="GameObject"/> representing the AI entity associated with this context.
-    /// </param>
-    /// <param name="blackboard">
-    /// The <see cref="Blackboard"/> instance containing shared data for behavior tree nodes.
-    /// </param>
-    /// <param name="controller">
-    /// The <see cref="BtController"/> managing the behavior tree execution flow.
-    /// </param>
-    public BtContext(BtController controller)
+    public BtContext(BtController controller, Blackboard blackboard, GameObject agent)
     {
         Controller = controller;
-        Agent = controller.gameObject;
-        Blackboard = controller.Blackboard;
+        Blackboard = blackboard;
+        Agent = agent;
     }
     
     // Facade Properties for leaf node convenience.

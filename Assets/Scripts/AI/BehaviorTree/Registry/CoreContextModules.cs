@@ -14,8 +14,11 @@ public class CoreContextModules
     /// </summary>
     public class TimerContextBuilder : IContextBuilderModule
     {
-        public void Build(GameObject entity, Blackboard blackboard)
+        public void Build(BtContext context)
         {
+            var entity = context.Agent;
+            var blackboard = context.Blackboard;
+            
             var timer = entity.RequireComponent<TimeExecutionManager>();
             if (!timer)
                 throw new Exception($"[TimerContextBuilder] {nameof(TimeExecutionManager)} missing on {entity.name}");
@@ -30,8 +33,11 @@ public class CoreContextModules
     /// </summary>
     public class StatusEffectContextBuilder : IContextBuilderModule
     {
-        public void Build(GameObject entity, Blackboard blackboard)
+        public void Build(BtContext context)
         {
+            var entity = context.Agent;
+            var blackboard = context.Blackboard;
+            
             var effect = entity.RequireComponent<StatusEffectManager>();
             if (!effect)
                 throw new Exception($"[StatusEffectContextBuilder] {nameof(StatusEffectManager)} missing on {entity.name}");
@@ -46,8 +52,11 @@ public class CoreContextModules
     /// </summary>
     public class UpdatePhaseExecutorContextBuilder : IContextBuilderModule
     {
-        public void Build(GameObject entity, Blackboard blackboard)
+        public void Build(BtContext context)
         {
+            var entity = context.Agent;
+            var blackboard = context.Blackboard;
+            
             var exec = entity.GetComponent<UpdatePhaseExecutor>();
             if (!exec)
                 throw new Exception($"[UpdatePhaseExecutorContextBuilder] {nameof(UpdatePhaseExecutor)} missing on {entity.name}");

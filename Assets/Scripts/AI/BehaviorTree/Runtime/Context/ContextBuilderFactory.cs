@@ -33,7 +33,7 @@ public static class ContextBuilderFactory
             throw new System.Exception("BtServices.ContextBuilder must be BtBlackboardBuilder.");
         
         var builder = baseBuilder.Clone();
-        builder.InsertModuleAtStart(new BtConfigContextBuilderModule(config));
+        builder.InsertModuleAtStart(new EntityConfigInjectionModule(config));
         return builder;
     }
 }

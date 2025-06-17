@@ -16,7 +16,7 @@ public interface IContextBuilder
     /// Builds and returns a fully-initialized blackboard for the provided GameObject entity.
     /// This method should run all registered IContextBuilderModules in order.
     /// </summary>
-    Blackboard Build(GameObject entity);
+    Blackboard Build(GameObject agent);
 
     /// <summary>
     /// Registers a context builder module to run at the end of the build pipeline.

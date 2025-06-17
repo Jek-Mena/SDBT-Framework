@@ -10,7 +10,7 @@ public class BtLoadTreePlugin : BasePlugin
     {
         var scriptName = nameof(BtLoadTreePlugin);
         var controller = entity.RequireComponent<BtController>();
-        var context = new BtContext(controller);
+        var context = controller.Context;
         var blackboard = context.Blackboard;
         
         if (blackboard == null)

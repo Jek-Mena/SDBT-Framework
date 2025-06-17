@@ -15,7 +15,10 @@ public static class ContextModuleRegistration
             new CoreContextModules.TimerContextBuilder(),
             new CoreContextModules.StatusEffectContextBuilder(),
             new CoreContextModules.UpdatePhaseExecutorContextBuilder(),
-            //
+            
+            new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
+            new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
+            new TargetingContextBuilerModule(),
         };
 
         foreach (var module in modules)

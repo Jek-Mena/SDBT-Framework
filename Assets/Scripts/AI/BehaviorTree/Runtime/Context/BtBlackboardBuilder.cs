@@ -37,23 +37,26 @@ public class BtBlackboardBuilder : IContextBuilder
     /// ! Each module must be idempotent and safe (i.e., no hard assumptions about components).
     /// ! Will reuse existing context if already built for the entity.
     /// </summary>
-    public Blackboard Build(GameObject entity)
+    public Blackboard Build(GameObject agent)
     {
         // Retrieve and ensure the BtController component exists on the entity.
-        var controller = entity.RequireComponent<BtController>();
+        var controller = agent.RequireComponent<BtController>();
         
         // Check if the blackboard has already been built for this entity.
         // If so, throw an exception to prevent redundant initialization.
         if (controller.Blackboard != null)
-            throw new System.Exception($"[{nameof(BtBlackboardBuilder)}] Blackboard already set for {entity.name}! Double build is a bug.");
-        var blackboard = new Blackboard();
-
-        // Core dependency check and assignment
-        InjectOrThrow<TimeExecutionManager>(entity, blackboard, nameof(TimeExecutionManager));
-        InjectOrThrow<StatusEffectManager>(entity, blackboard, nameof(StatusEffectManager));
-        InjectOrThrow<UpdatePhaseExecutor>(entity, blackboard, nameof(UpdatePhaseExecutor));
+            throw new System.Exception($"[{nameof(BtBlackboardBuilder)}] Blackboard already set for {agent.name}! Double build is a bug.");
         
-        Debug.Log($"[{nameof(BtBlackboardBuilder)}] Starting context build for '{entity.name}' using {_modules.Count} modules: " +
+        var blackboard = new Blackboard();
+        // Create a preliminary context with what you have
+        var context = new BtContext(controller, blackboard, agent);
+        
+        // Core dependency check and assignment
+        InjectOrThrow<TimeExecutionManager>(agent, blackboard, nameof(TimeExecutionManager));
+        InjectOrThrow<StatusEffectManager>(agent, blackboard, nameof(StatusEffectManager));
+        InjectOrThrow<UpdatePhaseExecutor>(agent, blackboard, nameof(UpdatePhaseExecutor));
+        
+        Debug.Log($"[{nameof(BtBlackboardBuilder)}] Starting context build for '{agent.name}' using {_modules.Count} modules: " +
                   string.Join(", ", _modules.ConvertAll(m => m.GetType().Name)));
 
         foreach (var module in _modules)
@@ -61,17 +64,17 @@ public class BtBlackboardBuilder : IContextBuilder
             Debug.Log($"[{nameof(BtBlackboardBuilder)}] -- Executing {module.GetType().Name}...");
             try
             {
-                module.Build(entity, blackboard);
+                module.Build(context);
                 Debug.Log($"[{nameof(BtBlackboardBuilder)}] ---- {module.GetType().Name} completed successfully.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"[{nameof(BtBlackboardBuilder)}] Failed to build context for {entity.name}: {ex.Message}", ex);
+                throw new Exception($"[{nameof(BtBlackboardBuilder)}] Failed to build context for {agent.name}: {ex.Message}", ex);
             }
         }
         
-        controller.InitContext(blackboard);
-        Debug.Log($"[{nameof(BtBlackboardBuilder)}] Blackboard built for '{entity.name}'. Dump:\n{blackboard.DumpContents()}");
+        controller.InitContext(context);
+        Debug.Log($"[{nameof(BtBlackboardBuilder)}] Blackboard built for '{agent.name}'. Dump:\n{blackboard.DumpContents()}");
             
         return blackboard;
     }

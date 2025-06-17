@@ -5,12 +5,11 @@ public class BtController : MonoBehaviour
     public BtContext Context;
     public Blackboard Blackboard;
     private IBehaviorNode _rootNode;
-
     
-    public void InitContext(Blackboard blackboard)
+    public void InitContext(BtContext context)
     {
-        Blackboard = blackboard;
-        Context = new BtContext(this);
+        Context = context;
+        Blackboard = context.Blackboard;
     }
 
     public void SetTree(IBehaviorNode rootNode) => _rootNode = rootNode;

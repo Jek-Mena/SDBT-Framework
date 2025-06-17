@@ -17,8 +17,9 @@ public abstract class BtConditionNode : IBehaviorNode
 
     public BtStatus Tick(BtController controller)
     {
-        var context = new BtContext(controller);
-        return Tick(context);
+        throw new NotImplementedException();
+        //var context = new BtContext(controller);
+        //return Tick(context);
     }
     public abstract BtStatus Tick(BtContext context);
 }
