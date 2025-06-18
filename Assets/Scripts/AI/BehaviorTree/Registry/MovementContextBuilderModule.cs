@@ -6,18 +6,28 @@ public class MovementContextBuilderModule : IContextBuilderModule
     public void Build(BtContext context)
     {
         var scriptName = nameof(MovementContextBuilderModule);
-        var entity = context.Agent;
+        var agent = context.Agent;
         var blackboard = context.Blackboard;
         
         // Try to find any IMovementNode component (generic, could be NavMeshMoveToTarget or another)
-        var movementNode = entity.GetComponent<IMovementNode>();
+        var movementNode = agent.GetComponent<IMovementNode>();
         if (movementNode == null) 
         {
-            Debug.LogError($"[{scriptName}] No IMovementNode found on '{entity.name}'. " + 
+            Debug.LogError($"[{scriptName}] No IMovementNode found on '{agent.name}'. " + 
                            "Ensure your AI prefab has a movement component attached.");
             throw new System.Exception($"[{scriptName}] Movement logic missing!");
         }
+
+        // Initialize with dummy data just to guarantee pipeline safety (real profile will come from the BT node)
+        movementNode.Initialize(new MovementData());
         
+        // Inject StatusEffectManager only if supported
+        if (movementNode is IUsesStatusEffectManager effectUser)
+        {
+            if (context.Blackboard.StatusEffectManager) 
+                effectUser.SetStatusEffectManager(context.Blackboard.StatusEffectManager);
+        }
+
         blackboard.MovementLogic = movementNode;
         Debug.Log($"[Inject: {scriptName}]");
     }

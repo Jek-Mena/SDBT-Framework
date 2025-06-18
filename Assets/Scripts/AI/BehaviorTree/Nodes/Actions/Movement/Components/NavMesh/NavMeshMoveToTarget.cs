@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IInitializeBehavior<MovementData>, IUsesStatusEffectManager
+public class NavMeshMoveToTarget : MonoBehaviour, IMovementNode, IUsesStatusEffectManager
 {
     // Optional control during freeze
     [SerializeField] private bool freezeRigidBody = true;

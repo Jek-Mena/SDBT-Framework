@@ -16,8 +16,8 @@ public class RotateToTargetNode : IBehaviorNode
     public BtStatus Tick(BtContext context)
     {
         if (!BtValidator.Require(context)
+                .Targeting(_targetProfileKey)
                 .Rotation()
-                .Targeting()
                 .Check(out var error)
            )
         {
@@ -36,7 +36,7 @@ public class RotateToTargetNode : IBehaviorNode
             return BtStatus.Failure;
         }
         
-        var target = resolver.ResolveTarget(context.Agent, context.TargetingData);
+        var target = resolver.ResolveTarget(context.Agent, targetingData);
         if (!target)
         {
             Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");

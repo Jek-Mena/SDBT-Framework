@@ -22,6 +22,20 @@ public static class TargetResolverRegistry
         // Throw explicit exception instead of fallback
         throw new KeyNotFoundException($"No TargetResolver registered for style: {style}");
     }
+
+    /// <summary>
+    /// Attempts to retrieve the target resolver associated with the specified targeting style.
+    /// </summary>
+    /// <param name="style">The targeting style for which to retrieve the resolver.</param>
+    /// <param name="resolver">
+    /// When this method returns, contains the target resolver associated with the specified style,
+    /// if the style is found; otherwise, null. This parameter is passed uninitialized.
+    /// </param>
+    /// <returns>True if the resolver is found; otherwise, false.</returns>
+    public static bool TryGetValue(TargetingStyle style, out ITargetResolver resolver)
+    {
+        return Resolvers.TryGetValue(style, out resolver);
+    }
     
     /// <summary>
     /// Retrieves the corresponding <see cref="ITargetResolver"/> for the specified <see cref="TargetingStyle"/>.

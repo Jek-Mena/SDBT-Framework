@@ -24,9 +24,9 @@ public static class ContextModuleRegistration
             new StatusEffectContextBuilder(),
             new UpdatePhaseExecutorContextBuilder(),
             
+            //new TargetingContextBuilderModule(),
             new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
-            new TargetingContextBuilerModule(),
         };
 
         foreach (var module in modules)

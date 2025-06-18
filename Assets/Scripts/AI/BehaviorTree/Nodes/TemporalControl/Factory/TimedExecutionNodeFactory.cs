@@ -10,7 +10,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
     private readonly bool _acceptsDomains;
 
     // Map supported TNode types to constructors
-    private static readonly Dictionary<Type, Func<IBehaviorNode, TimedExecutionData, string[], IBehaviorNode>> _nodeConstructors =
+    private static readonly Dictionary<Type, Func<IBehaviorNode, TimedExecutionData, string[], IBehaviorNode>> NodeConstructors =
         new()
         {
             { typeof(TimeoutNode), (child, timeData, domains) => new TimeoutNode(child, timeData, domains) },
@@ -59,8 +59,13 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
                 domains = new[] { domainsToken.ToString() };
         }
         
-        if (_nodeConstructors.TryGetValue(typeof(TNode), out var ctor))
-            return ctor(child, timeData, domains);
+        if (NodeConstructors.TryGetValue(typeof(TNode), out var ctor))
+        {
+            var node = ctor(child, timeData, domains);
+            // Call Initialize if supported (covers TimedExecutionNode and derived types)
+            (node as TimedExecutionNode)?.Initialize(blackboard);
+            return node;
+        }
         
         throw new Exception($"[{_alias}] Unknown node type {typeof(TNode).Name} in factory.");
     }

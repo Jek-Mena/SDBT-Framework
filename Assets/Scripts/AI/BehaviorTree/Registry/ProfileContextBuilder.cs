@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 public class ProfileContextBuilder : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
+        var scriptName = nameof(ProfileContextBuilder);
         var blackboard = context.Blackboard;
         var config = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin);
         if (config == null)
-            throw new Exception($"[{nameof(ProfileContextBuilder)}] BtConfig missing!");
+            throw new Exception($"[{scriptName}] BtConfig missing!");
         
+        Debug.Log("[{scriptName}] Parsing profiles...");
         // -- Parse each profile block --
         blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(config.RawJson, CoreKeys.ProfilesBlock.Targeting);
         blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (config.RawJson, CoreKeys.ProfilesBlock.Movement);

@@ -21,8 +21,8 @@ public class MoveToTargetNode : IBehaviorNode
     public BtStatus Tick(BtContext context)
     {
         if (!BtValidator.Require(context)
+                .Targeting(_targetProfileKey)
                 .Movement()
-                .Targeting()
                 .Check(out var error))
         {
             Debug.Log(error);
@@ -52,7 +52,7 @@ public class MoveToTargetNode : IBehaviorNode
             return BtStatus.Failure;
         }
         
-        var target = resolver.ResolveTarget(context.Agent, context.TargetingData);
+        var target = resolver.ResolveTarget(context.Agent, targetingData);
         if (!target)
         {
             Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");

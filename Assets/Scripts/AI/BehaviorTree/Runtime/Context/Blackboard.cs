@@ -163,9 +163,6 @@ public class Blackboard
         Add(BlackboardKeys.Core.Profiles.TargetingProfiles, TargetingProfiles);
         Add(BlackboardKeys.Core.Profiles.MovementProfiles, MovementProfiles);
         
-        Add(BlackboardKeys.Core.Data.TargetingData, TargetingData);
-        Add(BlackboardKeys.Core.Data.TimerData, TimerData);
-        
         Add(BlackboardKeys.Core.Actions.MovementLogic, MovementLogic);
         Add(BlackboardKeys.Core.Actions.ImpulseLogic, ImpulseLogic);
         Add(BlackboardKeys.Core.Actions.RotationLogic, RotationLogic);
