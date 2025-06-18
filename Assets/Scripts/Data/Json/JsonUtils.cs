@@ -247,6 +247,9 @@ public static class JsonUtils
     /// <summary>
     /// Recursively walks the given JSON node, replacing all objects of the form { "$ref": "some.path" }
     /// with the resolved value from the BtConfig in the blackboard, using dot-paths.
+    ///
+    /// [ARCHITECTURE NOTE] Only use RawJson for config-to-blackboard mapping in pipeline/build phase.
+    /// All runtime config access should be via blackboard and strongly-typed models.
     /// </summary>
     public static void ResolveRefs(JToken node, BtContext context)
     {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 public static class TargetResolverRegistry
 {
-    private static readonly Dictionary<TargetingStyle, ITargetResolver> _resolvers = new()
+    private static readonly Dictionary<TargetingStyle, ITargetResolver> Resolvers = new()
     {
         { TargetingStyle.Single, new SingleTagTargetResolver() },
         { TargetingStyle.Closest, new ClosestTargetResolver() }
@@ -14,9 +14,9 @@ public static class TargetResolverRegistry
     /// <summary>
     /// Retrieves the resolver for the specified style. Throws if not registered.
     /// </summary>
-    public static ITargetResolver Get(TargetingStyle style)
+    public static ITargetResolver Resolve(TargetingStyle style)
     {
-        if (_resolvers.TryGetValue(style, out var resolver))
+        if (Resolvers.TryGetValue(style, out var resolver))
             return resolver;
 
         // Throw explicit exception instead of fallback
@@ -29,9 +29,9 @@ public static class TargetResolverRegistry
     /// </summary>
     /// <param name="style">The targeting style for which to retrieve the corresponding resolver.</param>
     /// <returns>The <see cref="ITargetResolver"/> associated with the specified targeting style, or the resolver for <see cref="TargetingStyle.Closest"/> if not found.</returns>
-    public static ITargetResolver TryGetValue(TargetingStyle style)
-        => _resolvers.TryGetValue(style, out var resolver) ? resolver : _resolvers[TargetingStyle.Closest];
+    public static ITargetResolver ResolveOrClosest(TargetingStyle style)
+        => Resolvers.TryGetValue(style, out var resolver) ? resolver : Resolvers[TargetingStyle.Closest];
 
     // Optional: RegisterSchema at runtime (mod support, DLC, etc.)
-    public static void Register(TargetingStyle style, ITargetResolver resolver) => _resolvers[style] = resolver;
+    public static void Register(TargetingStyle style, ITargetResolver resolver) => Resolvers[style] = resolver;
 }

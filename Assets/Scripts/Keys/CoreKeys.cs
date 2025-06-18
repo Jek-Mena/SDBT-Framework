@@ -163,90 +163,27 @@ public static class CoreKeys
     /// </summary>
     public const string Domain = "Domain";
 
+    public const string Profiles = "profiles";
+    
     /// <summary>
-    /// Defines common config block keys used to structure reusable
-    /// parameters inside Plugin/BtConfig. These keys are not type-specific,
-    /// but serve as namespaces for grouped behavior data.
-    ///
-    /// Example:
-    /// {
-    ///     "plugins": [
-    ///         {
-    ///             "type": "Plugin/BtConfig",
-    ///             "params": {
-    ///                 "movement": {
-    ///                     "speed": 3.0,
-    ///                     "acceleration": 4.0
-    ///                 },
-    ///                 "dash": {
-    ///                     "magnitude": 25.0
-    ///                 }
-    ///             }
-    ///         }
-    ///     ],
-    ///     "btTree": {
-    ///         "type": "Bt/MoveTo",
-    ///         "config": { "$ref": "movement" }
-    ///     }
-    /// }
+    /// [ARCHITECTURE NOTE -- 2025-06-18]
+    /// Profile block keys are always PLURAL and refer to a DICTIONARY of all available profiles for that type.
+    /// - Used as JSON config block keys, blackboard property names, and dictionary keys.
+    /// - Example: CoreKeys.Profiles.Movement = "movementProfiles"
+    /// - Usage: config["profiles"]["movementProfiles"], blackboard.MovementProfiles, etc.
+    /// - Never use the plural form for single profile selection in node configs or lookups.
     /// </summary>
-    public static class Profiles
+    public static class ProfilesBlock
     {
-        /// <summary>
-        /// Shared configuration block name for all movement-related parameters.
-        /// Only contains physical movement settings, no targeting logic.
-        /// Used by BT nodes (e.g., MoveTo), movement plugins (e.g., NavMeshMoveToTarget), and any runtime
-        /// system that requires movement tuning.
-        /// 
-        /// Config block structure:
-        /// {
-        ///     "speed": 3.5,
-        ///     "acceleration": 4.0,
-        ///     "angularSpeed": 120.0,
-        ///     "stoppingDistance": 1.2,
-        ///     "updateThreshold": 0.25,
-        ///     ...
-        /// }
-        /// 
-        /// Do not add targeting keys here�keep all target/tag logic in a separate "targeting" config.
-        /// </summary>
-        public const string Movement = "movementProfile";
-
-        /// <summary>
-        /// Represents the JSON field key for the timing settings block (Temporal Condition).
-        /// This key is used to identify and map timing-related configurations in the JSON data structure.
-        /// </summary>
-        public const string Timing = "timing";
-
-        /// <summary>
-        /// JSON field that corresponds to the setting for the rotation component within a configuration block.
-        /// This can be used to define or modify rotation behavior in relevant systems.
-        /// </summary>
-        public const string Rotation = "rotation";
-        
-        /// <summary>
-        /// Shared configuration block name for all targeting parameters.
-        /// Purely defines how an entity selects its target�never how it moves toward it.
-        /// Used by BT nodes (e.g., MoveTo, AttackTarget), targeting plugins, and runtime AI logic.
-        /// 
-        /// Config block structure:
-        /// {
-        ///     "targetTag": "Player",
-        ///     "style": "Closest",    // TargetingStyle enum (Closest, Farthest, LowestHP, etc.)
-        ///     "maxRange": 100,
-        ///     "allowNull": false,
-        ///     // Optional: custom criteria, exclusions, etc. TODO: To be implemented if needed
-        /// }
-        /// 
-        /// Never mix movement keys here.
-        /// Targeting config should be referenced via $ref or directly wherever selection logic is needed.
-        /// </summary>
-        public const string Targeting = "targetingProfile";
+        public const string Targeting = "targetingProfiles";
+        public const string Movement = "movementProfiles";
+        public const string Rotation = "rotationProfiles";
+        public const string Timing = "timingProfiles";
     }
 
     public static class ResolvedProfiles
     {
         public const string Resolved = "resolved";
-        public const string Targeting = Resolved + Profiles.Targeting;
+        public const string Targeting = Resolved + ProfilesBlock.Targeting;
     }
 }

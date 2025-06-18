@@ -12,6 +12,9 @@ using UnityEngine;
 /// 
 /// DO NOT register this module in ContextModuleRegistration.RegisterAll()!
 /// It is only for per-entity usage.
+///
+/// [ARCHITECTURAL RULE]
+/// Only this module injects entity config. All config access must be via blackboard.
 /// </summary>
 public class EntityConfigInjectionModule : IContextBuilderModule
 {

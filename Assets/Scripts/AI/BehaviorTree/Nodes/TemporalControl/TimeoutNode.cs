@@ -1,12 +1,16 @@
+using System;
 using UnityEngine;
 
 public class TimeoutNode : TimedExecutionNode
 {
     private readonly IBehaviorNode _child;
+    private readonly string[] _domains;
     
-    public TimeoutNode(IBehaviorNode child, TimedExecutionData data) : base(data)
+    public TimeoutNode(IBehaviorNode child, TimedExecutionData data, string[] domains = null) 
+        : base(data)
     {
         _child = child;
+        _domains = domains ?? Array.Empty<string>();
     }
 
     public override BtStatus Tick(BtContext context)

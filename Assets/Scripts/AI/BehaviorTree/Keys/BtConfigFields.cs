@@ -33,6 +33,37 @@ public static class BtConfigFields
     }
 
     /// <summary>
+    /// [ARCHITECTURE NOTE -- 2025-06-18]
+    /// Node config profile keys are always SINGULAR and refer to the specific key of the profile to use.
+    /// - Used in BT node config, node factories, and per-node lookups.
+    /// - Example: BtConfigFields.Profiles.Movement = "movementProfile"
+    /// - Usage: nodeConfig["movementProfile"] = "ChaserMovement"
+    /// - Never use the singular form for dictionaries or config profile blocks.
+    /// </summary>
+    public static class Profiles
+    {
+        public const string Targeting = "targetProfile";
+        public const string Movement = "movementProfile";
+        public const string Rotation = "rotationProfile";
+        public const string Timing = "timingProfile";
+    }
+    // TODO: Transfer this to Architectural notes or README
+    /*
+        ## Profile System Naming Conventions
+
+        - Plural keys (e.g., `movementProfiles`, `targetingProfiles`) are ALWAYS used for:
+            - Profile dictionary blocks in JSON config
+            - Blackboard dictionary properties
+            - Context module injection points
+
+        - Singular keys (e.g., `movementProfile`, `targetProfile`) are ALWAYS used for:
+            - BT node configuration fields (which profile to use)
+            - Node factory profile key lookups
+
+        **Never mix plural and singular forms, and always document new profile types using this convention.**
+    */
+    
+    /// <summary>
     /// Movement tuning fields used by navigation plugins and nodes like MoveToTarget.
     /// </summary>
     public static class Movement

@@ -1,7 +1,6 @@
 {
   "root": {
     "type": "Bt/Repeater",
-	
     "children": [
       {
         "type": "Bt/Sequence",
@@ -11,28 +10,27 @@
             "config": { "exitCondition": "FirstSuccess" },
             "children": [
               {
-                "type": "Bt/TimeoutDecorator",
+                "type": "Bt/Timer",
                 "config": {
-                  "label": "MoveTimeout",
-                  "duration": { "$ref": "timing.moveDuration" }
+                  "timingProfile": "MoveLimit",
+                  "domains": ["Domain/Movement"]
                 }
               },
               {
                 "type": "Bt/MoveToTarget",
                 "config": { 
-				  "targetProfile": "ChaseTarget",
-				  "$ref": "movementProfile" 
-				}
+                  "targetProfile": "ChaseTarget",
+                  "movementProfile": "ChaserMovement"
+                }
               }
             ]
           },
           {
             "type": "Bt/Pause",
             "config": {
-			  "label": "PauseAfterMove",
-              "duration": { "$ref": "timing.pauseDuration" },
-			  "domains": ["Domain/Movement"]
-			}
+              "timingProfile": "Pause",
+              "domains": ["Domain/Movement"]
+            }
           }
         ]
       }

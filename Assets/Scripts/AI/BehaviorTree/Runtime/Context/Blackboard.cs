@@ -1,24 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Runtime container for AI-specific data used across behavior tree nodes.
 /// Holds both strongly-typed fields for common systems and a dynamic key-value store for flexible extensions.
+///
+/// [2025-06-18] Migrated to Profile System: profile data is accessed via ProfileDictionaries only.
+/// 
+/// [2025-06-17 ARCHITECTURE NOTE]
+/// All core runtime data for AI entities must flow through Blackboard.
+/// - Fields with [Obsolete] will be removed by [set-date].
+/// - Dynamic data (_data/Set/Get/TryGet) is only for optional or extension systems, never core.
+/// - Each field must have a single owner: document the context builder module or system responsible.
+/// - No field may be mutated by random scripts, only via context modules, the pipeline, or authorized plugins.
+/// - If adding a new field, update DumpContents and document owner.
 /// </summary>
 public class Blackboard
 {
-    // ───────────────
-    // Explicit Shared Context (common AI subsystems)
-    // ───────────────
-
-    // --- Targeting System ---
-    public Dictionary<string, TargetingData> TargetingProfiles { get; set; } = new();
-
+    private const string _scriptName = nameof(Blackboard);
+    
+    public Dictionary<string, TargetingData> TargetingProfiles { get; set; }
+    public Dictionary<string, MovementData> MovementProfiles { get; set; }
+    public Dictionary<string, RotationData> RotationProfiles { get; set; }
+    public Dictionary<string, TimedExecutionData> TimingProfiles { get; set; }
+    
+    /// [2025-06-18 ARCHITECTURE NOTE]
+    /// All profile data access should use DRY helper methods (e.g., GetMovementProfile),
+    /// which fail fast on errors. Do not access dictionaries directly from outside.
     public TargetingData GetTargetingProfile(string key)
+        => GetProfile(TargetingProfiles, key, nameof(TargetingProfiles));
+    
+    public MovementData GetMovementProfile(string key) 
+        => GetProfile(MovementProfiles, key, nameof(MovementProfiles));
+    
+    public RotationData GetRotationProfile(string key) 
+        => GetProfile(RotationProfiles, key, nameof(RotationProfiles));
+    
+    public TimedExecutionData GetTimingProfile(string key) 
+        => GetProfile(TimingProfiles, key, nameof(TimingProfiles));
+    
+    /// <summary>
+    /// [2025-06-18 ARCHITECTURE NOTE]
+    /// Safely retrieves a profile by key from the given dictionary.
+    /// Throws a clear exception if missing (fail-fast, never returns null).
+    /// Use for all profile-based lookups: movement, targeting, timing, etc.
+    /// </summary>
+    private TProfile GetProfile<TProfile>(Dictionary<string, TProfile> dict, string key, string dictName)
     {
-        if (TargetingProfiles != null && TargetingProfiles.TryGetValue(key, out var data))
-            return data;
-        throw new System.Exception($"[Blackboard] Targeting profile '{key}' not found.");
+        if (dict == null)
+            throw new Exception($"[{_scriptName}] Profile dictionary '{dictName}' is null. Context/module may be missing.");
+        if (string.IsNullOrWhiteSpace(key))
+            throw new Exception($"[{_scriptName}] Requested profile key is null or empty for '{dictName}'.");
+        if (!dict.TryGetValue(key, out var profile))
+            throw new Exception($"[{_scriptName}] Profile '{key}' not found in '{dictName}'. " +
+                                $"Available: [{string.Join(", ", dict.Keys)}]");
+        return profile;
     }
     
     /// <summary>Runtime data associated with targeting systems</summary>
@@ -29,20 +66,12 @@ public class Blackboard
     /// <summary>The actual Transform to target (set by DynamicTargetContextBuilder)</summary>
     public Transform Target; // To be replaced by Targeting System
     
-    // --- Movement System ---
-    public Dictionary<string, MovementData> MovementProfiles { get; set; } = new();
-
-    public MovementData GetMovementProfile(string key)
-    {
-        if (MovementProfiles != null && MovementProfiles.TryGetValue(key, out var data))
-            return data;
-        throw new System.Exception($"[Blackboard] Movement profile '{key}' not found.");
-    }
     
     /// <summary>Navigation or pathfinding movement controller (e.g., NavMesh, grid, etc.)</summary>
     public IMovementNode MovementLogic { get; set; }
+
     /// <summary>Impulse-based movement logic (e.g., knockbacks, pushes)</summary>
-    public IImpulseNode ImpulseLogic;
+    public IImpulseNode ImpulseLogic { get; set; }
 
     // --- Rotation System
     
@@ -54,22 +83,14 @@ public class Blackboard
     /// <summary>Timed execution logic for decorators or cooldown systems</summary>
     public TimeExecutionManager TimeExecutionManager { get; set; }
     /// <summary>Runtime data associated with timing systems</summary>
-    public TimedExecutionData TimerData { get; set; }
-
-    // --- Health System ---
     
-    /// <summary>Reference to the entity's health system</summary>
-    public HealthSystem Health;
-
+    [System.Obsolete]
+    public TimedExecutionData TimerData { get; set; }
+    
     // --- Miscellaneous --- // TODO for sorting
-
-    /// <summary>Whether the AI is currently stunned (movement/decision disabled)</summary>
-    public bool IsStunned; // <<-- To be handled by ???
-
-    /// <summary>Currently playing animation state (used for transitions, blocking, etc.)</summary>
-    public string CurrentAnimationState;
-
+    
     /// <summary>Direction vector used for impulse movement</summary>
+    [System.Obsolete]
     public Vector3 ImpulseDirection;
 
     // --- Update Phase Executor
@@ -80,10 +101,11 @@ public class Blackboard
 
     // ───────────────
     // Dynamic Key-Value Context Store
+    // Only for non-core, optional extensions; never use for primary context fields.
     // ───────────────
     
     private readonly Dictionary<string, object> _data = new();
-
+    
     /// <summary>
     /// Dynamically registers a runtime value with the blackboard.
     /// Useful for injecting settings, services, or tools without altering the main schema.
@@ -118,7 +140,11 @@ public class Blackboard
         value = default;
         return false;
     }
-
+    
+    // ───────────────
+    // End Dynamic Key-Value Context Store
+    // ───────────────
+    
     /// <summary>
     /// Dumps the dynamic dictionary for debugging or inspection.
     /// </summary>

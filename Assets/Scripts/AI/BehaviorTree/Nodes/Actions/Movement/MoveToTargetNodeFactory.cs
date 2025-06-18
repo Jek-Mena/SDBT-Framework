@@ -10,12 +10,12 @@ public class MoveToTargetNodeFactory : IBtNodeFactory
         if (config == null)
             throw new Exception($"[{scriptName}] Missing {CoreKeys.Config} for MoveToTarget node.");
         
-        // Always build movement data (from resolved config, whether from $ref or inline), resolved upstream.
-        var movementData = MovementDataBuilder.FromConfig(config, scriptName);
+        // Get the movement profile key
+        var movementProfileKey = config[BtConfigFields.Profiles.Movement]?.ToString();
 
-        // If present, use a targeting profile key (post-$ref, resolution)
-        var targetingData = config[CoreKeys.ResolvedProfiles.Targeting]?.ToObject<TargetingData>();
+        // Get the targeting profile key
+        var targetProfileKey = config[BtConfigFields.Profiles.Targeting]?.ToString();
         
-        return new MoveToTargetNode(movementData, targetingData);
+        return new MoveToTargetNode(movementProfileKey, targetProfileKey);
     }
 }

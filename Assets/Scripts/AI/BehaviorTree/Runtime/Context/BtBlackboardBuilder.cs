@@ -45,7 +45,7 @@ public class BtBlackboardBuilder : IContextBuilder
         // Check if the blackboard has already been built for this entity.
         // If so, throw an exception to prevent redundant initialization.
         if (controller.Blackboard != null)
-            throw new System.Exception($"[{nameof(BtBlackboardBuilder)}] Blackboard already set for {agent.name}! Double build is a bug.");
+            throw new Exception($"[{nameof(BtBlackboardBuilder)}] Blackboard already set for {agent.name}! Double build is a bug.");
         
         var blackboard = new Blackboard();
         // Create a preliminary context with what you have
@@ -74,41 +74,6 @@ public class BtBlackboardBuilder : IContextBuilder
         return blackboard;
     }
     
-    /// <summary>
-    /// Utility: Injects a required component of type T into the blackboard's designated field for the specified entity.
-    /// • Throws an exception if the required component of type T is missing on the entity.
-    /// • Maps the resolved component to the correct field in the blackboard based on the provided field name.
-    /// • Ensures mappings only occur for known blackboard fields; otherwise, throws an exception for unrecognized fields.
-    /// 
-    /// TL;DR Throws if component missing, otherwise assigns to blackboard by name
-    /// </summary>
-    /// <typeparam name="T">The type of the required component to be resolved and injected.</typeparam>
-    /// <param name="entity">The game object representing the entity containing the required component.</param>
-    /// <param name="blackboard">The blackboard where the resolved component should be assigned.</param>
-    /// <param name="field">The name of the blackboard field where the component should be injected.</param>
-    /// <exception cref="Exception">
-    /// Thrown if the required component is missing from the entity or if the field name is unrecognized by the blackboard.
-    /// </exception>
-    private void InjectOrThrow<T>(GameObject entity, Blackboard blackboard, string field) where T : Component
-    {
-        var comp = entity.GetComponent<T>();
-        if (!comp)
-            throw new Exception($"[{nameof(BtBlackboardBuilder)}] MISSING required dependency: {typeof(T).Name} ({field}) on {entity.name}.");
-        switch (field)
-        {
-            case BlackboardKeys.Core.Managers.TimeExecutionManager:
-                blackboard.TimeExecutionManager = (TimeExecutionManager)(object)comp; 
-                break;
-            case BlackboardKeys.Core.Managers.StatusEffectManager: 
-                blackboard.StatusEffectManager = (StatusEffectManager)(object)comp; 
-                break;
-            case BlackboardKeys.Core.Managers.UpdatePhaseExecutor:
-                blackboard.UpdatePhaseExecutor = (UpdatePhaseExecutor)(object)comp; 
-                break;
-            default: throw new Exception($"[{nameof(BtBlackboardBuilder)}] Unknown Blackboard field '{field}'.");
-        }
-    }
-
     /// <summary>
     /// Creates a duplicate instance of the current <see cref="BtBlackboardBuilder"/>.
     /// • Populates the clone with all registered context builder modules from the original instance.

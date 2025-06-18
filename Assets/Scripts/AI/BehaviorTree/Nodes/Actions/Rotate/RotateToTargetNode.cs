@@ -2,11 +2,15 @@
 
 public class RotateToTargetNode : IBehaviorNode
 {
-    private readonly RotationData _rotationData;
+    private const string ScriptName = nameof(RotateToTargetNode);
     
-    public RotateToTargetNode(RotationData rotationData)
+    private readonly string _rotationProfileKey;
+    private readonly string _targetProfileKey;
+
+    public RotateToTargetNode(string rotationProfileKey, string targetProfileKey)
     {
-        _rotationData = rotationData;
+        _rotationProfileKey = rotationProfileKey;
+        _targetProfileKey = targetProfileKey;
     }
     
     public BtStatus Tick(BtContext context)
@@ -21,12 +25,29 @@ public class RotateToTargetNode : IBehaviorNode
             return BtStatus.Failure;
         }
         
-        var targetPos = context.TargetResolver.ResolveTarget(context.Agent, context.TargetingData).position;
-        context.Rotation.ApplySettings(_rotationData);
-        var canRotate = context.Rotation.TryRotateTo(targetPos);
+        // Resolve data from blackboard profile dictionaries
+        var rotationData = context.Blackboard.GetRotationProfile(_rotationProfileKey);
+        var targetingData = context.Blackboard.GetTargetingProfile(_targetProfileKey);
+
+        var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
+        if (resolver == null)
+        {
+            Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
+            return BtStatus.Failure;
+        }
+        
+        var target = resolver.ResolveTarget(context.Agent, context.TargetingData);
+        if (!target)
+        {
+            Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
+            return BtStatus.Failure;
+        }
+        
+        context.Rotation.ApplySettings(rotationData);
+        var canRotate = context.Rotation.TryRotateTo(target.position);
 
         return canRotate
-            ? context.Rotation.IsFacingTarget(targetPos) ? BtStatus.Success : BtStatus.Running
+            ? context.Rotation.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running
             : BtStatus.Failure;
     }
 }

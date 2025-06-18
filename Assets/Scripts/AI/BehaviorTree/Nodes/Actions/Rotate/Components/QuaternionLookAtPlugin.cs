@@ -11,11 +11,11 @@ public class QuaternionLookAtPlugin : BasePlugin
         var blackboard = controller.Blackboard;
         
         var config = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin)
-            ?.RawJson?[CoreKeys.Profiles.Rotation] as JObject;
+            ?.RawJson?[CoreKeys.ProfilesBlock.Rotation] as JObject;
 
         if (config == null)
         {
-            Debug.LogError($"[{context}] Missing {CoreKeys.Profiles.Rotation} block in config.");
+            Debug.LogError($"[{context}] Missing {CoreKeys.ProfilesBlock.Rotation} block in config.");
             return;
         }
         

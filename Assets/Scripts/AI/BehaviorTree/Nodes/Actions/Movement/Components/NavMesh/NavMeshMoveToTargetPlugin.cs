@@ -12,11 +12,11 @@ public class NavMeshMoveToTargetPlugin : BasePlugin
         var blackboard = controller.Blackboard;
 
         var config = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin)
-            ?.RawJson?[CoreKeys.Profiles.Movement] as JObject;
+            ?.RawJson?[CoreKeys.ProfilesBlock.Movement] as JObject;
 
         if (config == null)
         {
-            Debug.LogError($"[{context}] Missing config block: '{CoreKeys.Profiles.Movement}'");
+            Debug.LogError($"[{context}] Missing config block: '{CoreKeys.ProfilesBlock.Movement}'");
             return;
         }
 

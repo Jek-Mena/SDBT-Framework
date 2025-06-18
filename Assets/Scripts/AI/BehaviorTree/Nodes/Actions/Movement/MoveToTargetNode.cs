@@ -4,15 +4,20 @@
 // • What it should not do: Decide how often to update destination, or whether it's “close enough.”
 public class MoveToTargetNode : IBehaviorNode
 {
-    private readonly MovementData _movementData;
-    private readonly TargetingData _targetingData;
+    private const string ScriptName = nameof(MoveToTargetNode);
     
-    public MoveToTargetNode(MovementData movementData, TargetingData targetingData)
+    private readonly string _movementProfileKey;
+    private readonly string _targetProfileKey;
+
+    private MovementData _lastMovementData;
+    private TargetingData _lastTargetingData;
+    
+    public MoveToTargetNode(string movementProfileKey, string targetProfileKey)
     {
-        _movementData = movementData;
-        _targetingData = targetingData;
+        _movementProfileKey = movementProfileKey;
+        _targetProfileKey = targetProfileKey;
     }
-    
+
     public BtStatus Tick(BtContext context)
     {
         if (!BtValidator.Require(context)
@@ -23,9 +28,38 @@ public class MoveToTargetNode : IBehaviorNode
             Debug.Log(error);
             return BtStatus.Failure;
         }
-
-        var target = context.TargetResolver.ResolveTarget(context.Agent, context.TargetingData);
-        context.Movement.ApplySettings(_movementData);
+        
+        // Resolve data from blackboard profile dictionaries
+        // For now the movementData and targetingData are setup to fail-fast so, no need to check for null values.
+        var movementData = context.Blackboard.GetMovementProfile(_movementProfileKey);
+        // if (movementData == null)
+        // {
+        //     Debug.LogError($"[{ScriptName}] No 'MovementProfileKey' {_movementProfileKey} found in blackboard.");
+        //     return BtStatus.Failure;
+        // }
+        
+        var targetingData = context.Blackboard.GetTargetingProfile(_targetProfileKey);
+        // if (targetingData == null)
+        // {
+        //     Debug.LogError($"[{ScriptName}] No 'TargetProfileKey' {_targetProfileKey} found in blackboard.'");
+        //     return BtStatus.Failure;
+        // }
+        
+        var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
+        if (resolver == null)
+        {
+            Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
+            return BtStatus.Failure;
+        }
+        
+        var target = resolver.ResolveTarget(context.Agent, context.TargetingData);
+        if (!target)
+        {
+            Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
+            return BtStatus.Failure;
+        }
+        
+        context.Movement.ApplySettings(movementData);
         var canMove = context.Movement.TryMoveTo(target.position);
 
         return canMove

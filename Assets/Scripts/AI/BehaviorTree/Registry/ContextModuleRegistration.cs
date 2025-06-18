@@ -12,6 +12,14 @@ public static class ContextModuleRegistration
     {
         var modules = new IContextBuilderModule[]
         {
+            // [2025-06-18] IMPORTANT: ProfileContextBuilder MUST come before any context module
+            // that depends on profiles (movement, targeting, etc.). If you add a new profile-dependent module,
+            // always register it after the profile module.
+            
+            // 1. Injects all profile dictionaries into blackboard
+            new ProfileContextBuilder(),
+            
+            // 2. All systems that depend on profiles must come AFTER profile injection
             new TimerContextBuilder(),
             new StatusEffectContextBuilder(),
             new UpdatePhaseExecutorContextBuilder(),
@@ -25,5 +33,7 @@ public static class ContextModuleRegistration
         {
             builder.RegisterModule(module);
         }
+        
+        
     }
 }

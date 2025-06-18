@@ -14,7 +14,7 @@ public class MoveToTargetSchema : BtNodeSchema
             IsRequired = true,
             AllowRef = true,
             RefType = RefSelectorType.Block,
-            ParamSection = CoreKeys.Profiles.Movement
+            ParamSection = CoreKeys.ProfilesBlock.Movement
         });
     }
 }

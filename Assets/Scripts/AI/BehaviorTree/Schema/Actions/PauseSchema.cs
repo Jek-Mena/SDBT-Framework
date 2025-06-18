@@ -11,7 +11,7 @@ public class PauseSchema : BtNodeSchema
             JsonType = JTokenType.Float,
             IsRequired = true,
             AllowRef = true,
-            ParamSection = CoreKeys.Profiles.Timing
+            ParamSection = CoreKeys.ProfilesBlock.Timing
         });
     }
 }

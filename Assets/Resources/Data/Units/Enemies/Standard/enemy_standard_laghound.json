@@ -5,53 +5,51 @@
     {
       "plugin": "Plugin/BtConfig",
       "params": {
-        "targetingProfile": {
-          "ChaseTarget": {
-            "targetTag": "Player",
-            "targetingStyle": "Closest",
-            "blackboardKey": "ChaseTarget",
-            "maxRange": 100,
-            "activationRange": 10,
-            "minRange": 2,
-            "fallOffRange": 120,
-            "searchRange": 200
+        "profiles": {
+          "targetingProfiles": {
+            "ChaseTarget": {
+              "targetTag": "Player",
+              "style": "Closest",
+              "blackboardKey": "ChaseTarget",
+              "maxRange": 100,
+              "activationRange": 10,
+              "minRange": 2,
+              "fallOffRange": 120,
+              "searchRange": 200
+            }
+          },
+          "movementProfiles": {
+            "ChaserMovement": {
+              "speed": 3.0,
+              "acceleration": 3.0,
+              "stoppingDistance": 0.5,
+              "angularSpeed": 150.0,
+              "updateThreshold": 0.25
+            }
+          },
+          "rotationProfiles": {
+            "FaceTarget": {
+              "speed": 120.0,
+              "angleThreshold": 3.0,
+              "updateThreshold": 0.05
+            }
+          },
+          "timingProfiles": {
+            "MoveLimit": {
+              "label": "MoveLimit",
+              "duration": 5.0
+            },
+            "Pause": {
+              "label": "PauseForX",
+              "duration": 5.0
+            }
           }
-        },
-        "movementProfile": {
-          "profileKey": "ChaserMovement",
-          "speed": 3.0,
-          "acceleration": 3.0,
-          "stoppingDistance": 0.5,
-          "angularSpeed": 150.0,
-          "updateThreshold": 0.25
-        },
-		"timing": {
-		  "moveDuration": 5.0,
-		  "pauseDuration": 5.0
-		},
-		"rotation": {
-          "profileKey": "FaceTarget",
-          "speed": 120.0,
-          "angleThreshold": 3.0,
-          "updateThreshold": 0.05,
         }
       }
     },
     {
       "plugin": "Plugin/BtLoadTree",
       "params": { "tree": "move_and_wait" }
-    },
-    {
-      "plugin": "Plugin/NavMeshMoveToTarget"
-    },
-	{ 
-	  "plugin": "Plugin/Pause" 
-	},
-	{ 
-	  "plugin": "Plugin/Targeting" 
-	},
-	{
-      "plugin": "Plugin/TransformLookAtTarget"
-    },
+    }
   ]
 }

@@ -29,6 +29,7 @@ public static class BtNodeTypes
     public static class TimedExecution
     {
         public const string Pause = "Bt/Pause";
+        public const string Timer = "Bt/Timer";
         public const string Sleep = "Bt/Sleep";
         public const string Channeling = "Bt/Channeling";
         public const string StandStill = "Bt/StandStill"; // Optional: alias with purpose

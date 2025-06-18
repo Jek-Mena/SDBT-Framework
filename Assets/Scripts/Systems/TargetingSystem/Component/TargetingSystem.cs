@@ -7,7 +7,7 @@ public class TargetingSystem : MonoBehaviour
     public void SetTargetingData(TargetingData targetingData)
     {
         Blackboard.TargetingData = targetingData;
-        Blackboard.TargetResolver = TargetResolverRegistry.TryGetValue(targetingData.Style);
+        Blackboard.TargetResolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
         Blackboard.Target = Blackboard.TargetResolver.ResolveTarget(gameObject, targetingData);
     }
 

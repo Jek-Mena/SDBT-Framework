@@ -42,7 +42,7 @@ public static class BtBootstrapper
             phase: PluginExecutionPhase.BtExecution
         );
 
-        PluginMetadataStore.Register<NavMeshMoveToTargetPlugin>(
+        /*PluginMetadataStore.Register<NavMeshMoveToTargetPlugin>(
             pluginKey: PluginMetaKeys.Movement.NavMeshMoveToTarget.Plugin,
             schemaKey: PluginMetaKeys.Movement.NavMeshMoveToTarget.Schema,
             phase: PluginExecutionPhase.Context
@@ -64,7 +64,7 @@ public static class BtBootstrapper
             pluginKey: PluginMetaKeys.TimedExecution.Pause.Plugin,
             schemaKey: PluginMetaKeys.TimedExecution.Pause.Schema,
             phase: PluginExecutionPhase.TimedExecution
-        );
+        );*/
     }
 }
 

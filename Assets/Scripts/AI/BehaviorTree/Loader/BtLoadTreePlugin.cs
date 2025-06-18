@@ -22,6 +22,8 @@ public class BtLoadTreePlugin : BasePlugin
         // Inject BtConfig if present
         if (jObject.TryGetValue(CoreKeys.Config, out var configToken))
         {
+            // [ARCHITECTURE NOTE] Only inject ConfigData here as the single source-of-truth.
+            // Downstream systems must read config via blackboard only—never instantiate their own ConfigData.
             var configData = new ConfigData { RawJson = (JObject)configToken };
             blackboard.Set(PluginMetaKeys.Core.BtConfig.Plugin, configData);
         }

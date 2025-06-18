@@ -11,6 +11,11 @@ public static class BtNodeRegistrationList
         return (alias, new TFactory());
     }
 
+    // New helper for timed execution nodes
+    private static (string, IBtNodeFactory) MakeTimedExecutionEntry<TNode>(string alias, bool hasChild, bool acceptsDomains)
+        where TNode : IBehaviorNode
+        => (alias, new TimedExecutionNodeFactory<TNode>(alias, hasChild, acceptsDomains));
+    
     public static void InitializeDefaults()
     {
         var entries = new (string alias, IBtNodeFactory factory)[]
@@ -24,14 +29,13 @@ public static class BtNodeRegistrationList
             MakeEntry<RotateToTargetNodeFactory>(BtNodeTypes.Rotation.RotateToTarget),
             // --- End Actions / Leaves ---
             
-            
             // --- Timed Execution
-            MakeEntry<BtPauseNodeFactory>(BtNodeTypes.TimedExecution.Pause),
+            MakeTimedExecutionEntry<BtPauseNode>(BtNodeTypes.TimedExecution.Pause, hasChild: false, acceptsDomains: true),
+            MakeTimedExecutionEntry<TimerNode>(BtNodeTypes.TimedExecution.Timer, hasChild: false, acceptsDomains: false),
             // --- End Timed Execution ---
             
-            
             // --- Decorators ---
-            MakeEntry<TimeoutNodeFactory>(BtNodeTypes.Decorators.Timeout),
+            MakeTimedExecutionEntry<TimeoutNode>(BtNodeTypes.Decorators.Timeout, hasChild: true, acceptsDomains: true),
             MakeEntry<BtRepeaterNodeFactory>(BtNodeTypes.Decorators.Repeater),
             // --- End Decorators ---
             
