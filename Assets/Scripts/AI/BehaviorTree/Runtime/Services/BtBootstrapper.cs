@@ -5,18 +5,25 @@ public static class BtBootstrapper
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void Initialize()
     {
-        // 1. Register all node factories
+        // One call to load/caches all assets/configs
+        GameAssets.Bootstrap();
+        
+        // Test 
+        EntitySpawner.Spawn("enemy_standard_laghound");
+        // End Test
+        
+        // Register all node factories
         // Initializes the Behavior Tree system by setting up default nodes,
         BtNodeRegistrationList.InitializeDefaults();
         
-        // 2. Register all node schemas
+        // Register all node schemas
         // Initialize the blackboard builder and assign it to the context builder.
         // ---> Currently handled by the editor <---
         
-        // 3. Register all plugins
+        // Register all plugins
         RegisterPlugins();
         
-        // 4. Set up and register context builder and context modules
+        // Set up and register context builder and context modules
         var btBlackboardBuilder = new BtBlackboardBuilder();
         ContextModuleRegistration.RegisterAll(btBlackboardBuilder);
         

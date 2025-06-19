@@ -17,7 +17,7 @@ public static class ContextModuleRegistration
             // always register it after the profile module.
             
             // 1. Injects all profile dictionaries into blackboard
-            new ProfileContextBuilder(),
+            new ProfileContextBuilderModule(),
             
             // 2. All systems that depend on profiles must come AFTER profile injection
             new TimerContextBuilder(),

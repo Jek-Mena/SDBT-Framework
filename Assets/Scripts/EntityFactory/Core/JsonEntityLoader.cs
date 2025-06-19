@@ -14,7 +14,7 @@ public class JsonEntityLoader
             return cached;
 
         var jsonAsset = Resources.Load<TextAsset>($"{JsonFolderPath}{path}");
-        if (jsonAsset == null)
+        if (!jsonAsset)
             throw new System.Exception($"JSON not found at: Resources/{JsonFolderPath}{path}.json");
 
         var settings = new JsonSerializerSettings();

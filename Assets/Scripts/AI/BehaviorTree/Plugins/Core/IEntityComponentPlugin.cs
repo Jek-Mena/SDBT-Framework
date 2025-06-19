@@ -5,6 +5,7 @@ using UnityEngine;
 /// Interface for game entity plugin components.
 /// Every plugin must expose a static metadata object that defines how it integrates with the system.
 /// </summary>
+[System.Obsolete]
 public interface IEntityComponentPlugin
 {
     /// <summary>

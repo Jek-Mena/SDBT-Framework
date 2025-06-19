@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+
+public class ProfileContextBuilderModule : IContextBuilderModule
+{
+    private readonly JObject _agentConfig;
+
+    // Pass the parsed JSON config when constructing this builder
+    public ProfileContextBuilderModule(JObject agentConfig)
+    {
+        _agentConfig = agentConfig;
+    }
+
+    public void Build(BtContext context)
+    {
+        var scriptName = nameof(ProfileContextBuilderModule);
+        var blackboard = context.Blackboard;
+        var configData = new ConfigData { RawJson = _agentConfig };
+     
+        blackboard.Set(PluginMetaKeys.Core.BtConfig.Plugin, configData);
+        Debug.Log($"[{scriptName}] Injected raw config for '{context.Agent.name}'");
+        
+        var profiles = _agentConfig[CoreKeys.Profiles] as JObject;
+        if (profiles == null)
+            throw new Exception($"[{scriptName}] BtConfig missing!");
+        
+        // -- Parse each profile block --
+        Debug.Log("[{scriptName}] Parsing profiles...");
+        blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(profiles, CoreKeys.ProfilesBlock.Targeting);
+        blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (profiles, CoreKeys.ProfilesBlock.Movement);
+        blackboard.RotationProfiles = ParseProfileBlock<RotationData>(profiles, CoreKeys.ProfilesBlock.Rotation);
+        blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(profiles, CoreKeys.ProfilesBlock.Timing);
+        
+        // Add similar.... 
+
+    }
+
+    /// <summary>
+    /// Attempts to parse a dictionary of profiles (of type TProfile) from the provided JSON object.
+    /// - Handles both flat (root-level) and nested ("profiles" block) JSON structures.
+    /// - Returns an empty dictionary if the block is not found.
+    /// </summary>
+    private Dictionary<string, TProfile> ParseProfileBlock<TProfile>(JObject root, string blockKey)
+    {
+        // Try to find the block at the root level
+        var block = root[blockKey] as JObject;
+        
+        // If not found, try under the standard "profiles" section (using your convention)
+        if (block == null)
+        {
+            var profilesSection = root[CoreKeys.Profiles] as JObject;
+            if (profilesSection != null)
+                block = profilesSection[blockKey] as JObject;
+        }
+        
+        // If still not found, return an empty dictionary
+        if (block == null)
+            return new Dictionary<string, TProfile>();
+
+        var profilesDict = new Dictionary<string, TProfile>();
+        foreach (var prop in block.Properties())
+        {
+            try
+            {
+                profilesDict[prop.Name] = prop.Value.ToObject<TProfile>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ParseProfileBlock] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
+            }
+        }
+        return profilesDict;
+    }
+}
