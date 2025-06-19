@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 6658103414726182129}
   - component: {fileID: 3325085432993337391}
   m_Layer: 0
-  m_Name: enemy_standard_chaser
+  m_Name: enemy_test_agent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

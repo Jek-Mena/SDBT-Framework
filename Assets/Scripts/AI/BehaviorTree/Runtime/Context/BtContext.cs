@@ -1,5 +1,3 @@
-// [PHASE 1: Introduce for internal use only. Full migration in PHASE 3]
-
 using UnityEngine;
 
 /// <summary>
@@ -27,19 +25,9 @@ public class BtContext
     }
     
     // Facade Properties for leaf node convenience.
-
-    public TargetingData TargetingData => Blackboard.TargetingData;
-    public ITargetResolver TargetResolver =>
-        Blackboard.TargetResolver ?? TargetResolverRegistry.ResolveOrClosest(TargetingData.Style);
     public IMovementNode Movement => Blackboard.MovementLogic;
     public IRotationNode Rotation => Blackboard.RotationLogic;
     public TimeExecutionManager TimeExecutionManager => Blackboard.TimeExecutionManager;
     public StatusEffectManager StatusEffectManager => Blackboard.StatusEffectManager;
     public UpdatePhaseExecutor UpdatePhaseExecutor => Blackboard.UpdatePhaseExecutor;
-
-    public bool IsValid =>
-        Controller is not null &&
-        Blackboard != null &&
-        Movement != null &&
-        TargetingData != null;
 }

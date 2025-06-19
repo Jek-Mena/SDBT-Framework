@@ -1,6 +1,6 @@
 {
   "entityId": "enemy_standard_laghound",
-  "prefab": "Prefabs/Enemy/Standard/enemy_standard_chaser",
+  "prefab": "Prefabs/Enemy/Standard/enemy_test_agent",
   "components": [
     {
       "plugin": "Plugin/BtConfig",

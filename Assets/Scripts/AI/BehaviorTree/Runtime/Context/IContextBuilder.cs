@@ -10,6 +10,7 @@
 /// It must create, populate, and return the final blackboard instance.
 /// Modules used within this builder must conform to IContextBuilderModule.
 /// </summary>
+[System.Obsolete]
 public interface IContextBuilder
 {
     /// <summary>

@@ -16,10 +16,10 @@ public static class ContextModuleRegistration
             // that depends on profiles (movement, targeting, etc.). If you add a new profile-dependent module,
             // always register it after the profile module.
             
-            // 1. Injects all profile dictionaries into blackboard
+            // Injects all profile dictionaries into blackboard
             new ProfileContextBuilderModule(),
             
-            // 2. All systems that depend on profiles must come AFTER profile injection
+            // All systems that depend on profiles must come AFTER profile injection
             new TimerContextBuilder(),
             new StatusEffectContextBuilder(),
             new UpdatePhaseExecutorContextBuilder(),
@@ -27,13 +27,14 @@ public static class ContextModuleRegistration
             //new TargetingContextBuilderModule(),
             new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
+            
+            // Always register BehaviorTreeAssignmentModule LAST
+            new BehaviorTreeAssignmentModule()
         };
 
         foreach (var module in modules)
         {
             builder.RegisterModule(module);
         }
-        
-        
     }
 }

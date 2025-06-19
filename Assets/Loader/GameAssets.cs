@@ -1,55 +1,107 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public class GameAssets
+/// <summary>
+/// GameAssets is a static registry for all entity definitions, loaded at game boot.
+/// Provides instant lookup of prefab+config by entityId, and ensures config/prefab are always paired.
+/// </summary>
+public static class GameAssets
 {
-    private static Dictionary<string, JObject> _entityConfigs = new();
-    private static Dictionary<string, GameObject> _entityPrefabs = new();
-
-    // Should be called ONCE on startup (Bootstrapper or before any spawns)
-    public static void Bootstrap()
-    {
-        // Example for Resources-based loading; adapt as needed
-        // Here, let's say all configs are in Resources/Data/Units/...
-        var configFiles = Resources.LoadAll<TextAsset>("Data/Units");
-        foreach (var file in configFiles)
-        {
-            var jo = JObject.Parse(file.text);
-            var id = jo[CoreKeys.EntityId]?.ToString();
-            if (id != null) 
-                _entityConfigs[id] = jo;
-        }
+    private const string ScriptName = nameof(GameAssets); 
         
-        // For each config, load the prefab path it references (prefabs under Resources)
-        foreach (var (id, config) in _entityConfigs)
+    // Main registry: entityId -> EntityDefinition (config + prefab)
+    private static readonly Dictionary<string, EntityDefinition> _entityDefs = new();
+
+    /// <summary>
+    /// Loads all entity configs and prefabs from Resources folders at boot.
+    /// Call ONCE before any entity spawns (e.g., from BtBootstrapper or GameManager).
+    /// </summary>
+    /// <param name="configFolder">Folder under Assets/Resources/ containing entity JSONs.</param>
+    /// <param name="prefabFolder">Folder under Resources/ containing prefabs.</param>
+    public static void Bootstrap(string configFolder, string prefabFolder)
+    {
+        // --- Load configs (must be in Resources as TextAssets) ---
+        var textAssets = Resources.LoadAll<TextAsset>(configFolder);
+
+        var configs = new Dictionary<string, JObject>();
+        if (configs == null)
+            throw new ArgumentNullException(nameof(configs));
+
+        foreach (var textAsset in textAssets)
         {
-            var prefabPath = config[CoreKeys.Prefab]?.ToString();
-            if (!string.IsNullOrWhiteSpace(prefabPath))
+            try
             {
-                var prefab = Resources.Load<GameObject>(prefabPath);
-                if (prefab)
-                    _entityPrefabs[id] = prefab;
+                var jObj = JObject.Parse(textAsset.text);
+                var entityId = jObj[CoreKeys.EntityId]?.ToString();
+                if (!string.IsNullOrWhiteSpace(entityId))
+                    configs[entityId] = jObj;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[{ScriptName}] Failed to parse config '{textAsset.name}': {ex}");
             }
         }
-        Debug.Log($"[GameAssets] Loaded {_entityConfigs.Count} configs and {_entityPrefabs.Count} prefabs.");
         
-        // Load all entity configs (JSON files)
-        _entityConfigs = new();
+        // --- Load prefabs ---
+        var prefabObjs = Resources.LoadAll<GameObject>(prefabFolder);
+        var prefabs = new Dictionary<string, GameObject>();
+        foreach (var prefab in prefabObjs)
+        {
+            // Use the prefab's name as the key (should match entityId or be referenced in config)
+            prefabs[prefab.name] = prefab;
+        }
         
-        // Load all entity prefabs (prefabs)
-        _entityPrefabs = new();
+        // --- Build EntityDefinition registry ---
+        _entityDefs.Clear();
+        foreach (var entityId in configs.Keys)
+        {
+            // Find prefab by path or by entityId
+            var prefabPath = configs[entityId][CoreKeys.Prefab]?.ToString();
+            GameObject prefab = null;
+
+            if (!string.IsNullOrEmpty(prefabPath))
+            {
+                // Try Resources.Load by path (excluding 'Assets/Resources/')
+                prefab = Resources.Load<GameObject>(prefabPath);
+            }
+            if (!prefab && prefabs.ContainsKey(entityId))
+            {
+                prefab = prefabs[entityId];
+            }
+
+            if (!prefab)
+            {
+                Debug.LogWarning($"[{ScriptName}] Prefab not found for entityId '{entityId}'.");
+                continue;
+            }
+
+            var def = new EntityDefinition
+            {
+                EntityId = entityId,
+                Prefab = prefab,
+                Config = configs[entityId]
+            };
+            _entityDefs[entityId] = def;
+        }
+        Debug.Log($"[{ScriptName}] Bootstrap complete. Registered {_entityDefs.Count} entities.");
     }
     
-    public static JObject GetEntityConfig(string entityId)
+    /// <summary>
+    /// Get the EntityDefinition (config + prefab) by entityId.
+    /// </summary>
+    public static EntityDefinition GetEntity(string entityId)
     {
-        if (_entityConfigs.TryGetValue(entityId, out var config)) return config;
-        throw new KeyNotFoundException($"Entity config not found: {entityId}");
-    }
+        if (_entityDefs.TryGetValue(entityId, out var def))
+            return def;
 
-    public static GameObject GetPrefab(string entityId)
-    {
-        if (_entityPrefabs.TryGetValue(entityId, out var prefab)) return prefab;
-        throw new KeyNotFoundException($"Prefab not found for entity: {entityId}");
+        Debug.LogError($"[{ScriptName}] Entity not found: {entityId}");
+        return null;
     }
+    
+    /// <summary>
+    /// Returns all registered entity IDs (useful for editors/debug/AI Director).
+    /// </summary>
+    public static IEnumerable<string> AllEntityIds => _entityDefs.Keys;
 }

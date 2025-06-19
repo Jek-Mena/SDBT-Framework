@@ -16,6 +16,8 @@
 /// </summary>
 public static class BlackboardKeys
 {
+    public const string EntityConfig = "EntityConfig";
+        
     /// <summary>
     /// [2025-06-13]
     /// Keys for core/shared AI systems and context fields.

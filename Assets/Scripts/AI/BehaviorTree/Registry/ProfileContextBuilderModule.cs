@@ -6,21 +6,16 @@ using UnityEngine;
 public class ProfileContextBuilderModule : IContextBuilderModule
 {
     private readonly JObject _agentConfig;
-
-    // Pass the parsed JSON config when constructing this builder
-    public ProfileContextBuilderModule(JObject agentConfig)
-    {
-        _agentConfig = agentConfig;
-    }
-
+    
     public void Build(BtContext context)
     {
         var scriptName = nameof(ProfileContextBuilderModule);
         var blackboard = context.Blackboard;
+        
+        // Injects the full config JObject into the blackboard at context build time.
         var configData = new ConfigData { RawJson = _agentConfig };
-     
         blackboard.Set(PluginMetaKeys.Core.BtConfig.Plugin, configData);
-        Debug.Log($"[{scriptName}] Injected raw config for '{context.Agent.name}'");
+        Debug.Log($"[{scriptName}] Injected raw config for '{context.Agent.name}' \nRawConfig:\n {configData}" );
         
         var profiles = _agentConfig[CoreKeys.Profiles] as JObject;
         if (profiles == null)
@@ -34,7 +29,6 @@ public class ProfileContextBuilderModule : IContextBuilderModule
         blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(profiles, CoreKeys.ProfilesBlock.Timing);
         
         // Add similar.... 
-
     }
 
     /// <summary>

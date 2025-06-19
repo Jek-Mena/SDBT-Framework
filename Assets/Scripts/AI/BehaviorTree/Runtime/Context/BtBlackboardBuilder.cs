@@ -17,7 +17,7 @@ using UnityEngine;
 ///
 /// - Supports future extensions such as Roslyn-generated modules for dynamic BT behaviors.
 /// </summary>
-public class BtBlackboardBuilder : IContextBuilder
+public class BtBlackboardBuilder
 {
     /// <summary>
     /// Registry of all service injectors. Each module encapsulates a single domain (e.g., movement, status effects).
@@ -37,7 +37,7 @@ public class BtBlackboardBuilder : IContextBuilder
     /// ! Each module must be idempotent and safe (i.e., no hard assumptions about components).
     /// ! Will reuse existing context if already built for the entity.
     /// </summary>
-    public Blackboard Build(GameObject agent)
+    public BtContext Build(GameObject agent)
     {
         // Retrieve and ensure the BtController component exists on the entity.
         var controller = agent.RequireComponent<BtController>();
@@ -71,37 +71,11 @@ public class BtBlackboardBuilder : IContextBuilder
         controller.InitContext(context);
         Debug.Log($"[{nameof(BtBlackboardBuilder)}] Blackboard built for '{agent.name}'. Dump:\n{blackboard.DumpContents()}");
             
-        return blackboard;
+        return context;
     }
     
-    /// <summary>
-    /// Creates a duplicate instance of the current <see cref="BtBlackboardBuilder"/>.
-    /// • Populates the clone with all registered context builder modules from the original instance.
-    /// • Modules in the clone are safe to reuse since they are assumed to be stateless.
-    /// This allows creating separate builder instances while preserving configuration from the original instance.
-    /// </summary>
-    /// <returns>A new instance of <see cref="BtBlackboardBuilder"/> containing the same modules as the original.</returns>
-    public IContextBuilder Clone()
-    {
-        var clone = new BtBlackboardBuilder();
-        foreach (var module in _modules)
-            clone.RegisterModule(module); // stateless, safe to reuse
-        return clone;
-    }
-
     /// <summary>
     /// Registers a new module into the builder pipeline.
-    /// 
-    /// • Must be called during startup (e.g., inside BtBootStrapper)
-    /// • Call order matters if modules depend on each other
     /// </summary>
     public void RegisterModule(IContextBuilderModule module) => _modules.Add(module);
-
-    /// <summary>
-    /// Inserts the specified module at the beginning of the module list.
-    /// Ensures that the module gets executed before all other modules during the build process.
-    /// </summary>
-    /// <param name="module">The builder module to be added at the start of the module list.</param>
-    public void InsertModuleAtStart(IContextBuilderModule module) => _modules.Insert(0, module);
-    
 }
