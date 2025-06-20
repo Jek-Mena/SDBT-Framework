@@ -1,13 +1,10 @@
-﻿using UnityEngine;
-/// <summary>
+﻿/// <summary>
 /// [ARCHITECTURE UPDATE -- 2025-06-17]
 /// All context builder modules receive the full BtContext,
 /// ensuring access to the Agent, Blackboard, Controller, and all other shared runtime systems.
 /// This avoids fragmenting the pipeline between GameObject/Blackboard-only phases and full-context phases.
 /// 
-/// ⚠️ NOTE: Do not confuse this with IContextBuilder. ⚠️
 /// This interface is for a single piece of logic (e.g., MovementContextBuilder),
-/// not for building the entire blackboard.
 /// </summary>
 public interface IContextBuilderModule
 {
@@ -22,9 +19,9 @@ public interface IContextBuilderModule
 }
 
 /*
-   ┌────────────────────┐
-   │   IContextBuilder  │  ← Owns full Blackboard creation
-   └────────────────────┘
+   ┌──────────────────────────┐
+   │   ProfileContextBuilder  │  ← Owns full Blackboard creation
+   └──────────────────────────┘
              │
              │ calls
              ▼

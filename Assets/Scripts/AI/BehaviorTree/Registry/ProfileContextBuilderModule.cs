@@ -13,11 +13,10 @@ public class ProfileContextBuilderModule : IContextBuilderModule
         var blackboard = context.Blackboard;
         
         // Injects the full config JObject into the blackboard at context build time.
-        var configData = new ConfigData { RawJson = _agentConfig };
-        blackboard.Set(PluginMetaKeys.Core.BtConfig.Plugin, configData);
-        Debug.Log($"[{scriptName}] Injected raw config for '{context.Agent.name}' \nRawConfig:\n {configData}" );
+        var runtimeData = context.Agent.GetComponent<EntityRuntimeData>();
+        blackboard.Set(BlackboardKeys.EntityConfig, runtimeData);
         
-        var profiles = _agentConfig[CoreKeys.Profiles] as JObject;
+        var profiles = runtimeData.Definition.Config[CoreKeys.Profiles] as JObject;
         if (profiles == null)
             throw new Exception($"[{scriptName}] BtConfig missing!");
         

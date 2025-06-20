@@ -18,7 +18,7 @@ using UnityEngine;
 /// </summary>
 public class Blackboard
 {
-    private const string _scriptName = nameof(Blackboard);
+    private const string ScriptName = nameof(Blackboard);
     
     public Dictionary<string, TargetingData> TargetingProfiles { get; set; }
     public Dictionary<string, MovementData> MovementProfiles { get; set; }
@@ -49,43 +49,26 @@ public class Blackboard
     private TProfile GetProfile<TProfile>(Dictionary<string, TProfile> dict, string key, string dictName)
     {
         if (dict == null)
-            throw new Exception($"[{_scriptName}] Profile dictionary '{dictName}' is null. Context/module may be missing.");
+            throw new Exception($"[{ScriptName}] Profile dictionary '{dictName}' is null. Context/module may be missing.");
         if (string.IsNullOrWhiteSpace(key))
-            throw new Exception($"[{_scriptName}] Requested profile key is null or empty for '{dictName}'.");
+            throw new Exception($"[{ScriptName}] Requested profile key is null or empty for '{dictName}'.");
         if (!dict.TryGetValue(key, out var profile))
-            throw new Exception($"[{_scriptName}] Profile '{key}' not found in '{dictName}'. " +
+            throw new Exception($"[{ScriptName}] Profile '{key}' not found in '{dictName}'. " +
                                 $"Available: [{string.Join(", ", dict.Keys)}]");
         return profile;
     }
     
-    /// <summary>Runtime data associated with targeting systems</summary>
-    [System.Obsolete("Use TargetingProfiles for all new code. This will be removed once migration is complete.")]
-    public TargetingData TargetingData { get; set; }
-    /// <summary>Strategy object that dynamically selects and returns the current target Transform based on TargetingData—supports hot-swapping for advanced AI (e.g., tower defense targeting rules).</summary>
-    public ITargetResolver TargetResolver { get; set; }
     /// <summary>The actual Transform to target (set by DynamicTargetContextBuilder)</summary>
     public Transform Target; // To be replaced by Targeting System
     
-    
     /// <summary>Navigation or pathfinding movement controller (e.g., NavMesh, grid, etc.)</summary>
     public IMovementNode MovementLogic { get; set; }
-
     /// <summary>Impulse-based movement logic (e.g., knockbacks, pushes)</summary>
     public IImpulseNode ImpulseLogic { get; set; }
-
-    // --- Rotation System
-    
     /// <summary>Rotation controller</summary>
     public IRotationNode RotationLogic { get; set; }
-    
-    // --- Timed Execution System ---
-    
     /// <summary>Timed execution logic for decorators or cooldown systems</summary>
     public TimeExecutionManager TimeExecutionManager { get; set; }
-    /// <summary>Runtime data associated with timing systems</summary>
-    
-    [System.Obsolete]
-    public TimedExecutionData TimerData { get; set; }
     
     // --- Miscellaneous --- // TODO for sorting
     
@@ -166,8 +149,6 @@ public class Blackboard
         Add(BlackboardKeys.Core.Actions.MovementLogic, MovementLogic);
         Add(BlackboardKeys.Core.Actions.ImpulseLogic, ImpulseLogic);
         Add(BlackboardKeys.Core.Actions.RotationLogic, RotationLogic);
-        
-        Add(BlackboardKeys.Core.Resolver.TargetResolver, TargetResolver);
         
         Add(BlackboardKeys.Core.Managers.TimeExecutionManager, TimeExecutionManager);
         Add(BlackboardKeys.Core.Managers.StatusEffectManager, StatusEffectManager);

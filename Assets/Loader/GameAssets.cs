@@ -38,7 +38,7 @@ public static class GameAssets
                 if (!string.IsNullOrWhiteSpace(entityId))
                     configs[entityId] = jObj;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Debug.LogError($"[{ScriptName}] Failed to parse config '{textAsset.name}': {ex}");
             }

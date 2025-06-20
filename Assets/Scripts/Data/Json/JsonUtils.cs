@@ -255,11 +255,11 @@ public static class JsonUtils
     {
         var blackboard = context.Blackboard;
         // Get config root ONCE for performance; throw if missing.
-        var configData = blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin);
-        if (configData?.RawJson == null)
-            throw new Exception("[ResolveRefs] BtConfig missing or invalid in blackboard. Ensure Plugin/BtConfig runs first!");
+        var configData = blackboard.Get<EntityRuntimeData>(BlackboardKeys.EntityConfig).Definition.Config;
+        if (configData == null)
+            throw new Exception("[ResolveRefs] BtConfig missing or invalid in blackboard.");
 
-        ResolveRefsRecursive(node, configData.RawJson);
+        ResolveRefsRecursive(node, configData);
     }
 
     /// <summary>

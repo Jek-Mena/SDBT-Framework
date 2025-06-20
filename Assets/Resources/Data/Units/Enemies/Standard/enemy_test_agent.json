@@ -1,55 +1,45 @@
 {
   "entityId": "enemy_test_agent",
-  "prefab": "enemy_test_agent",
-  "components": [
-    {
-      "plugin": "Plugin/BtConfig",
-      "params": {
-        "profiles": {
-          "targetingProfiles": {
-            "ChaseTarget": {
-              "targetTag": "Player",
-              "style": "Closest",
-              "blackboardKey": "ChaseTarget",
-              "maxRange": 100,
-              "activationRange": 10,
-              "minRange": 2,
-              "fallOffRange": 120,
-              "searchRange": 200
-            }
-          },
-          "movementProfiles": {
-            "ChaserMovement": {
-              "speed": 3.0,
-              "acceleration": 3.0,
-              "stoppingDistance": 0.5,
-              "angularSpeed": 150.0,
-              "updateThreshold": 0.25
-            }
-          },
-          "rotationProfiles": {
-            "FaceTarget": {
-              "speed": 120.0,
-              "angleThreshold": 3.0,
-              "updateThreshold": 0.05
-            }
-          },
-          "timingProfiles": {
-            "MoveLimit": {
-              "label": "MoveLimit",
-              "duration": 5.0
-            },
-            "Pause": {
-              "label": "PauseForX",
-              "duration": 5.0
-            }
-          }
-        }
+  "prefab": "Prefabs/Enemy/Standard/enemy_test_agent",
+  "profiles": {
+    "targetingProfiles": {
+      "ChaseTarget": {
+        "targetTag": "Player",
+        "style": "Closest",
+        "blackboardKey": "ChaseTarget",
+        "maxRange": 100,
+        "activationRange": 10,
+        "minRange": 2,
+        "fallOffRange": 120,
+        "searchRange": 200
       }
     },
-    {
-      "plugin": "Plugin/BtLoadTree",
-      "params": { "tree": "move_and_wait" }
+    "movementProfiles": {
+      "ChaserMovement": {
+        "speed": 3.0,
+        "acceleration": 3.0,
+        "stoppingDistance": 0.5,
+        "angularSpeed": 150.0,
+        "updateThreshold": 0.25
+      }
+    },
+    "rotationProfiles": {
+      "FaceTarget": {
+        "speed": 120.0,
+        "angleThreshold": 3.0,
+        "updateThreshold": 0.05
+      }
+    },
+    "timingProfiles": {
+      "MoveLimit": {
+        "label": "MoveLimit",
+        "duration": 5.0
+      },
+      "Pause": {
+        "label": "PauseForX",
+        "duration": 5.0
+      }
     }
-  ]
+  },
+  "tree": "move_and_wait",
 }

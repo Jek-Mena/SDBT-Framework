@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 public class BehaviorTreeAssignmentModule : IContextBuilderModule
 {
@@ -7,7 +8,7 @@ public class BehaviorTreeAssignmentModule : IContextBuilderModule
         var scriptName = nameof(BehaviorTreeAssignmentModule);
         
         // Get the entity config from blackboard (always via canonical key)
-        var config = context.Blackboard.Get<ConfigData>(PluginMetaKeys.Core.BtConfig.Plugin)?.RawJson;
+        var config = context.Blackboard.Get<EntityRuntimeData>(BlackboardKeys.EntityConfig).Definition.Config;
         if (config == null)
             throw new Exception($"[{scriptName}] Missing entity config in blackboard!");
 
