@@ -16,7 +16,7 @@ public static class BtNodeRegistrationList
         where TNode : IBehaviorNode
         => (alias, new TimedExecutionNodeFactory<TNode>(alias, hasChild, acceptsDomains));
     
-    public static void InitializeDefaults()
+    public static void Initialize()
     {
         var entries = new (string alias, IBtNodeFactory factory)[]
         {

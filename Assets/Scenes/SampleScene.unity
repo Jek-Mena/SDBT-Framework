@@ -705,6 +705,7 @@ GameObject:
   - component: {fileID: 1125068006}
   - component: {fileID: 1125068005}
   - component: {fileID: 1125068004}
+  - component: {fileID: 1125068009}
   - component: {fileID: 1125068008}
   m_Layer: 0
   m_Name: Sphere_EnemySpawner
@@ -816,6 +817,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultEntityId: enemy_test_agent
   spawnPoint: {fileID: 1125068007}
+--- !u!114 &1125068009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125068002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17d8608853094908ae1dab90c9676d31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1271348060
 GameObject:
   m_ObjectHideFlags: 0

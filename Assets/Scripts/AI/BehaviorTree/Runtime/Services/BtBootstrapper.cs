@@ -11,7 +11,7 @@ public static class BtBootstrapper
         
         // Register all node factories
         // Initializes the Behavior Tree system by setting up default nodes,
-        BtNodeRegistrationList.InitializeDefaults();
+        BtNodeRegistrationList.Initialize();
         
         // Set up and register context builder and context modules
         var btBlackboardBuilder = new BtBlackboardBuilder();

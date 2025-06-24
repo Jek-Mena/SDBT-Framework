@@ -73,7 +73,7 @@ public static class BtTreeBuilder
         var path = $"Data/BTs/{treeId}";
         var textAsset = Resources.Load<TextAsset>(path);
 
-        if (textAsset == null)
+        if (!textAsset)
             throw new Exception($"[{scriptName}] Could not load BT file at Resources/{path}.json");
 
         try

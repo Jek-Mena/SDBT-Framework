@@ -2,9 +2,47 @@ using UnityEngine;
 
 public class BtController : MonoBehaviour
 {
+    [Header("Behavior Tree Switching")]
+    [Tooltip("Plug in a switching strategy (MonoBehaviour implementing IBehaviorTreeSwitcher).")]
+    [SerializeField] private MonoBehaviour switcherComponent;
+    private IBehaviorTreeSwitcher _switcher;
+    private string _activeTreeKey;
+    
     public BtContext Context;
     public Blackboard Blackboard;
     private IBehaviorNode _rootNode;
+    
+    private void Awake()
+    {
+        _switcher = switcherComponent as IBehaviorTreeSwitcher;
+        if (_switcher != null)
+            _switcher.OnSwitchRequested += OnSwitchRequested;
+        else
+            Debug.LogError("No IBehaviorTreeSwitcher component found on " + name);
+    }
+
+    private void OnSwitchRequested(string fromKey, string toKey, string reason)
+    {
+        if (toKey != _activeTreeKey)
+        {
+            SwitchToTree(toKey, $"event: {reason}");
+        }
+    }
+    
+    private void SwitchToTree(string treeKey, string reason)
+    {
+        Debug.Log($"[BtController] Switching tree: {_activeTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
+        var newTree = BtRegistry.Get(treeKey);
+        if (newTree != null)
+        {
+            SetTree(newTree);
+            _activeTreeKey = treeKey;
+        }
+        else
+        {
+            Debug.LogError($"[BtController] Failed to switch—tree key '{treeKey}' not found in registry.");
+        }
+    }
     
     public void InitContext(BtContext context)
     {
@@ -13,12 +51,23 @@ public class BtController : MonoBehaviour
     }
 
     public void SetTree(IBehaviorNode rootNode) => _rootNode = rootNode;
-    
+
     private void Update()
     {
-        if (_rootNode == null) return;
+        if (_switcher != null && Context != null)
+        {
+            // TODO - add support for polling(not sure?) but deal eventually deal with the Expensive Invocation
+            var newKey = _switcher.EvaluateSwitch(Context);
+            if (!string.IsNullOrEmpty(newKey) && newKey != _activeTreeKey)
+            {
+                SwitchToTree(newKey, "polled switcher");
+            }
+        }
 
-        var result = _rootNode.Tick(Context);
-        Debug.Log($"[BT Tick] Status: {result}");
+        if (_rootNode != null && Context != null)
+        {
+            var result = _rootNode.Tick(Context);
+            Debug.Log($"[BT Tick] Status: {result}");
+        }
     }
 }
