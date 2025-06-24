@@ -24,6 +24,7 @@ public class Blackboard
     public Dictionary<string, MovementData> MovementProfiles { get; set; }
     public Dictionary<string, RotationData> RotationProfiles { get; set; }
     public Dictionary<string, TimedExecutionData> TimingProfiles { get; set; }
+    public Dictionary<string, HealthData> HealthProfiles { get; set; }
     
     /// [2025-06-18 ARCHITECTURE NOTE]
     /// All profile data access should use DRY helper methods (e.g., GetMovementProfile),
@@ -39,6 +40,8 @@ public class Blackboard
     
     public TimedExecutionData GetTimingProfile(string key) 
         => GetProfile(TimingProfiles, key, nameof(TimingProfiles));
+    public HealthData GetHealthProfile(string key) 
+        => GetProfile(HealthProfiles, key, nameof(HealthProfiles));
     
     /// <summary>
     /// [2025-06-18 ARCHITECTURE NOTE]
@@ -149,6 +152,7 @@ public class Blackboard
         Add(BlackboardKeys.Core.Actions.MovementLogic, MovementLogic);
         Add(BlackboardKeys.Core.Actions.ImpulseLogic, ImpulseLogic);
         Add(BlackboardKeys.Core.Actions.RotationLogic, RotationLogic);
+        //TODO Add Health
         
         Add(BlackboardKeys.Core.Managers.TimeExecutionManager, TimeExecutionManager);
         Add(BlackboardKeys.Core.Managers.StatusEffectManager, StatusEffectManager);

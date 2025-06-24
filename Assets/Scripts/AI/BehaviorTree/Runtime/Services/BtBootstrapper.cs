@@ -9,6 +9,10 @@ public static class BtBootstrapper
         GameAssets.Bootstrap("Data/Units/Enemies/Standard", "Prefabs/Enemies/Standard");
         // or pass multiple folders, or call multiple times for different entity types.
         
+        // Register all templates
+        // Loads all JSON templates from the Resources folder, and registers them with the BtRegistry.
+        BtRegistrationList.Initialize();
+        
         // Register all node factories
         // Initializes the Behavior Tree system by setting up default nodes,
         BtNodeRegistrationList.Initialize();

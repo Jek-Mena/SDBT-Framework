@@ -175,6 +175,7 @@ public static class CoreKeys
     /// </summary>
     public static class ProfilesBlock
     {
+        public const string Health = "healthProfiles";
         public const string Targeting = "targetingProfiles";
         public const string Movement = "movementProfiles";
         public const string Rotation = "rotationProfiles";

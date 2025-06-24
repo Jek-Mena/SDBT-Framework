@@ -22,6 +22,7 @@ public class ProfileContextBuilderModule : IContextBuilderModule
         
         // -- Parse each profile block --
         Debug.Log("[{scriptName}] Parsing profiles...");
+        blackboard.HealthProfiles = ParseProfileBlock<HealthData>(profiles, CoreKeys.ProfilesBlock.Health);
         blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(profiles, CoreKeys.ProfilesBlock.Targeting);
         blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (profiles, CoreKeys.ProfilesBlock.Movement);
         blackboard.RotationProfiles = ParseProfileBlock<RotationData>(profiles, CoreKeys.ProfilesBlock.Rotation);

@@ -2,6 +2,12 @@
   "entityId": "enemy_test_agent",
   "prefab": "Prefabs/Enemy/Standard/enemy_test_agent",
   "profiles": {
+    "healthProfiles":{
+      "DefaultHP": {
+        "maxHP": 100,
+        "regenRate": 1
+      }
+    },
     "targetingProfiles": {
       "ChaseTarget": {
         "targetTag": "Player",

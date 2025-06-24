@@ -1,10 +1,11 @@
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class BtController : MonoBehaviour
 {
     [Header("Behavior Tree Switching")]
     [Tooltip("Plug in a switching strategy (MonoBehaviour implementing IBehaviorTreeSwitcher).")]
-    [SerializeField] private MonoBehaviour switcherComponent;
+    [SerializeField] private StimuliSwitcher switcherComponent;
     private IBehaviorTreeSwitcher _switcher;
     private string _activeTreeKey;
     
@@ -14,7 +15,7 @@ public class BtController : MonoBehaviour
     
     private void Awake()
     {
-        _switcher = switcherComponent as IBehaviorTreeSwitcher;
+        _switcher = switcherComponent;
         if (_switcher != null)
             _switcher.OnSwitchRequested += OnSwitchRequested;
         else
@@ -29,19 +30,28 @@ public class BtController : MonoBehaviour
         }
     }
     
-    private void SwitchToTree(string treeKey, string reason)
+    public void SwitchToTree(string treeKey, string reason)
     {
         Debug.Log($"[BtController] Switching tree: {_activeTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
-        var newTree = BtRegistry.Get(treeKey);
-        if (newTree != null)
-        {
-            SetTree(newTree);
-            _activeTreeKey = treeKey;
-        }
-        else
+
+        // Retrieve template (unresolved) from registry
+        var btJsonTemplate = BtRegistry.GetTemplate(treeKey);
+        if (btJsonTemplate == null)
         {
             Debug.LogError($"[BtController] Failed to switch—tree key '{treeKey}' not found in registry.");
+            return;
         }
+        
+        // Deep clone for isolation
+        var agentBtJson = btJsonTemplate.DeepClone() as JObject;
+        
+        // Use current agent's context (must be up to date)
+        var rootNode = BtTreeBuilder.LoadFromToken(agentBtJson, Context);
+        
+        // Assign to controller
+        SetTree(rootNode);
+        _activeTreeKey = treeKey;
+        Debug.Log($"[BtController] Successfully switched to BT '{treeKey}'");
     }
     
     public void InitContext(BtContext context)

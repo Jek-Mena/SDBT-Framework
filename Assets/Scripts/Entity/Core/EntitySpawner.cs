@@ -39,15 +39,29 @@ public class EntitySpawner : MonoBehaviour
         var blackboardBuilder = new BtBlackboardBuilder();
         ContextModuleRegistration.RegisterAll(blackboardBuilder);
         
-        var context = blackboardBuilder.Build(agent);
+        // Build context (pure, no wiring up)
+        var context = blackboardBuilder.BuildContext(agent);
         
-        // Assign BT tree, if present
-        var treeToken = def.Config[CoreKeys.Tree];
-        if (treeToken == null) return agent;
+        // Assign BT tree from registry
+        var treeToken = def.Config[CoreKeys.Tree]?.ToString();
+        if (string.IsNullOrWhiteSpace(treeToken))
+        {
+            Debug.LogError($"[{ScriptName}] No tree key specified for '{entityId}'.");
+            return agent;
+        }
+
+        var controller = context.Controller;
+        if (!controller)
+        {
+            Debug.LogError($"[{ScriptName}] BtController missing from '{agent.name}'");
+            return agent;       
+        }
         
-        Debug.Log($"[{ScriptName}] Assigning BT tree to {agent.name}");
-        var rootNode = BtTreeBuilder.LoadFromToken(treeToken, context);
-        context.Controller.SetTree(rootNode);
+        // Explicitly wire context to controller
+        controller.InitContext(context);
+        
+        // Uses SwitchToTree (will deep-clone and resolve refs using context)
+        controller.SwitchToTree(treeToken, "Spawned");
         
         return agent;
     }

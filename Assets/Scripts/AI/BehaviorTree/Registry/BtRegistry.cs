@@ -1,34 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+using Newtonsoft.Json.Linq;
 
 public static class BtRegistry
 {
-    private static readonly Dictionary<string, IBehaviorNode> Trees = new();
+    private static readonly Dictionary<string, JObject> BtTemplates = new();
+
     /// <summary>
-    /// Register a new behavior tree root node under a given key.
+    /// Registers a behavior tree template in the registry.
     /// </summary>
-    public static void Register(string key, IBehaviorNode rootNode)
+    /// <param name="key">The unique key used to identify the behavior tree template.</param>
+    /// <param name="btJson">The JSON object representing the behavior tree template.</param>
+    public static void RegisterTemplate(string key, JObject btJson)
     {
-        if (string.IsNullOrWhiteSpace(key) || rootNode == null)
-        {
-            Debug.LogError($"[BehaviorTreeRegistry] Attempted to register null key or node. Key: '{key}'");
-            return;
-        }
-        Trees[key] = rootNode;
-        Debug.Log($"[BehaviorTreeRegistry] Registered tree '{key}'");
+        BtTemplates[key] = btJson;
     }
-    
+
     /// <summary>
-    /// Retrieve a tree root node by key.
+    /// Retrieves a behavior tree template from the registry.
     /// </summary>
-    public static IBehaviorNode Get(string key)
+    /// <param name="key">The unique key used to identify the behavior tree template.</param>
+    /// <returns>The JSON object representing the behavior tree template, or null if the key is not found.</returns>
+    public static JObject GetTemplate(string key)
     {
-        if (Trees.TryGetValue(key, out var node))
-            return node;
-        Debug.LogError($"[BehaviorTreeRegistry] Tree key not found: '{key}'. Did you register it?");
-        return null;
+        return BtTemplates.GetValueOrDefault(key);
     }
     
     /// <summary>
@@ -36,35 +31,6 @@ public static class BtRegistry
     /// </summary>
     public static void Clear()
     {
-        Trees.Clear();
-    }
-}
-
-public static class BtRegistrationList
-{
-    private static bool _hasInitialized;
-    
-    public static void Initialize()
-    {
-        if (_hasInitialized) return;
-        _hasInitialized = true;
-
-        var configFolder = "Data/BTs"; // Resources path
-        var textAssets = Resources.LoadAll<TextAsset>(configFolder);
-
-        foreach (var asset in textAssets)
-        {
-            try
-            {
-                var rootNode = BtTreeBuilder.BuildFromJson(asset.text);
-                var key = Path.GetFileNameWithoutExtension(asset.name);
-                BtRegistry.Register(key, rootNode);
-                Debug.Log($"[BehaviorTreeRegistrationList] Registered BT '{key}' from '{asset.name}'");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[BehaviorTreeRegistrationList] Failed to register BT '{asset.name}': {ex.Message}");
-            }
-        }
+        BtTemplates.Clear();
     }
 }

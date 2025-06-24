@@ -25,6 +25,7 @@ public static class ContextModuleRegistration
             new UpdatePhaseExecutorContextBuilder(),
             
             //new TargetingContextBuilderModule(),
+            new HealthContextBuilderModule(),
             new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
             

@@ -1,6 +1,5 @@
-[System.Serializable]
 public class HealthData
 {
-    public float Max;
+    public float MaxHealth;
     public float RegenRate;
 }

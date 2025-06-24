@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 3325085432993337391}
   - component: {fileID: -8677246326683319146}
   - component: {fileID: 1136891335874326560}
+  - component: {fileID: 5318971445750051119}
   m_Layer: 0
   m_Name: enemy_test_agent
   m_TagString: Untagged
@@ -181,7 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62058053628b2424b9e8c863220a1673, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  switcherComponent: {fileID: 0}
+  switcherComponent: {fileID: 1136891335874326560}
 --- !u!114 &1622663357315059159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,6 +284,18 @@ MonoBehaviour:
   fleeKey: Flee
   stimulusKey: HP
   fleeThreshold: 20
+--- !u!114 &5318971445750051119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621597336681991154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50a2e74736144090b90aa7befddb2433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9027836807911911425
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,6 +25,10 @@ public static class BlackboardKeys
     /// </summary>
     public static class Core
     {
+        public static class Common
+        {
+            public const string CurrentHealth = "CurrentHealth";
+        }
         public static class Profiles
         {
             public const string TargetingProfiles = "TargetingProfiles";

@@ -37,7 +37,7 @@ public class BtBlackboardBuilder
     /// ! Each module must be idempotent and safe (i.e., no hard assumptions about components).
     /// ! Will reuse existing context if already built for the entity.
     /// </summary>
-    public BtContext Build(GameObject agent)
+    public BtContext BuildContext(GameObject agent)
     {
         // Retrieve and ensure the BtController component exists on the entity.
         var controller = agent.RequireComponent<BtController>();
@@ -68,7 +68,6 @@ public class BtBlackboardBuilder
             }
         }
         
-        controller.InitContext(context);
         Debug.Log($"[{nameof(BtBlackboardBuilder)}] Blackboard built for '{agent.name}'. Dump:\n{blackboard.DumpContents()}");
             
         return context;
