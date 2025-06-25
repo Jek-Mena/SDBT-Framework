@@ -42,14 +42,6 @@ public class EntitySpawner : MonoBehaviour
         // Build context (pure, no wiring up)
         var context = blackboardBuilder.BuildContext(agent);
         
-        // Assign BT tree from registry
-        var treeToken = def.Config[CoreKeys.Tree]?.ToString();
-        if (string.IsNullOrWhiteSpace(treeToken))
-        {
-            Debug.LogError($"[{ScriptName}] No tree key specified for '{entityId}'.");
-            return agent;
-        }
-
         var controller = context.Controller;
         if (!controller)
         {
@@ -59,9 +51,6 @@ public class EntitySpawner : MonoBehaviour
         
         // Explicitly wire context to controller
         controller.InitContext(context);
-        
-        // Uses SwitchToTree (will deep-clone and resolve refs using context)
-        controller.SwitchToTree(treeToken, "Spawned");
         
         return agent;
     }

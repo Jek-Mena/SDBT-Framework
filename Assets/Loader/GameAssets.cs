@@ -86,6 +86,14 @@ public static class GameAssets
             _entityDefs[entityId] = def;
         }
         Debug.Log($"[{ScriptName}] Bootstrap complete. Registered {_entityDefs.Count} entities.");
+        
+        //--- Debug ---
+        foreach (var entityId in _entityDefs.Keys)
+        {
+            Debug.Log($"[{ScriptName}] Entity: {entityId}");
+            Debug.Log($"[{ScriptName}] Config: {_entityDefs[entityId].Config}"); 
+            Debug.Log($"[{ScriptName}] Prefab: {_entityDefs[entityId].Prefab}");
+        }
     }
     
     /// <summary>

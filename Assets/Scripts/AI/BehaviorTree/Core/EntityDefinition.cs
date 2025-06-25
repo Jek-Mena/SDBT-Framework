@@ -17,5 +17,5 @@ public class EntityDefinition
     public JObject Config;
     
     public JObject ProfilesBlock => Config[CoreKeys.Profiles] as JObject;
-    public string BehaviorTreePath => Config[CoreKeys.Tree]?.ToString();
+    public string BehaviorTreePath => Config[CoreKeys.BehaviorTree]?.ToString();
 }

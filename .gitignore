@@ -14,6 +14,7 @@ UserSettings/
 *.pdb.meta
 *.mdb
 *.mdb.meta
+Assets/TextMesh Pro/**
 
 # Asset pipeline
 *.apk
@@ -56,9 +57,16 @@ desktop.ini
 # --- Packages (optional: if you're using local ones) ---
 *.tgz
 
-# --- NuGet and auto-generated packages ---
-**/Packages/*
+# Ignore only the lock file
+Packages/packages-lock.json
 
+# Keep manifest.json tracked
+!/Packages/manifest.json
+
+# Ignore all NuGet tooling noise
+packages/
+*.nupkg
+*.nuspec
 
 # --- Crash / profiler dumps ---
 sysinfo.txt

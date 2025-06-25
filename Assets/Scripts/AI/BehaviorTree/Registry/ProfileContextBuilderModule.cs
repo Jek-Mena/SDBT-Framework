@@ -22,6 +22,7 @@ public class ProfileContextBuilderModule : IContextBuilderModule
         
         // -- Parse each profile block --
         Debug.Log("[{scriptName}] Parsing profiles...");
+        blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(profiles, CoreKeys.ProfilesBlock.Switches);
         blackboard.HealthProfiles = ParseProfileBlock<HealthData>(profiles, CoreKeys.ProfilesBlock.Health);
         blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(profiles, CoreKeys.ProfilesBlock.Targeting);
         blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (profiles, CoreKeys.ProfilesBlock.Movement);
@@ -63,6 +64,36 @@ public class ProfileContextBuilderModule : IContextBuilderModule
             catch (Exception ex)
             {
                 Debug.LogError($"[ParseProfileBlock] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
+            }
+        }
+        return profilesDict;
+    }
+    
+    private Dictionary<string, List<TElement>> ParseProfileBlockList<TElement>(JObject root, string blockKey)
+    {
+        var block = root[blockKey] as JObject;
+
+        if (block == null)
+        {
+            var profilesSection = root[CoreKeys.Profiles] as JObject;
+            if (profilesSection != null)
+                block = profilesSection[blockKey] as JObject;
+        }
+
+        if (block == null)
+            return new Dictionary<string, List<TElement>>();
+
+        var profilesDict = new Dictionary<string, List<TElement>>();
+        foreach (var prop in block.Properties())
+        {
+            try
+            {
+                // prop.Value is expected to be a JArray
+                profilesDict[prop.Name] = prop.Value.ToObject<List<TElement>>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ParseProfileBlockList] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
             }
         }
         return profilesDict;

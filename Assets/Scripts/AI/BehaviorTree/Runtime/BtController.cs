@@ -22,20 +22,37 @@ public class BtController : MonoBehaviour
             Debug.LogError("No IBehaviorTreeSwitcher component found on " + name);
     }
 
+    private void Start()
+    {
+        var initialTreeKey = switcherComponent.EvaluateSwitch(Context, _activeTreeKey);
+        if (!string.IsNullOrEmpty(initialTreeKey))
+            SwitchTree(initialTreeKey, "Initial switcher based on stimuli.");
+    }
+    
     private void OnSwitchRequested(string fromKey, string toKey, string reason)
     {
         if (toKey != _activeTreeKey)
         {
-            SwitchToTree(toKey, $"event: {reason}");
+            SwitchTree(toKey, $"event: {reason}");
         }
     }
     
-    public void SwitchToTree(string treeKey, string reason)
+    // Switches to a new tree by key; this is the only tree assignment API.
+    public void SwitchTree(string treeKey, string reason)
     {
+        if (_activeTreeKey == treeKey) return;
+        
+        if (string.IsNullOrEmpty(treeKey))
+        {
+            Debug.LogError("[BtController] treeKey is null or empty!");
+            return;
+        }
+        _activeTreeKey = treeKey;
+
         Debug.Log($"[BtController] Switching tree: {_activeTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
 
         // Retrieve template (unresolved) from registry
-        var btJsonTemplate = BtRegistry.GetTemplate(treeKey);
+        var btJsonTemplate = BtConfigRegistry.GetTemplate(treeKey);
         if (btJsonTemplate == null)
         {
             Debug.LogError($"[BtController] Failed to switch—tree key '{treeKey}' not found in registry.");
@@ -50,7 +67,6 @@ public class BtController : MonoBehaviour
         
         // Assign to controller
         SetTree(rootNode);
-        _activeTreeKey = treeKey;
         Debug.Log($"[BtController] Successfully switched to BT '{treeKey}'");
     }
     
@@ -60,17 +76,17 @@ public class BtController : MonoBehaviour
         Blackboard = context.Blackboard;
     }
 
-    public void SetTree(IBehaviorNode rootNode) => _rootNode = rootNode;
+    private void SetTree(IBehaviorNode rootNode) => _rootNode = rootNode;
 
     private void Update()
     {
         if (_switcher != null && Context != null)
         {
             // TODO - add support for polling(not sure?) but deal eventually deal with the Expensive Invocation
-            var newKey = _switcher.EvaluateSwitch(Context);
-            if (!string.IsNullOrEmpty(newKey) && newKey != _activeTreeKey)
+            var newKey = _switcher.EvaluateSwitch(Context, _activeTreeKey);
+            if (!string.IsNullOrEmpty(newKey))
             {
-                SwitchToTree(newKey, "polled switcher");
+                SwitchTree(newKey, "polled switcher");
             }
         }
 

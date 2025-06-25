@@ -28,9 +28,6 @@ public static class ContextModuleRegistration
             new HealthContextBuilderModule(),
             new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
-            
-            // Always register BehaviorTreeAssignmentModule LAST
-            new BehaviorTreeAssignmentModule()
         };
 
         foreach (var module in modules)

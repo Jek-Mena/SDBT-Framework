@@ -11,7 +11,7 @@ public static class BtBootstrapper
         
         // Register all templates
         // Loads all JSON templates from the Resources folder, and registers them with the BtRegistry.
-        BtRegistrationList.Initialize();
+        BtConfigRegistrationList.Initialize();
         
         // Register all node factories
         // Initializes the Behavior Tree system by setting up default nodes,

@@ -2,8 +2,9 @@
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public static class BtRegistrationList
+public static class BtConfigRegistrationList
 {
+    private const string ScriptName = nameof(BtConfigRegistrationList);
     private static bool _hasInitialized;
     
     public static void Initialize()
@@ -18,8 +19,10 @@ public static class BtRegistrationList
         {
             var btJson = JObject.Parse(asset.text);
             var key = Path.GetFileNameWithoutExtension(asset.name);
-            BtRegistry.RegisterTemplate(key, btJson);
-            Debug.Log($"[BtRegistrationList] Registered BT '{key}' from '{asset.name}'");
+            BtConfigRegistry.RegisterTemplate(key, btJson);
+            Debug.Log($"[{ScriptName}] Registered BT '{key}' from '{asset.name}'");
         }
+        
+        Debug.Log($"[{ScriptName}] Bootstrap complete. Total of {textAssets.Length} BTs registered.");
     }
 }

@@ -10,7 +10,7 @@ public interface IBehaviorTreeSwitcher
     /// Called every tick or whenever relevant context/stimulus changes.
     /// Evaluates context and decides if a switch is needed.
     /// </summary>
-    string EvaluateSwitch(BtContext context);
+    string EvaluateSwitch(BtContext context, string currentTreeKey);
     
     /// <summary>
     /// Event for observers to subscribe to switch requests.

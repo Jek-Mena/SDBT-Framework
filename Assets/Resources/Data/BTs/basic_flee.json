@@ -1,0 +1,39 @@
+{
+  "root": {
+    "type": "Bt/Repeater",
+    "children": [
+      {
+        "type": "Bt/Sequence",
+        "children": [
+          {
+            "type": "Bt/Parallel",
+            "config": { "exitCondition": "FirstSuccess" },
+            "children": [
+              {
+                "type": "Bt/Timer",
+                "config": {
+                  "timingProfile": "MoveLimit",
+                  "domains": ["Domain/Movement"]
+                }
+              },
+              {
+                "type": "Bt/MoveToTarget",
+                "config": { 
+                  "targetProfile": "ChaseTarget",
+                  "movementProfile": "ChaserMovement"
+                }
+              }
+            ]
+          },
+          {
+            "type": "Bt/Pause",
+            "config": {
+              "timingProfile": "Pause",
+              "domains": ["Domain/Movement"]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

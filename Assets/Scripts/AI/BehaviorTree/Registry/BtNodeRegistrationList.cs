@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Provides a centralized registry for behavior tree node factories and their associated aliases.
 /// This class facilitates the registration and retrieval of behavior tree node factories,
@@ -5,6 +7,8 @@
 /// </summary>
 public static class BtNodeRegistrationList
 {
+    private const string ScriptName = nameof(BtNodeRegistrationList);
+    
     private static (string, IBtNodeFactory) MakeEntry<TFactory>(string alias)
         where TFactory : IBtNodeFactory, new()
     {
@@ -51,5 +55,7 @@ public static class BtNodeRegistrationList
 
         foreach (var (alias, factory) in entries)
             BtNodeRegistry.Register(alias, factory);
+
+        Debug.Log($"[{ScriptName}] Bootstrap complete. Total of {entries.Length} registered nodes");
     }
 }

@@ -812,7 +812,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1125068002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d6f4c940ab39fd44a3c78c8dfe4c6f4, type: 3}
+  m_Script: {fileID: 11500000, guid: e2131c80a51f0274c92e96c108886f6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   defaultEntityId: enemy_test_agent

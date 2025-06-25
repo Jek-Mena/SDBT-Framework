@@ -121,7 +121,7 @@ public static class CoreKeys
     /// }
     /// </summary>
 
-    public const string Tree = "tree";
+    public const string BehaviorTree = "behaviorTree";
 
     /// <summary>
     /// Defines a reference to a shared config block within the behavior tree setup.
@@ -175,6 +175,7 @@ public static class CoreKeys
     /// </summary>
     public static class ProfilesBlock
     {
+        public const string Switches = "switchProfiles";
         public const string Health = "healthProfiles";
         public const string Targeting = "targetingProfiles";
         public const string Movement = "movementProfiles";

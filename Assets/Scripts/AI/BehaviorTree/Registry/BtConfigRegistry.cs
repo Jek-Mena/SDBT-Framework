@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-public static class BtRegistry
+public static class BtConfigRegistry
 {
     private static readonly Dictionary<string, JObject> BtTemplates = new();
 

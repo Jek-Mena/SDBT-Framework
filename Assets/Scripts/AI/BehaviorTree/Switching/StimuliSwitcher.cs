@@ -1,40 +1,74 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class StimuliSwitcher : MonoBehaviour, IBehaviorTreeSwitcher
 {
-    [Header("Tree Keys")]
-    [SerializeField] private string chaseKey = "Chase";
-    [SerializeField] private string fleeKey = "Flee";
-    
-    [Header("Stimulus Source")]
-    [SerializeField] private string stimulusKey = "HP";
-    [SerializeField] private float fleeThreshold = 20f;
+    [Header("Switch Profile Key")]
+    private string _activeProfileKey = "DefaultSwitch";
     
     public event Action<string, string, string> OnSwitchRequested;
     private string _lastKey;
+
+    private const string ScriptName = nameof(StimuliSwitcher);
     
     /// <summary>
-    /// Checks the stimulus from the blackboard and switches tree if needed.
+    /// Checks the stimulus from the blackboard and switches a tree if needed.
     /// Fires OnSwitchRequested and logs all transitions.
     /// </summary>
-    public string EvaluateSwitch(BtContext context)
+    public string EvaluateSwitch(BtContext context, string currentTreeKey)
     {
-        var value = context.Blackboard.Get<float>(stimulusKey);
-        var newKey = value < fleeThreshold ? fleeKey : chaseKey;
-
-        if (newKey != _lastKey)
+        if (context.Blackboard.SwitchProfiles == null ||
+            !context.Blackboard.SwitchProfiles.TryGetValue(_activeProfileKey, out var conditions)
+            || conditions == null 
+            || conditions.Count == 0)
         {
-            OnSwitchRequested?.Invoke(_lastKey, newKey, $"{stimulusKey}={value}");
-            Debug.Log($"[SimpleStimuliSwitcher] Switch: {_lastKey ?? "(none)"} -> {newKey} ({stimulusKey}={value})");
-            _lastKey = newKey;
-            return newKey;
+            Debug.LogError($"[{ScriptName}] No switch profile '{_activeProfileKey}' found on agent {context.Agent.name}!");
+            return null;
         }
+        
+        foreach (var cond in conditions)
+        {
+            var value = context.Blackboard.Get<float>(cond.stimulusKey);
+            var pass = cond.comparisonOperator switch
+            {
+                "LessThan" => value < cond.threshold,
+                "LessThanOrEqual" => value <= cond.threshold,
+                "GreaterThan" => value > cond.threshold,
+                "GreaterThanOrEqual" => value >= cond.threshold,
+                "Equal" => Math.Abs(value - cond.threshold) < 0.001f,
+                _ => false
+            };
+
+            if (pass)
+            {
+                if (cond.behaviorTree != currentTreeKey)
+                {
+                    OnSwitchRequested?.Invoke(_lastKey, cond.behaviorTree, $"{cond.stimulusKey}={value}");
+                    Debug.Log($"[{ScriptName}] Switch: {_lastKey ?? "(none)"} -> {cond.behaviorTree} ({cond.stimulusKey}={value})");
+                    return cond.behaviorTree;
+                }
+                // If already on correct tree, just exit quietly
+                return null;
+            }
+        }
+        Debug.LogError($"[{ScriptName}] No switch condition passed! Stimuli state: {DumpStimuli(context, conditions)} Conditions: {DumpConditions(conditions)}");
         return null;
     }
-
-    public void Reset()
+    
+    private string DumpStimuli(BtContext context, List<SwitchCondition> conditions)
     {
-        throw new NotImplementedException();
+        var s = "";
+        foreach (var cond in conditions)
+            s += $"{cond.stimulusKey}={context.Blackboard.Get<float>(cond.stimulusKey)}, ";
+        return s;
     }
+
+    private string DumpConditions(List<SwitchCondition> conditions)
+    {
+        return string.Join("; ", conditions.Select(c => $"{c.stimulusKey} {c.comparisonOperator} {c.threshold} -> {c.behaviorTree}"));
+    }
+
+    public void Reset() => _lastKey = null;
 }

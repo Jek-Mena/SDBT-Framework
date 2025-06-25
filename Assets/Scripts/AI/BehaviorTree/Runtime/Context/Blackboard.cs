@@ -25,6 +25,7 @@ public class Blackboard
     public Dictionary<string, RotationData> RotationProfiles { get; set; }
     public Dictionary<string, TimedExecutionData> TimingProfiles { get; set; }
     public Dictionary<string, HealthData> HealthProfiles { get; set; }
+    public Dictionary<string, List<SwitchCondition>> SwitchProfiles { get; set; }
     
     /// [2025-06-18 ARCHITECTURE NOTE]
     /// All profile data access should use DRY helper methods (e.g., GetMovementProfile),
