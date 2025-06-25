@@ -6,7 +6,7 @@
 /// This class primarily organizes and standardizes AI context initialization by collecting modules for subsequent injection
 /// into runtime blackboards. Modules are assembled in a fail-fast and auditable manner to support debugging and future extension.
 /// </summary>
-public static class ContextModuleRegistration
+public static class ContextModuleRegistrationList
 {
     public static void RegisterAll(BtBlackboardBuilder builder)
     {
@@ -28,6 +28,8 @@ public static class ContextModuleRegistration
             new HealthContextBuilderModule(),
             new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
+            
+            new StatContextBuilderModule(),
         };
 
         foreach (var module in modules)

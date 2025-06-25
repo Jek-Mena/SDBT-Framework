@@ -59,7 +59,14 @@ public static class BlackboardKeys
             public const string TimeExecutionManager = "TimeExecutionManager";
             public const string UpdatePhaseExecutor = "UpdatePhaseExecutor";
         }
-        
+
+        public static class Multipliers
+        {
+            public const string Movement = "MovementMultiplier";
+            public const string HealthMultiplier = "HealthMultiplier";
+            public const string Armor = "ArmorMultiplier";
+            public const string Attack = "AttackMultiplier";
+        }
         // Add more as needed.
     }
     

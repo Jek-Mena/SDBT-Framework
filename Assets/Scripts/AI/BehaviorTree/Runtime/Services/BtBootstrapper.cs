@@ -19,7 +19,7 @@ public static class BtBootstrapper
         
         // Set up and register context builder and context modules
         var btBlackboardBuilder = new BtBlackboardBuilder();
-        ContextModuleRegistration.RegisterAll(btBlackboardBuilder);
+        ContextModuleRegistrationList.RegisterAll(btBlackboardBuilder);
     }
 }
 

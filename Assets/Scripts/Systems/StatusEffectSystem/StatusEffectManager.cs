@@ -16,10 +16,13 @@ public class StatusEffectManager : MonoBehaviour, IBlocker
     public event Action<string> DomainBlocked;
     // Called when a domain in unblocked (effect removed)
     public event Action<string> DomainUnblocked;
-
+    public event Action OnStatusEffectChanged;
+    
     // Tracks all currently active status effects
     private List<StatusEffect> _activeEffects = new();
 
+    public AgentModifiers agentModifiers { get; private set; } = new();
+    
     // Retrieves all currently active status effects
     public IEnumerable<StatusEffect> GetActiveEffects() => _activeEffects;
     
@@ -58,6 +61,7 @@ public class StatusEffectManager : MonoBehaviour, IBlocker
         }
 
     }
+    
     // Checks if this is the first time the given domain is being blocked.
     // Returns true if no other active effects are already blocking the domain; otherwise, returns false.
     private bool IsFirstBlock(string domain)
@@ -86,31 +90,14 @@ public class StatusEffectManager : MonoBehaviour, IBlocker
 
         return false;
     }
-    
-}
 
-/*
-Systems/
-    StatusEffectSystem/
-    StatusEffectManager.cs    // (Central orchestrator, all effects)
-IBlocker.cs                   // (Generic "Blocker" interface for all domains)
-BlockedDomain.cs              // (enum: Movement, Attack, Cast, etc.)
-StatusEffect.cs               // (Effect metadata/model)
-GameplayStatModifiers/
-    (leave as is for now: ModifierMeta, ModifierStack, etc.)
-AI/
-    BehaviorTree/
-    Runtime/
-    Context/
-    Blackboard.cs         // (extend if needed)
-BtController.cs
-    ...
-Actions/
-    Movement/
-    NavMeshMoveToTarget.cs (refactored to use StatusEffectManager)
-        ...
-Actions/
-    Pause/
-    BtPauseNode.cs        (refactored for orchestrator)
-...
-*/
+    private void RecalculateModifiers()
+    {
+        // Reset all
+        agentModifiers.Stats.Reset();
+        // Loop over all effects and modify as needed
+        foreach (var effect in _activeEffects)
+            agentModifiers.Stats.MultiplyWith(effect.Multipliers.Stats);
+        OnStatusEffectChanged?.Invoke();
+    }
+}

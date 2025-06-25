@@ -70,7 +70,7 @@ public class BtController : MonoBehaviour
         Debug.Log($"[BtController] Successfully switched to BT '{treeKey}'");
     }
     
-    public void InitContext(BtContext context)
+    public void Initialize(BtContext context)
     {
         Context = context;
         Blackboard = context.Blackboard;

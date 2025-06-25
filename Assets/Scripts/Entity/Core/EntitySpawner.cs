@@ -37,7 +37,7 @@ public class EntitySpawner : MonoBehaviour
         
         // Build context and assign Behavior Tree
         var blackboardBuilder = new BtBlackboardBuilder();
-        ContextModuleRegistration.RegisterAll(blackboardBuilder);
+        ContextModuleRegistrationList.RegisterAll(blackboardBuilder);
         
         // Build context (pure, no wiring up)
         var context = blackboardBuilder.BuildContext(agent);
@@ -50,7 +50,7 @@ public class EntitySpawner : MonoBehaviour
         }
         
         // Explicitly wire context to controller
-        controller.InitContext(context);
+        controller.Initialize(context);
         
         return agent;
     }
