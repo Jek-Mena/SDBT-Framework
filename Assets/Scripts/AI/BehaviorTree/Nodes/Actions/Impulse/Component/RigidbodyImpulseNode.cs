@@ -3,7 +3,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode, IInitializeBehavior<ImpulseMoverData>
+public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode
 {
     private BtController _btController;
     private Rigidbody _rigidBody;

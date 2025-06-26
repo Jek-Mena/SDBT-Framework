@@ -9,12 +9,14 @@ public class TimerNode : TimedExecutionNode
         if (!BtValidator.Require(context).Timers().Check(out var error))
         {
             Debug.LogError(error);
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
 
         EnsureTimerStarted();
 
         var timerStatus = CheckTimerStatus();
-        return timerStatus; // Success when timer completes, Running otherwise
+        _lastStatus = timerStatus;
+        return _lastStatus; // Success when timer completes, Running otherwise
     }
 }

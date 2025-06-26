@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class QuaternionLookAt : MonoBehaviour, IRotationNode, IInitializeBehavior<RotationData>, IUsesStatusEffectManager
+public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectManager
 {
     private RotationData _rotationData;
     private StatusEffectManager _statusEffectManager;

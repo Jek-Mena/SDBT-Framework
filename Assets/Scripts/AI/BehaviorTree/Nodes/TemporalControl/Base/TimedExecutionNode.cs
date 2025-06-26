@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Represents an abstract behavior tree node that executes for a specified duration of time.
 /// This class is designed to manage timed execution logic, allowing derived nodes to perform
-/// actions within a defined time frame. It integrates with the behavior tree system and utilizes
-/// timed execution data to control its behavior.
+/// actions within a defined time frame.
+/// It integrates with the behavior tree system and utilizes timed execution data to control its behavior.
 /// </summary>
 public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
 {
@@ -12,7 +13,13 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
     protected readonly string Label;
     protected ITimedExecutionNode Timer;
     protected bool TimerStarted;
-    
+
+    // Overlay/debug support:
+    protected BtStatus _lastStatus = BtStatus.Idle;
+    public virtual BtStatus LastStatus => _lastStatus;
+    public virtual string NodeName => GetType().Name;
+    public virtual IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
+
     protected TimedExecutionNode(TimedExecutionData timeData)
     {
         TimeData = timeData;
@@ -40,8 +47,8 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
 
     protected void EnsureTimerStarted()
     {
-        if(TimerStarted) return;
-        
+        if (TimerStarted) return;
+
         Timer.StartTime(Label, TimeData.Duration);
         TimerStarted = true;
         Debug.Log($"[TimedExecutionNode] Timer started for {Label} with duration {TimeData.Duration}");

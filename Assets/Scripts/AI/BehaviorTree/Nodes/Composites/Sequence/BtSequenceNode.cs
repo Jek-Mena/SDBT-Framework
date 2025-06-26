@@ -3,8 +3,15 @@ using UnityEngine;
 
 public class BtSequenceNode : IBehaviorNode
 {
+    private BtStatus _lastStatus = BtStatus.Idle;
+    public BtStatus LastStatus => _lastStatus;
+    public string NodeName => BtNodeTypes.Composite.Sequence;
+
     private readonly List<IBehaviorNode> _children;
+    public IEnumerable<IBehaviorNode> GetChildren => _children;
+    
     private int _currentIndex;
+    private const string ScriptName = nameof(BtSequenceNode);
 
     public BtSequenceNode(List<IBehaviorNode> children)
     {
@@ -20,21 +27,24 @@ public class BtSequenceNode : IBehaviorNode
           )
         {
             Debug.Log(error);
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
         
         while (_currentIndex < _children.Count)
         {
-            Debug.Log($"[BT Sequence] Ticking child {_currentIndex}");
+            Debug.Log($"[{ScriptName}] Ticking child {_currentIndex}");
             var status = _children[_currentIndex].Tick(context);
 
             switch (status)
             {
                 case BtStatus.Running:
-                    return BtStatus.Running;
+                    _lastStatus = BtStatus.Running;
+                    return _lastStatus;
                 case BtStatus.Failure:
+                    _lastStatus = BtStatus.Failure;
                     _currentIndex = 0;
-                    return BtStatus.Failure;
+                    return _lastStatus;
                 case BtStatus.Success:
                 default:
                     _currentIndex++;
@@ -43,6 +53,7 @@ public class BtSequenceNode : IBehaviorNode
         }
 
         _currentIndex = 0;
-        return BtStatus.Success;
+        _lastStatus = BtStatus.Success;
+        return _lastStatus;
     }
 }

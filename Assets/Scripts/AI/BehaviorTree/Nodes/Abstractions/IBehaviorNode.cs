@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 public interface IBehaviorNode
 {
     // Intent in -> Tick -> Status out.
     BtStatus Tick(BtContext context);
-
-    // TEMPORARY: Legacy fallback
-    //[Obsolete("Use Tick(BtContext) instead.")]
-    //BtStatus Tick(BtController controller) => Tick(new BtContext(controller));
+    BtStatus LastStatus { get; }
+    string NodeName { get;  } // For display/debug
+    IEnumerable<IBehaviorNode> GetChildren { get; } // Expose children if any
 }

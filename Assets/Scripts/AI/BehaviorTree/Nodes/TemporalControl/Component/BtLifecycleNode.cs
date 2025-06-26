@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+
 /// <summary>
 /// A decorator node that wraps any IBehaviorNode and calls OnExit() when it transitions
 /// from Running to Success or Failure. Used to handle timer cleanup, state resets, etc.
+/// Now supports overlay/debug with LastStatus, NodeName, GetChildren.
 /// </summary>
 public class BtLifecycleNode : IBehaviorNode
 {
@@ -14,6 +17,10 @@ public class BtLifecycleNode : IBehaviorNode
         _exitable = inner as IExitableBehavior;
     }
 
+    public BtStatus LastStatus => _lastStatus;
+    public string NodeName => nameof(BtLifecycleNode);
+    public IEnumerable<IBehaviorNode> GetChildren => new[] { _inner };
+
     public BtStatus Tick(BtContext context)
     {
         var status = _inner.Tick(context);
@@ -24,6 +31,6 @@ public class BtLifecycleNode : IBehaviorNode
         }
 
         _lastStatus = status;
-        return status;
+        return _lastStatus;
     }
 }

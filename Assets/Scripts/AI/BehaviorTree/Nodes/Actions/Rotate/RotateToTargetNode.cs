@@ -1,9 +1,15 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class RotateToTargetNode : IBehaviorNode
 {
     private const string ScriptName = nameof(RotateToTargetNode);
-    
+
+    private BtStatus _lastStatus = BtStatus.Idle;
+    public BtStatus LastStatus => _lastStatus;
+    public string NodeName => ScriptName;
+    public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
+
     private readonly string _rotationProfileKey;
     private readonly string _targetProfileKey;
 
@@ -12,7 +18,7 @@ public class RotateToTargetNode : IBehaviorNode
         _rotationProfileKey = rotationProfileKey;
         _targetProfileKey = targetProfileKey;
     }
-    
+
     public BtStatus Tick(BtContext context)
     {
         if (!BtValidator.Require(context)
@@ -22,9 +28,10 @@ public class RotateToTargetNode : IBehaviorNode
            )
         {
             Debug.Log(error);
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
-        
+
         // Resolve data from blackboard profile dictionaries
         var rotationData = context.Blackboard.GetRotationProfile(_rotationProfileKey);
         var targetingData = context.Blackboard.GetTargetingProfile(_targetProfileKey);
@@ -33,21 +40,29 @@ public class RotateToTargetNode : IBehaviorNode
         if (resolver == null)
         {
             Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
-        
+
         var target = resolver.ResolveTarget(context.Agent, targetingData);
         if (!target)
         {
             Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
-        
+
         context.Rotation.ApplySettings(rotationData);
         var canRotate = context.Rotation.TryRotateTo(target.position);
 
-        return canRotate
-            ? context.Rotation.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running
-            : BtStatus.Failure;
+        if (canRotate)
+        {
+            _lastStatus = context.Rotation.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running;
+        }
+        else
+        {
+            _lastStatus = BtStatus.Failure;
+        }
+        return _lastStatus;
     }
 }

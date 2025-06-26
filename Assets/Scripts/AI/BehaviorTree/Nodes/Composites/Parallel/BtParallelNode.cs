@@ -8,13 +8,18 @@ using UnityEngine;
 /// - Failure: if ANY child returns Failure
 /// - Running: if ANY child is Running (and none failed)
 /// - Success: if ALL children return Success
-///
-/// ⚠️ This implementation is Success-on-ALL.
-/// If even one child returns Running, the whole node stays Running.
-/// If even one child fails, the whole thing fails immediately.
+/// 
+/// - Implementation supports all standard exit conditions.
 /// </summary>
 public class BtParallelNode : IBehaviorNode
 {
+    private const string ScriptName = nameof(BtParallelNode);
+
+    private BtStatus _lastStatus = BtStatus.Idle;
+    public BtStatus LastStatus => _lastStatus;
+    public string NodeName => BtNodeTypes.Composite.Parallel;
+    public IEnumerable<IBehaviorNode> GetChildren => _children;
+
     private readonly List<IBehaviorNode> _children;
     private readonly ParallelExitCondition _exitCondition;
 
@@ -26,24 +31,33 @@ public class BtParallelNode : IBehaviorNode
 
     public BtStatus Tick(BtContext context)
     {
+        if (_children == null || _children.Count == 0)
+        {
+            Debug.LogError($"[{ScriptName}] No children found.");
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
+        }
+
         if (!BtValidator.Require(context)
                 .Children(_children)
                 .Check(out var error)
             )
         {
-            Debug.Log(error);
-            return BtStatus.Failure;
+            Debug.LogError(error);
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
-        
+
         var anyRunning = false;
         var anySuccess = false;
         var anyFailure = false;
         var allSuccess = true;
         var allFailure = true;
 
-        foreach (var child in _children)
+        for (int i = 0; i < _children.Count; i++)
         {
-            var status = child.Tick(context);
+            Debug.Log($"[{ScriptName}] Ticking child {i}");
+            var status = _children[i].Tick(context);
 
             switch (status)
             {
@@ -63,26 +77,37 @@ public class BtParallelNode : IBehaviorNode
             }
         }
 
-        return _exitCondition switch
+        switch (_exitCondition)
         {
-            ParallelExitCondition.FirstSuccess => anySuccess ? BtStatus.Success :
-                anyRunning ? BtStatus.Running :
-                BtStatus.Failure,
+            case ParallelExitCondition.FirstSuccess:
+                _lastStatus = anySuccess ? BtStatus.Success
+                               : anyRunning ? BtStatus.Running
+                               : BtStatus.Failure;
+                break;
 
-            ParallelExitCondition.FirstFailure => anyFailure ? BtStatus.Failure :
-                anyRunning ? BtStatus.Running :
-                BtStatus.Success,
+            case ParallelExitCondition.FirstFailure:
+                _lastStatus = anyFailure ? BtStatus.Failure
+                               : anyRunning ? BtStatus.Running
+                               : BtStatus.Success;
+                break;
 
-            ParallelExitCondition.AllSuccess => allSuccess ? BtStatus.Success :
-                anyRunning ? BtStatus.Running :
-                BtStatus.Failure,
+            case ParallelExitCondition.AllSuccess:
+                _lastStatus = allSuccess ? BtStatus.Success
+                               : anyRunning ? BtStatus.Running
+                               : BtStatus.Failure;
+                break;
 
-            ParallelExitCondition.AllFailure => allFailure ? BtStatus.Failure :
-                anyRunning ? BtStatus.Running :
-                BtStatus.Success,
+            case ParallelExitCondition.AllFailure:
+                _lastStatus = allFailure ? BtStatus.Failure
+                               : anyRunning ? BtStatus.Running
+                               : BtStatus.Success;
+                break;
 
-            _ => throw new ArgumentOutOfRangeException(nameof(_exitCondition),
-                "[BtParallelNode] Unknown or unsupported exit condition.")
-        };
+            default:
+                throw new ArgumentOutOfRangeException(nameof(_exitCondition),
+                    $"[{ScriptName}] Unknown or unsupported exit condition.");
+        }
+
+        return _lastStatus;
     }
 }

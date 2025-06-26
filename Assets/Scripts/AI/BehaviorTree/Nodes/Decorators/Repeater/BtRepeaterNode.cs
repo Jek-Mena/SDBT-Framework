@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class BtRepeaterNode : IBehaviorNode
 {
+    private BtStatus _lastStatus = BtStatus.Idle;
+    public BtStatus LastStatus => _lastStatus;
+    public string NodeName => BtNodeTypes.Decorators.Repeater;
+    public IEnumerable<IBehaviorNode> GetChildren => new[] { _child };
+
     private readonly IBehaviorNode _child;
     private readonly int _maxRepeats;
     private int _repeatCount;
@@ -21,21 +26,24 @@ public class BtRepeaterNode : IBehaviorNode
                 .Check(out var error))
         {
             Debug.LogError(error);
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
-        
+
         var status = _child.Tick(context);
 
-        if (status is BtStatus.Success or BtStatus.Failure)
+        if (status == BtStatus.Success || status == BtStatus.Failure)
         {
             _repeatCount++;
             if (_maxRepeats > 0 && _repeatCount >= _maxRepeats)
             {
                 _repeatCount = 0; // Reset to allow reuse
-                return BtStatus.Success;
+                _lastStatus = BtStatus.Success;
+                return _lastStatus;
             }
         }
 
-        return BtStatus.Running;
+        _lastStatus = BtStatus.Running;
+        return _lastStatus;
     }
 }

@@ -20,11 +20,12 @@ public class BtPauseNode : TimedExecutionNode
            )
         {
             Debug.Log(error);
-            return BtStatus.Failure;
+            _lastStatus = BtStatus.Failure;
+            return _lastStatus;
         }
-        
+
         EnsureTimerStarted();
-        
+
         if (!_applied)
         {
             // Apply pause effect via orchestrator for movement block
@@ -36,7 +37,7 @@ public class BtPauseNode : TimedExecutionNode
                 Domains = _domains
             };
             _pauseEffect.SetCustomName(BtNodeTypes.TimedExecution.Pause);
-            
+
             context.StatusEffectManager.ApplyEffect(_pauseEffect);
             _applied = true;
         }
@@ -49,6 +50,7 @@ public class BtPauseNode : TimedExecutionNode
             _applied = false;
         }
 
-        return status;
+        _lastStatus = status;
+        return _lastStatus;
     }
 }
