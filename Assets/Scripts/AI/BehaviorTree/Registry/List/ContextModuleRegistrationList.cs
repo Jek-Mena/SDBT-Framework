@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿using UnityEngine;
+
+/// <summary>
 /// [2025-06-13] Curates registration and grouping of context builder modules.
 /// - Acts as a centralized registration point for context modules used in AI blackboard construction.
 /// - Ensures that all eligible modules are systematically added to avoid missing dependencies or logic gaps.
@@ -10,6 +12,7 @@ public static class ContextModuleRegistrationList
 {
     public static void RegisterAll(BtBlackboardBuilder builder)
     {
+        Debug.Log("Registering all context modules...");
         var modules = new IContextBuilderModule[]
         {
             // [2025-06-18] IMPORTANT: ProfileContextBuilder MUST come before any context module
@@ -17,24 +20,27 @@ public static class ContextModuleRegistrationList
             // always register it after the profile module.
             
             // Injects all profile dictionaries into blackboard
-            new ProfileContextBuilderModule(),
+            new ProfileBuilderModule(),
             
             // All systems that depend on profiles must come AFTER profile injection
-            new TimerContextBuilder(),
-            new StatusEffectContextBuilder(),
-            new UpdatePhaseExecutorContextBuilder(),
+            new TimerBuilderModule(),
+            new StatusEffectBuilderModule(),
+            new UpdatePhaseExecutorBuilderModule(),
             
             //new TargetingContextBuilderModule(),
-            new HealthContextBuilderModule(),
-            new MovementContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
-            new RotationContextBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
+            new HealthBuilderModule(),
+            new MovementBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
+            new RotationBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
             
-            new StatContextBuilderModule(),
+            new StatBuilderModule(),
+            
+            new DebugOverlayBuilderModule()
         };
 
         foreach (var module in modules)
         {
             builder.RegisterModule(module);
         }
+        Debug.Log("All context modules registered...");
     }
 }

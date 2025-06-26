@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-public class RotationContextBuilderModule : IContextBuilderModule
+public class RotationBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(RotationContextBuilderModule);
+        var scriptName = nameof(RotationBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
         

@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 
 // TODO: Future expansion: Let the system support the usage of multiple possible movement components by iterating or support some selection logic, but for now, keep it simple and DRY.
-public class MovementContextBuilderModule : IContextBuilderModule
+public class MovementBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(MovementContextBuilderModule);
+        var scriptName = nameof(MovementBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
         

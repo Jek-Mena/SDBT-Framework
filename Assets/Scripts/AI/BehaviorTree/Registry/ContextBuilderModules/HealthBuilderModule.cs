@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-public class HealthContextBuilderModule : IContextBuilderModule
+public class HealthBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(HealthContextBuilderModule);
+        var scriptName = nameof(HealthBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
 

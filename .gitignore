@@ -86,3 +86,4 @@ sysinfo.txt
 
 # --- Plastic SCM (expanded) ---
 .plastic*
+Packages/packages-lock.json

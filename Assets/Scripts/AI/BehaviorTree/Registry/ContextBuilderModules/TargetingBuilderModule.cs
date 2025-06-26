@@ -1,6 +1,6 @@
 ﻿using System;
 
-public class TargetingContextBuilderModule : IContextBuilderModule
+public class TargetingBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {

@@ -23,6 +23,8 @@ GameObject:
   - component: {fileID: 6658103414726182129}
   - component: {fileID: 5318971445750051119}
   - component: {fileID: 860994373318806424}
+  - component: {fileID: 6495902230895435703}
+  - component: {fileID: 4415892191655199400}
   m_Layer: 0
   m_Name: enemy_test_agent
   m_TagString: Untagged
@@ -277,6 +279,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4846ca00a56284429f830e378cb957c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6495902230895435703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621597336681991154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a6fd62347a8437689d042d1db477a23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4415892191655199400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621597336681991154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb821741a858d7409e07341f9381561, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &9027836807911911425

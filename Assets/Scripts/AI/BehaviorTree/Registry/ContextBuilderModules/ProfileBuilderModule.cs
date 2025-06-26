@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public class ProfileContextBuilderModule : IContextBuilderModule
+public class ProfileBuilderModule : IContextBuilderModule
 {
     private readonly JObject _agentConfig;
     
     public void Build(BtContext context)
     {
-        var scriptName = nameof(ProfileContextBuilderModule);
+        var scriptName = nameof(ProfileBuilderModule);
         var blackboard = context.Blackboard;
         
         // Injects the full config JObject into the blackboard at context build time.

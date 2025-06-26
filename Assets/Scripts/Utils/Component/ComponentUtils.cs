@@ -16,7 +16,7 @@ public static class ComponentUtils
     {
         var comp = obj.GetComponent<T>();
         if (!comp)
-            throw new MissingComponentException($"Expected component of type {typeof(T).Name} on {obj.name}, but none was found.");
+            throw new MissingComponentException($"[{typeof(T).Name}] Expected component of type {typeof(T).Name} on {obj.name}, but none was found.");
         return comp;
     }
 
@@ -34,7 +34,7 @@ public static class ComponentUtils
     {
         var comp = context.GetComponent<T>();
         if (!comp)
-            throw new MissingComponentException($"Expected component of type {typeof(T).Name} on {context.gameObject.name}, but none was found.");
+            throw new MissingComponentException($"[{typeof(T).Name}] Expected component of type {typeof(T).Name} on {context.gameObject.name}, but none was found.");
         return comp;
     }
 }

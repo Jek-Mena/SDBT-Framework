@@ -34,7 +34,7 @@ public class StatSynchronizer : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (!_statusEffectManager)
+        if (_statusEffectManager)
             _statusEffectManager.OnStatusEffectChanged -= SyncToBlackboard;
     }
 }

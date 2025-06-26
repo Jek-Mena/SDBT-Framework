@@ -1,11 +1,11 @@
 ﻿using System;
 using UnityEngine;
 
-public class UpdatePhaseExecutorContextBuilder : IContextBuilderModule
+public class UpdatePhaseExecutorBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(UpdatePhaseExecutorContextBuilder);
+        var scriptName = nameof(UpdatePhaseExecutorBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
             

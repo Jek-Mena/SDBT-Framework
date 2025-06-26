@@ -1,26 +1,15 @@
 ﻿using UnityEngine;
 
-public class StatContextBuilderModule : IContextBuilderModule
+public class StatBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(StatContextBuilderModule);
+        var scriptName = nameof(StatBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
         
-        var statusManager = agent.GetComponent<StatusEffectManager>();
-        if (!statusManager)
-        {
-            Debug.LogError($"[{scriptName}] StatusEffectManager not found.");
-            return;
-        }
-        
-        var statSynchronizer = agent.GetComponent<StatSynchronizer>(); // <<-- [2025-06-25] Red flag and needs to be abstract??? For checking 
-        if (!statSynchronizer)
-        {
-            Debug.LogError($"[{scriptName}] StatSynchronizer not found.");
-            return;
-        }
+        var statusManager = agent.RequireComponent<StatusEffectManager>();
+        var statSynchronizer = agent.RequireComponent<StatSynchronizer>(); // <<-- [2025-06-25] Red flag and needs to be abstract??? For checking 
         
         var modifiers = statusManager.agentModifiers.Stats;
         

@@ -1,11 +1,11 @@
 ﻿using System;
 using UnityEngine;
 
-public class TimerContextBuilder : IContextBuilderModule
+public class TimerBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(TimerContextBuilder);
+        var scriptName = nameof(TimerBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
             
