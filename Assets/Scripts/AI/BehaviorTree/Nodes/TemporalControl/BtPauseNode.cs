@@ -28,14 +28,15 @@ public class BtPauseNode : TimedExecutionNode
         if (!_applied)
         {
             // Apply pause effect via orchestrator for movement block
-            _pauseEffect = new StatusEffect()
+            _pauseEffect = new StatusEffect
             {
                 Source = StatusEffectSourceKeys.TimedExecution.Pause,
                 Duration = TimeData.Duration, // Use timer config
                 TimeApplied = Time.time,
                 Domains = _domains
             };
-
+            _pauseEffect.SetCustomName(BtNodeTypes.TimedExecution.Pause);
+            
             context.StatusEffectManager.ApplyEffect(_pauseEffect);
             _applied = true;
         }
