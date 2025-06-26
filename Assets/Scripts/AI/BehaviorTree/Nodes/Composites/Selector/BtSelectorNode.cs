@@ -5,7 +5,7 @@ public class BtSelectorNode : IBehaviorNode
 {
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => BtNodeTypes.Composite.Selector;
+    public string DisplayName => BtNodeDisplayName.Composite.Selector;
 
     private readonly List<IBehaviorNode> _children;
     public IEnumerable<IBehaviorNode> GetChildren => _children;

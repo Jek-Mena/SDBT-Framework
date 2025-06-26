@@ -16,7 +16,7 @@ public abstract class BtConditionNode : IBehaviorNode
 
     public BtStatus LastStatus => _lastStatus;
 
-    public virtual string NodeName => GetType().Name;
+    public virtual string DisplayName => GetType().Name;
 
     public IEnumerable<IBehaviorNode> GetChildren => _child != null ? new[] { _child } : Array.Empty<IBehaviorNode>();
 

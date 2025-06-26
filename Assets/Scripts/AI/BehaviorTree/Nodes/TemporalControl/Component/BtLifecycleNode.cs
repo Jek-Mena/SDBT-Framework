@@ -18,7 +18,7 @@ public class BtLifecycleNode : IBehaviorNode
     }
 
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => nameof(BtLifecycleNode);
+    public string DisplayName => _inner.DisplayName;
     public IEnumerable<IBehaviorNode> GetChildren => new[] { _inner };
 
     public BtStatus Tick(BtContext context)

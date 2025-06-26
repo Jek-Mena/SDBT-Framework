@@ -17,7 +17,7 @@ public class BtParallelNode : IBehaviorNode
 
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => BtNodeTypes.Composite.Parallel;
+    public string DisplayName => BtNodeDisplayName.Composite.Parallel;
     public IEnumerable<IBehaviorNode> GetChildren => _children;
 
     private readonly List<IBehaviorNode> _children;

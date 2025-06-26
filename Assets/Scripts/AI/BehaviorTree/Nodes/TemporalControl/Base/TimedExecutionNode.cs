@@ -17,7 +17,7 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
     // Overlay/debug support:
     protected BtStatus _lastStatus = BtStatus.Idle;
     public virtual BtStatus LastStatus => _lastStatus;
-    public virtual string NodeName => GetType().Name;
+    public virtual string DisplayName => GetType().Name;
     public virtual IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     protected TimedExecutionNode(TimedExecutionData timeData)

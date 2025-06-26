@@ -7,7 +7,7 @@ public class ImpulseMoverNode : IBehaviorNode
 {
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => nameof(ImpulseMoverNode);
+    public string DisplayName => BtNodeDisplayName.Movement.ImpulseMover;
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     public BtStatus Tick(BtContext context)

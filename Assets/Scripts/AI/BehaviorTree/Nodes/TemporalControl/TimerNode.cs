@@ -3,6 +3,7 @@
 public class TimerNode : TimedExecutionNode
 {
     public TimerNode(TimedExecutionData data) : base(data) { }
+    public override string DisplayName => string.IsNullOrEmpty(Label) ? $"{BtNodeDisplayName.TimedExecution.Timer}" : $"{BtNodeDisplayName.TimedExecution.Timer} ({Label})";
 
     public override BtStatus Tick(BtContext context)
     {

@@ -5,7 +5,7 @@ public class BtRepeaterNode : IBehaviorNode
 {
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => BtNodeTypes.Decorators.Repeater;
+    public string DisplayName => BtNodeDisplayName.Decorators.Repeater;
     public IEnumerable<IBehaviorNode> GetChildren => new[] { _child };
 
     private readonly IBehaviorNode _child;

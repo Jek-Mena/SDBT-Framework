@@ -7,7 +7,7 @@ public class MoveToTargetNode : IBehaviorNode
 
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => ScriptName;
+    public string DisplayName => BtNodeDisplayName.Movement.MoveToTarget;
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     private readonly string _movementProfileKey;

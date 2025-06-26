@@ -7,7 +7,7 @@ public class RotateToTargetNode : IBehaviorNode
 
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => ScriptName;
+    public string DisplayName => BtNodeDisplayName.Rotation.RotateToTarget;
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     private readonly string _rotationProfileKey;

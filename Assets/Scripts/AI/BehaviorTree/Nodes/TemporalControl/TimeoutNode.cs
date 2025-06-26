@@ -6,6 +6,7 @@ public class TimeoutNode : TimedExecutionNode
 {
     private readonly IBehaviorNode _child;
     private readonly string[] _domains;
+    public override string DisplayName => string.IsNullOrEmpty(Label) ? $"{BtNodeDisplayName.TemporalCondition.Timeout}" : $"{BtNodeDisplayName.TemporalCondition.Timeout} ({Label})";
 
     public TimeoutNode(IBehaviorNode child, TimedExecutionData data, string[] domains = null)
         : base(data)

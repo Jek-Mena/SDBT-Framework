@@ -5,7 +5,7 @@ public class BtSequenceNode : IBehaviorNode
 {
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
-    public string NodeName => BtNodeTypes.Composite.Sequence;
+    public string DisplayName => BtNodeDisplayName.Composite.Sequence;
 
     private readonly List<IBehaviorNode> _children;
     public IEnumerable<IBehaviorNode> GetChildren => _children;

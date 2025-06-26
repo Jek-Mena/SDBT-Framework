@@ -1,6 +1,11 @@
 ﻿using System.Text;
 using UnityEngine;
 
+/// <summary>
+/// [2025-06-26]
+/// Provides functionality to display and interact with a debug overlay within the Unity environment.
+/// This component is used to aid in debugging and monitoring behavior tree execution using context-specific data.
+/// </summary>
 public class DebugOverlay : MonoBehaviour
 {
     private BtContext _context;
@@ -31,8 +36,7 @@ public class DebugOverlay : MonoBehaviour
         foreach (var domain in allDomains)
         {
             var isBlocked = _statusEffectManager.IsBlocked(domain);
-            sb.AppendLine($"[{domain}]");
-            sb.AppendLine(isBlocked ? "  <color=red>BLOCKED</color>" : "  OK");
+            sb.AppendLine($"[{domain}]" + (isBlocked ? "  <color=red>BLOCKED</color>" : "  OK"));
 
             // Show ALL effects impacting this domain
             foreach (var fx in _statusEffectManager.GetActiveEffects())
@@ -47,8 +51,17 @@ public class DebugOverlay : MonoBehaviour
             }
             sb.AppendLine();
         }
+        
+        // After the status overlay, add:
+        var btRoot = _context?.Controller?.RootNode; // or however you access the root node
+        if (btRoot != null)
+        {
+            sb.AppendLine("\n=== Behavior Tree ===");
+            BtDebugTools.DumpTree(btRoot, sb);
+        }
+        
         // Display the overlay in the game
-        GUI.Label(new Rect(10, 10, 350, 400), sb.ToString());
+        GUI.Label(new Rect(10, 10, 350, 700), sb.ToString());
     }
 
     

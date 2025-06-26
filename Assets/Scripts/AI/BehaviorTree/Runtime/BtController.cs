@@ -11,8 +11,8 @@ public class BtController : MonoBehaviour
     
     public BtContext Context;
     public Blackboard Blackboard;
-    private IBehaviorNode _rootNode;
-    
+    public IBehaviorNode RootNode { get; private set; }
+
     private void Awake()
     {
         _switcher = switcherComponent;
@@ -76,7 +76,7 @@ public class BtController : MonoBehaviour
         Blackboard = context.Blackboard;
     }
 
-    private void SetTree(IBehaviorNode rootNode) => _rootNode = rootNode;
+    private void SetTree(IBehaviorNode rootNode) => RootNode = rootNode;
 
     private void Update()
     {
@@ -90,9 +90,9 @@ public class BtController : MonoBehaviour
             }
         }
 
-        if (_rootNode != null && Context != null)
+        if (RootNode != null && Context != null)
         {
-            var result = _rootNode.Tick(Context);
+            var result = RootNode.Tick(Context);
             Debug.Log($"[BT Tick] Status: {result}");
         }
     }

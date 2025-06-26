@@ -5,6 +5,7 @@ public class BtPauseNode : TimedExecutionNode
     private StatusEffect _pauseEffect;
     private bool _applied;
     private readonly string[] _domains;
+    public override string DisplayName => string.IsNullOrEmpty(Label) ? $"{BtNodeDisplayName.TimedExecution.Pause}" : $"{BtNodeDisplayName.TimedExecution.Pause} ({Label})";
 
     public BtPauseNode(TimedExecutionData timeData, string[] domains = null) : base(timeData)
     {
@@ -36,7 +37,7 @@ public class BtPauseNode : TimedExecutionNode
                 TimeApplied = Time.time,
                 Domains = _domains
             };
-            _pauseEffect.SetCustomName(BtNodeTypes.TimedExecution.Pause);
+            _pauseEffect.SetCustomName(BtNodeDisplayName.TimedExecution.Pause);
 
             context.StatusEffectManager.ApplyEffect(_pauseEffect);
             _applied = true;
