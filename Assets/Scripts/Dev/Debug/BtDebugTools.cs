@@ -73,7 +73,11 @@ public class BtDebugTools
         foreach (var child in node.GetChildren ?? Enumerable.Empty<IBehaviorNode>())
             DumpTreeActivePaths(child, stringBuilder, depth + 1, activePath);
     }
-    
+
+    /// <summary>
+    /// Generates a textual representation of the behavior tree, highlighting
+    /// the last success status for all nodes in the tree.
+    /// </summary>
     public static void DumpTreeLastSuccess(IBehaviorNode node, StringBuilder stringBuilder, int depth = 0)
     {
         if (node == null) return;
