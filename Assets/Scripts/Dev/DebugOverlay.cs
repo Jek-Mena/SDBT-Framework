@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -51,14 +52,22 @@ public class DebugOverlay : MonoBehaviour
             }
             sb.AppendLine();
         }
-        
+
         // After the status overlay, add:
-        var btRoot = _context?.Controller?.RootNode; // or however you access the root node
-        if (btRoot != null)
-        {
-            sb.AppendLine("\n=== Behavior Tree ===");
-            BtDebugTools.DumpTree(btRoot, sb);
-        }
+        var btRoot = _context?.Controller?.RootNode;
+        var activePathSet = new HashSet<IBehaviorNode>();
+        BtDebugTools.BuildActivePaths(btRoot, activePathSet);
+
+        sb.AppendLine("\n=== Behavior Tree (Active Paths) ===");
+        BtDebugTools.DumpTreeActivePaths(btRoot, sb, 0, activePathSet);
+        
+        // // After the status overlay, add:
+        // var btRoot = _context?.Controller?.RootNode; // or however you access the root node
+        // if (btRoot != null)
+        // {
+        //     sb.AppendLine("\n=== Behavior Tree ===");
+        //     BtDebugTools.DumpTree(btRoot, sb);
+        // }
         
         // Display the overlay in the game
         GUI.Label(new Rect(10, 10, 350, 700), sb.ToString());
