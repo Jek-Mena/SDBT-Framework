@@ -47,7 +47,7 @@ public static class BlackboardKeys
             public const string ImpulseLogic = "ImpulseLogic";
             public const string RotationLogic = "RotationLogic";
         }
-
+        
         public static class Resolver
         {
             public const string TargetResolver = "TargetResolver";
@@ -68,6 +68,17 @@ public static class BlackboardKeys
             public const string Attack = "AttackMultiplier";
         }
         // Add more as needed.
+    }
+
+    public static class Fear
+    {
+        public const string StimuliNearby = "StimuliNearby";
+        public const string Level = "FearLevel";
+        public const string FearCooldown = "FearCooldown";
+        public const string FearDuration = "FearDuration";
+        public const string FearStrength = "FearStrength";
+        public const string FearRadius = "FearRadius";
+        public const string Source = "FearSource";
     }
     
     /// <summary>

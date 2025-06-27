@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[System.Obsolete]
 public class FleeIntentExecutor : MonoBehaviour, IBehaviorIntentExecutor
 {
     private BtContext Context;

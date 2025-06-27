@@ -128,6 +128,14 @@ public class Blackboard
         return false;
     }
     
+    /// <summary>
+    /// Removes a previously stored dynamic value. Returns true if removed; false if not present.
+    /// </summary>
+    public bool Remove(string key)
+    {
+        return _data.Remove(key);
+    }
+    
     // ───────────────
     // End Dynamic Key-Value Context Store
     // ───────────────

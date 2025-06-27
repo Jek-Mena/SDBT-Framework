@@ -26,6 +26,6 @@ public class BehaviorIntentExecutorBuilderModule : IContextBuilderModule
         var debugOverlay = agent.RequireComponent<FleeIntentExecutor>();
         
         debugOverlay.Initialize(context);
-        debugOverlay.SetStatusEffectManager(blackboard.StatusEffectManager);
+        //debugOverlay.SetStatusEffectManager(blackboard.StatusEffectManager);
     }
 }

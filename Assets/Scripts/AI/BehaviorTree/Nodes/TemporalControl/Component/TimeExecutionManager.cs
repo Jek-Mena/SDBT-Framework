@@ -52,6 +52,7 @@ public class TimeExecutionManager : MonoBehaviour, ITimedExecutionNode
     //Clean up completed timers (helpful for long sessions)
     private void LateUpdate()
     {
+        if (_timers.Count == 0) return;
         var expiredTimers = new List<string>();
         foreach (var pair in _timers)
         {
@@ -62,24 +63,4 @@ public class TimeExecutionManager : MonoBehaviour, ITimedExecutionNode
         foreach (var key in expiredTimers)
             _timers.Remove(key);
     }
-}
-
-/// <summary>
-/// Marker for behavior nodes that require lifecycle hooks (e.g. OnExit).
-/// Currently supports OnExit(), but may expand to full lifecycle methods in the future:
-/// - OnEnter()
-/// - Reset()
-/// - Cleanup()
-/// 
-/// Consider renaming this to ILifecycleBehavior or refactoring to modular lifecycle interface:
-/// public interface ILifecycleBehavior
-/// {
-///     void OnEnter();
-///     void OnExit();
-///     void Reset();
-/// }
-/// </summary>
-public interface IExitableBehavior
-{
-    void OnExit();
 }
