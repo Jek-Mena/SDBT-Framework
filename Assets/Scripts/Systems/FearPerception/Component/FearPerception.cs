@@ -12,7 +12,7 @@ public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
     {
         base.Initialize(context);
         
-        Profile = context.Blackboard.GetFearPerceptionProfile(AgentProfileFields.CurrentFearProfile);
+        Profile = context.Blackboard.GetFearPerceptionProfile(AgentDefaultProfileValues.Fear);
         if (Profile == null)
             Debug.LogError($"[{ScriptName}] No FearPerceptionData profile found for this agent/context!");
     }
@@ -24,18 +24,35 @@ public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
         var maxContribution = 0f;
         FearStimulus? mainThreat = null;
 
-        foreach (var stim in stimuli)
+        if (stimuli == null || stimuli.Count == 0)
         {
-            var distance = Vector3.Distance(position, stim.Position);
-            if (distance < stim.Radius)
+            Debug.Log($"[{ScriptName}] Agent '{name}' detected NO fear stimuli this tick.");
+        }
+        else
+        {
+            Debug.Log($"[{ScriptName}] Agent '{name}' received {stimuli.Count} fear stimuli. My position: {position}");
+
+            foreach (var stim in stimuli)
             {
-                // Simple weighted: linear falloff
-                var contribution = stim.Strength * (1f - distance / stim.Radius);
-                totalFear += contribution;
-                if (contribution > maxContribution)
+                var distance = Vector3.Distance(position, stim.Position);
+                Debug.Log($"[{ScriptName}] - Stimulus at {stim.Position}, radius: {stim.Radius}, strength: {stim.Strength}, distance: {distance}");
+
+                if (distance < stim.Radius)
                 {
-                    maxContribution = contribution;
-                    mainThreat = stim;
+                    // Simple weighted: linear falloff
+                    var contribution = stim.Strength * (1f - distance / stim.Radius);
+                    totalFear += contribution;
+                    Debug.Log($"[{ScriptName}] -- INSIDE range! Contribution: {contribution}");
+
+                    if (contribution > maxContribution)
+                    {
+                        maxContribution = contribution;
+                        mainThreat = stim;
+                    }
+                }
+                else
+                {
+                    Debug.Log($"[{ScriptName}] -- OUTSIDE range.");
                 }
             }
         }
@@ -43,9 +60,15 @@ public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
         Context.Blackboard.Set(BlackboardKeys.Fear.Level, totalFear);
 
         if (mainThreat.HasValue)
+        {
+            Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
             Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value);
+        }
         else
+        {
+            Debug.Log($"[{ScriptName}] No main threat found.");
             Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
+        }
     }
     
     protected override List<FearStimulus> QueryStimuli()

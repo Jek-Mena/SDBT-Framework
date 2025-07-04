@@ -9,6 +9,15 @@
         "regenRate": 1
       }
     },
+    "FearProfiles":{
+      "DefaultFear": {
+        "DetectionRange": 10.0,
+        "DecayDuration": 5.0,
+        "MaxDuration": 30.0,
+        "Threshold": 2.0,
+        "CurveType": "Linear"
+      }
+    },
     "TargetingProfiles": {
       "ChaseTarget": {
         "targetTag": "Player",
@@ -45,15 +54,6 @@
       "Pause": {
         "label": "PauseForX",
         "duration": 5.0
-      }
-    },
-    "FearProfiles":{
-      "DefaultFear": {
-        "DetectionRange": 10.0,
-        "DecayDuration": 5.0,
-        "MaxDuration": 30.0,
-        "Threshold": 2.0,
-        "CurveType": "Linear"
       }
     },
     "SwitchProfiles": {
