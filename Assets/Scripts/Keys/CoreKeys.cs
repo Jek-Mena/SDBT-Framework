@@ -163,7 +163,14 @@ public static class CoreKeys
     /// </summary>
     public const string Domain = "Domain";
 
-    public const string Profiles = "profiles";
+    /// <summary>
+    /// The block for agent-global profiles (fear, health, etc.).
+    /// </summary>
+    public const string AgentProfiles = "agentProfiles";
+    /// <summary>
+    /// The block for behavior/BT node profiles (movement, targeting, timing, etc.).
+    /// </summary>
+    public const string BehaviorProfiles = "behaviorProfiles";
     
     public static class ResolvedProfiles
     {

@@ -16,20 +16,40 @@ public class ProfileBuilderModule : IContextBuilderModule
         var runtimeData = context.Agent.GetComponent<EntityRuntimeData>();
         blackboard.Set(BlackboardKeys.EntityConfig, runtimeData);
         
-        var profiles = runtimeData.Definition.Config[CoreKeys.Profiles] as JObject;
-        if (profiles == null)
-            throw new Exception($"[{ScriptName}] BtConfig missing!");
+        // Load both profile blocks (agent and behavior)
+        var agentProfiles = runtimeData.Definition.Config[CoreKeys.AgentProfiles] as JObject;
+        var behaviorProfiles = runtimeData.Definition.Config[CoreKeys.BehaviorProfiles] as JObject;
         
-        // -- Parse each profile block --
-        Debug.Log("[{scriptName}] Parsing profiles...");
-        blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(profiles, AgentConfigProfileBlocks.Switches);
-        blackboard.HealthProfiles = ParseProfileBlock<HealthData>(profiles, AgentConfigProfileBlocks.Health);
-        blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(profiles, AgentConfigProfileBlocks.Targeting);
-        blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (profiles, AgentConfigProfileBlocks.Movement);
-        blackboard.RotationProfiles = ParseProfileBlock<RotationData>(profiles, AgentConfigProfileBlocks.Rotation);
-        blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(profiles, AgentConfigProfileBlocks.Timing);
-        blackboard.FearProfiles = ParseProfileBlock<FearPerceptionData>(profiles, AgentConfigProfileBlocks.FearPerception);
-        // Add similar.... 
+        // AGENT-GLOBAL PROFILES
+        // Only used for systems like Fear, Health, etc.
+        if (agentProfiles != null)
+        {
+            Debug.Log($"[{ScriptName}] Parsing agent-global profiles...");
+            blackboard.HealthProfiles = ParseProfileBlock<HealthData>(agentProfiles, AgentConfigProfileBlocks.Health);
+            blackboard.FearProfiles = ParseProfileBlock<FearPerceptionData>(agentProfiles, AgentConfigProfileBlocks.FearPerception);
+            Debug.Log($"[{ScriptName}] Finished parsing agent-global profiles...");
+        }
+        else
+        {
+            Debug.LogError($"[{ScriptName}] {CoreKeys.AgentProfiles} block is missing!");
+        }
+        
+        // BEHAVIOR PROFILES
+        // Only used for BT node config: movement, timing, targeting, etc.
+        if (behaviorProfiles != null)
+        {
+            Debug.Log($"[{ScriptName}] Parsing behavior profiles...");
+            blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(behaviorProfiles, AgentConfigProfileBlocks.Targeting);
+            blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (behaviorProfiles, AgentConfigProfileBlocks.Movement);
+            blackboard.RotationProfiles = ParseProfileBlock<RotationData>(behaviorProfiles, AgentConfigProfileBlocks.Rotation);
+            blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(behaviorProfiles, AgentConfigProfileBlocks.Timing);
+            blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(behaviorProfiles, AgentConfigProfileBlocks.Switches);
+            Debug.Log($"[{ScriptName}] Finished parsing behavior profiles...");
+        }
+        else
+        {
+            Debug.LogError($"[{ScriptName}] {CoreKeys.BehaviorProfiles} block is missing!");       
+        }
     }
 
     /// <summary>
@@ -42,18 +62,9 @@ public class ProfileBuilderModule : IContextBuilderModule
         // Try to find the block at the root level
         var block = root[blockKey] as JObject;
         
-        // If not found, try under the standard "profiles" section (using your convention)
         if (block == null)
         {
-            var profilesSection = root[CoreKeys.Profiles] as JObject;
-            if (profilesSection != null)
-                block = profilesSection[blockKey] as JObject;
-        }
-        
-        // If still not found, return an empty dictionary
-        if (block == null)
-        {
-            Debug.LogWarning($"[{ScriptName}] Profile block '{blockKey}' missing. If this is required for agent function, update your JSON config.");
+            Debug.LogError($"[{ScriptName}] Profile block '{blockKey}' missing in {blockKey}.");
             return new Dictionary<string, TProfile>();
         }
 
@@ -74,18 +85,12 @@ public class ProfileBuilderModule : IContextBuilderModule
     
     private Dictionary<string, List<TElement>> ParseProfileBlockList<TElement>(JObject root, string blockKey)
     {
+        // Try to find the block at the root level
         var block = root[blockKey] as JObject;
-
+        
         if (block == null)
         {
-            var profilesSection = root[CoreKeys.Profiles] as JObject;
-            if (profilesSection != null)
-                block = profilesSection[blockKey] as JObject;
-        }
-
-        if (block == null)
-        {
-            Debug.LogWarning($"[{ScriptName}] Profile block '{blockKey}' missing. If this is required for agent function, update your JSON config.");
+            Debug.LogError($"[{ScriptName}] Profile block '{blockKey}' missing in {blockKey}.");
             return new Dictionary<string, List<TElement>>();
         }
 

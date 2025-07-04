@@ -1,21 +1,33 @@
 {
   "entityId": "enemy_test_agent",
   "prefab": "Prefabs/Enemy/Standard/enemy_test_agent",
+  "agentCurrentHealthProfile": "DefaultHealth",
   "agentCurrentFearProfile": "DefaultFear",
-  "profiles": {
-    "HealthProfiles":{
-      "DefaultHP": {
-        "maxHP": 100,
-        "regenRate": 1
-      }
+  "agentProfiles": {
+    "HealthProfiles": {
+      "DefaultHealth": { 
+        "maxHP": 100, 
+        "regenRate": 1 
+       }
     },
-    "FearProfiles":{
+    "FearProfiles": {
       "DefaultFear": {
         "DetectionRange": 10.0,
         "DecayDuration": 5.0,
         "MaxDuration": 30.0,
         "Threshold": 2.0,
         "CurveType": "Linear"
+      }
+    }
+  },
+  "behaviorProfiles": {
+    "MovementProfiles": {
+      "ChaserMovement": {
+        "speed": 3.0,
+        "acceleration": 3.0,
+        "stoppingDistance": 0.5,
+        "angularSpeed": 150.0,
+        "updateThreshold": 0.25
       }
     },
     "TargetingProfiles": {
@@ -28,15 +40,6 @@
         "minRange": 2,
         "fallOffRange": 120,
         "searchRange": 200
-      }
-    },
-    "MovementProfiles": {
-      "ChaserMovement": {
-        "speed": 3.0,
-        "acceleration": 3.0,
-        "stoppingDistance": 0.5,
-        "angularSpeed": 150.0,
-        "updateThreshold": 0.25
       }
     },
     "RotationProfiles": {
@@ -70,7 +73,7 @@
           "threshold": 20,
           "behaviorTree": "move_and_wait"
         }
-      ],
+      ]
     }
   }
 }

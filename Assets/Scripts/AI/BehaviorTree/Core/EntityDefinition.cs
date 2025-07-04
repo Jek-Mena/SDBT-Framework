@@ -16,6 +16,13 @@ public class EntityDefinition
     /// <summary> Configuration data for the entity, typically defined as a JSON object. </summary>
     public JObject Config;
     
-    public JObject ProfilesBlock => Config[CoreKeys.Profiles] as JObject;
+    /// <summary>
+    /// Agent-global profiles: Fear, Health, etc.
+    /// </summary>
+    public JObject AgentProfilesBlock => Config[CoreKeys.AgentProfiles] as JObject;
+    /// <summary>
+    /// Behavior/BT node profiles: Movement, Targeting, Timing, etc.
+    /// </summary>
+    public JObject BehaviorProfilesBlock => Config[CoreKeys.BehaviorProfiles] as JObject;
     public string BehaviorTreePath => Config[CoreKeys.BehaviorTree]?.ToString();
 }
