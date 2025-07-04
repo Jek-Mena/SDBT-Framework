@@ -10,7 +10,7 @@ public static class BtBootstrapper
         // or pass multiple folders, or call multiple times for different entity types.
         
         // Register all templates
-        // Loads all JSON templates from the Resources folder, and registers them with the BtRegistry.
+        // Loads all JSON templates from the Resources folder and registers them with the BtRegistry.
         BtConfigRegistrationList.Initialize();
         
         // Register all node factories

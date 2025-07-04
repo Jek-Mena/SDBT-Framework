@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -51,8 +52,10 @@ public class BtBlackboardBuilder
         // Create a preliminary context with what you have
         var context = new BtContext(controller, blackboard, agent);
 
-        Debug.Log($"[{nameof(BtBlackboardBuilder)}] Starting context build for '{agent.name}' using {_modules.Count} modules: " +
-                  string.Join(", ", _modules.ConvertAll(m => m.GetType().Name)));
+        Debug.Log(
+            $"[{nameof(BtBlackboardBuilder)}] Starting context build for '{agent.name}'\nUsing {_modules.Count} modules:\n" +
+            string.Join("\n- ", _modules.ConvertAll(m => m.GetType().Name).Prepend(""))
+        );
 
         foreach (var module in _modules)
         {

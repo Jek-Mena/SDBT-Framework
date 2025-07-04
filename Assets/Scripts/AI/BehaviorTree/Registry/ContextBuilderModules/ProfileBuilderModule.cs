@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class ProfileBuilderModule : IContextBuilderModule
 {
+    private const string ScriptName = nameof(ProfileBuilderModule);
     private readonly JObject _agentConfig;
     
     public void Build(BtContext context)
     {
-        var scriptName = nameof(ProfileBuilderModule);
         var blackboard = context.Blackboard;
         
         // Injects the full config JObject into the blackboard at context build time.
@@ -18,17 +18,17 @@ public class ProfileBuilderModule : IContextBuilderModule
         
         var profiles = runtimeData.Definition.Config[CoreKeys.Profiles] as JObject;
         if (profiles == null)
-            throw new Exception($"[{scriptName}] BtConfig missing!");
+            throw new Exception($"[{ScriptName}] BtConfig missing!");
         
         // -- Parse each profile block --
         Debug.Log("[{scriptName}] Parsing profiles...");
-        blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(profiles, CoreKeys.ProfilesBlock.Switches);
-        blackboard.HealthProfiles = ParseProfileBlock<HealthData>(profiles, CoreKeys.ProfilesBlock.Health);
-        blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(profiles, CoreKeys.ProfilesBlock.Targeting);
-        blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (profiles, CoreKeys.ProfilesBlock.Movement);
-        blackboard.RotationProfiles = ParseProfileBlock<RotationData>(profiles, CoreKeys.ProfilesBlock.Rotation);
-        blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(profiles, CoreKeys.ProfilesBlock.Timing);
-        
+        blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(profiles, AgentConfigProfileBlocks.Switches);
+        blackboard.HealthProfiles = ParseProfileBlock<HealthData>(profiles, AgentConfigProfileBlocks.Health);
+        blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(profiles, AgentConfigProfileBlocks.Targeting);
+        blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (profiles, AgentConfigProfileBlocks.Movement);
+        blackboard.RotationProfiles = ParseProfileBlock<RotationData>(profiles, AgentConfigProfileBlocks.Rotation);
+        blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(profiles, AgentConfigProfileBlocks.Timing);
+        blackboard.FearProfiles = ParseProfileBlock<FearPerceptionData>(profiles, AgentConfigProfileBlocks.FearPerception);
         // Add similar.... 
     }
 
@@ -52,7 +52,10 @@ public class ProfileBuilderModule : IContextBuilderModule
         
         // If still not found, return an empty dictionary
         if (block == null)
+        {
+            Debug.LogWarning($"[{ScriptName}] Profile block '{blockKey}' missing. If this is required for agent function, update your JSON config.");
             return new Dictionary<string, TProfile>();
+        }
 
         var profilesDict = new Dictionary<string, TProfile>();
         foreach (var prop in block.Properties())
@@ -63,7 +66,7 @@ public class ProfileBuilderModule : IContextBuilderModule
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[ParseProfileBlock] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
+                Debug.LogError($"[{ScriptName}] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
             }
         }
         return profilesDict;
@@ -81,7 +84,10 @@ public class ProfileBuilderModule : IContextBuilderModule
         }
 
         if (block == null)
+        {
+            Debug.LogWarning($"[{ScriptName}] Profile block '{blockKey}' missing. If this is required for agent function, update your JSON config.");
             return new Dictionary<string, List<TElement>>();
+        }
 
         var profilesDict = new Dictionary<string, List<TElement>>();
         foreach (var prop in block.Properties())
@@ -93,7 +99,7 @@ public class ProfileBuilderModule : IContextBuilderModule
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[ParseProfileBlockList] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
+                Debug.LogError($"[{ScriptName}] Failed to parse '{blockKey}' profile '{prop.Name}': {ex}");
             }
         }
         return profilesDict;

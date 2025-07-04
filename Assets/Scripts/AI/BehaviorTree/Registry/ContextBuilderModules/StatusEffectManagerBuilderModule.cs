@@ -1,11 +1,11 @@
 ﻿using System;
 using UnityEngine;
 
-public class StatusEffectBuilderModule : IContextBuilderModule
+public class StatusEffectManagerBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
     {
-        var scriptName = nameof(StatusEffectBuilderModule);
+        var scriptName = nameof(StatusEffectManagerBuilderModule);
         var agent = context.Agent;
         var blackboard = context.Blackboard;
             

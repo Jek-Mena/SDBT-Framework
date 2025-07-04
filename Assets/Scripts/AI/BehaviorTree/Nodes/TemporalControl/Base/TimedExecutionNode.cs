@@ -26,9 +26,9 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
         Label = timeData.Label;
     }
 
-    public virtual void Initialize(Blackboard blackboard)
+    public virtual void Initialize(BtContext context)
     {
-        Timer = blackboard.TimeExecutionManager;
+        Timer = context.Blackboard.TimeExecutionManager;
         Debug.Log($"[TimedExecutionNode] Initializing {Label} Duration: {TimeData.Duration}");
     }
 

@@ -22,7 +22,7 @@ public struct FearStimulus
     /// <summary>
     /// Duration (in seconds) for which this stimulus remains active.
     /// </summary>
-    public float Duration;
+    public float EffectDuration;
     /// <summary>
     /// The GameObject that emitted this stimulus (e.g., enemy, player, explosion).
     /// </summary>
@@ -33,7 +33,7 @@ public struct FearStimulus
         Position = position;
         Strength = strength;
         Radius = radius;
-        Duration = duration;
+        EffectDuration = duration;
         Source = source;
     }
 }

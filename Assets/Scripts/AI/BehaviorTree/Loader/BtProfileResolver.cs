@@ -15,8 +15,8 @@ public static class BtProfileResolver
         // Map config key (e.g. "targetProfile") to blackboard dictionary property
         var profileSources = new Dictionary<string, Func<Blackboard, IDictionary<string, object>>>
         {
-            { CoreKeys.ProfilesBlock.Targeting, bb => bb.TargetingProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
-            { CoreKeys.ProfilesBlock.Movement, bb => bb.MovementProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
+            { AgentConfigProfileBlocks.Targeting, bb => bb.TargetingProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
+            { AgentConfigProfileBlocks.Movement, bb => bb.MovementProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
             // Extend here for more profile systems, e.g. movementProfile, attackProfile, etc.
         };
 

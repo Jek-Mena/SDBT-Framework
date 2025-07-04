@@ -24,7 +24,7 @@ public static class ContextModuleRegistrationList
             
             // All systems that depend on profiles must come AFTER profile injection
             new TimerBuilderModule(),
-            new StatusEffectBuilderModule(),
+            new StatusEffectManagerBuilderModule(),
             new UpdatePhaseExecutorBuilderModule(),
             
             //new TargetingContextBuilderModule(),
@@ -32,6 +32,7 @@ public static class ContextModuleRegistrationList
             new MovementBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
             new RotationBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
             
+            new PerceptionBuilderModule(),
             new StatBuilderModule(),
             
             new DebugOverlayBuilderModule()

@@ -26,23 +26,23 @@ public class Blackboard
     public Dictionary<string, TimedExecutionData> TimingProfiles { get; set; }
     public Dictionary<string, HealthData> HealthProfiles { get; set; }
     public Dictionary<string, List<SwitchCondition>> SwitchProfiles { get; set; }
+    public Dictionary<string, FearPerceptionData> FearProfiles { get; set; }
     
     /// [2025-06-18 ARCHITECTURE NOTE]
     /// All profile data access should use DRY helper methods (e.g., GetMovementProfile),
     /// which fail fast on errors. Do not access dictionaries directly from outside.
     public TargetingData GetTargetingProfile(string key)
         => GetProfile(TargetingProfiles, key, nameof(TargetingProfiles));
-    
     public MovementData GetMovementProfile(string key) 
         => GetProfile(MovementProfiles, key, nameof(MovementProfiles));
-    
     public RotationData GetRotationProfile(string key) 
         => GetProfile(RotationProfiles, key, nameof(RotationProfiles));
-    
     public TimedExecutionData GetTimingProfile(string key) 
         => GetProfile(TimingProfiles, key, nameof(TimingProfiles));
     public HealthData GetHealthProfile(string key) 
         => GetProfile(HealthProfiles, key, nameof(HealthProfiles));
+    public FearPerceptionData GetFearPerceptionProfile(string key) 
+        => GetProfile(FearProfiles, key, nameof(FearProfiles));
     
     /// <summary>
     /// [2025-06-18 ARCHITECTURE NOTE]
@@ -74,7 +74,7 @@ public class Blackboard
     /// <summary>Timed execution logic for decorators or cooldown systems</summary>
     public TimeExecutionManager TimeExecutionManager { get; set; }
     
-    // --- Miscellaneous --- // TODO for sorting
+    // --- Miscellaneous --- // TODO for sorting or deletion
     
     /// <summary>Direction vector used for impulse movement</summary>
     [System.Obsolete]

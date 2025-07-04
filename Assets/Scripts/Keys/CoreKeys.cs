@@ -165,27 +165,9 @@ public static class CoreKeys
 
     public const string Profiles = "profiles";
     
-    /// <summary>
-    /// [ARCHITECTURE NOTE -- 2025-06-18]
-    /// Profile block keys are always PLURAL and refer to a DICTIONARY of all available profiles for that type.
-    /// - Used as JSON config block keys, blackboard property names, and dictionary keys.
-    /// - Example: CoreKeys.Profiles.Movement = "movementProfiles"
-    /// - Usage: config["profiles"]["movementProfiles"], blackboard.MovementProfiles, etc.
-    /// - Never use the plural form for single profile selection in node configs or lookups.
-    /// </summary>
-    public static class ProfilesBlock
-    {
-        public const string Switches = "switchProfiles";
-        public const string Health = "healthProfiles";
-        public const string Targeting = "targetingProfiles";
-        public const string Movement = "movementProfiles";
-        public const string Rotation = "rotationProfiles";
-        public const string Timing = "timingProfiles";
-    }
-
     public static class ResolvedProfiles
     {
         public const string Resolved = "resolved";
-        public const string Targeting = Resolved + ProfilesBlock.Targeting;
+        public const string Targeting = Resolved + AgentConfigProfileBlocks.Targeting;
     }
 }

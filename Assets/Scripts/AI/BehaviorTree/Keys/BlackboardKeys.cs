@@ -74,27 +74,10 @@ public static class BlackboardKeys
     {
         public const string StimuliNearby = "StimuliNearby";
         public const string Level = "FearLevel";
-        public const string FearCooldown = "FearCooldown";
-        public const string FearDuration = "FearDuration";
-        public const string FearStrength = "FearStrength";
-        public const string FearRadius = "FearRadius";
+        public const string Cooldown = "FearCooldown";
+        public const string Duration = "FearDuration";
+        public const string Strength = "FearStrength";
+        public const string Radius = "FearRadius";
         public const string Source = "FearSource";
     }
-    
-    /// <summary>
-    /// Dynamic key builders for per-skill, per-ability, or runtime extension fields.
-    /// Ensures all skill-related keys are typo-proof and consistently generated.
-    /// </summary>
-    public static class Skill
-    {
-        public static string Targeting(string skillKey) => $"Skill.Targeting.{skillKey}";
-        public static string Target(string skillKey) => $"Skill.Target.{skillKey}";
-        public static string Cooldown(string skillKey) => $"Skill.Cooldown.{skillKey}";
-        public static string Timing(string skillKey) => $"Skill.Timing.{skillKey}";
-        public static string Activation(string skillKey) => $"Skill.Activation.{skillKey}";
-        public static string Movement(string skillKey) => $"Skill.Movement.{skillKey}";
-        // Add more as needed for your use cases.
-    }    
-    
-    // Optionally add more nested classes for future groupings (e.g., Status, Effects, Buffs, etc.)
 }

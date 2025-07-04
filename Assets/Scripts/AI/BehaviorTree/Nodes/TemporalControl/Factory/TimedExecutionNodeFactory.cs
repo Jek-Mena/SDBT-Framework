@@ -63,7 +63,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
         {
             var node = ctor(child, timeData, domains);
             // Call Initialize if supported (covers TimedExecutionNode and derived types)
-            (node as TimedExecutionNode)?.Initialize(blackboard);
+            (node as TimedExecutionNode)?.Initialize(context);
             return node;
         }
         

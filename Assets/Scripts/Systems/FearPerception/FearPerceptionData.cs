@@ -1,6 +1,6 @@
 ﻿public class FearPerceptionData
 {
-    public float DecetionRange;
+    public float DetectionRange;
     public float DecayDuration;
     public float MaxDuration;
     public float Threshold;
