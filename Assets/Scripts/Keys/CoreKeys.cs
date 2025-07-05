@@ -153,7 +153,6 @@ public static class CoreKeys
     /// }
     /// </summary>
     public const string Root = "root";
-
     
     public const string ExitCondition = "exitCondition";
 
@@ -175,6 +174,5 @@ public static class CoreKeys
     public static class ResolvedProfiles
     {
         public const string Resolved = "resolved";
-        public const string Targeting = Resolved + AgentConfigProfileBlocks.Targeting;
     }
 }

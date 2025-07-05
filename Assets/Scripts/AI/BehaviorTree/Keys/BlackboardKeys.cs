@@ -1,21 +1,27 @@
 ﻿/// <summary>
-/// [2025-06-13] Refactored and extended BlackboardKeys for AI blackboard consistency.
-/// - Centralizes all blackboard key definitions (dynamic and static) for all AI runtime blackboards.
-/// - Enables typo-proof runtime field lookups and standardized logging across the AI context pipeline.
-/// - Groups keys by domain (Skill, Core, etc.) for clarity and future extensibility.
+/// [2025-07-05]
+/// Centralized string keys for all dynamic, runtime blackboard fields used by the AI system.
 /// 
-/// /// === Note on Plural vs. Singular Naming ===
-///   There was initial confusion about the difference between the plural C# field names (e.g., TargetingProfiles)
-///   and the singular JSON selector keys (e.g., "targetingProfile"). This is intentional:
-///   - Plural keys like 'TargetingProfiles' in C# represent dictionaries/collections on the blackboard,
-///     holding all possible configurations of a given type for an entity.
-///   - Singular keys like "targetingProfile" in JSON configs refer to the *selector* key, indicating which
-///     entry in the plural collection should be used for a given BT node or action.
-///   This distinction helps keep the runtime blackboard flexible (able to hold multiple configs)
-///   while making JSON configs simple and readable (you only select the relevant key).
+/// - These are NOT config/profile selectors. These are per-agent, runtime "slots" for working memory/state.
+/// - Every key here is used as a string index for storing or retrieving values on the blackboard (typically a Dictionary&lt;string, object&gt;).
+/// - Grouped by domain/system for clarity. Only keep keys that are actively used in the current pipeline.
+/// 
+/// Example usage:
+/// <code>
+///     Context.Blackboard.Set(BlackboardKeys.Fear.Level, currentFearValue);
+///     var source = Context.Blackboard.Get&lt;FearStimulus&gt;(BlackboardKeys.Fear.Source);
+/// </code>
+/// 
 /// </summary>
+
 public static class BlackboardKeys
 {
+    /// <summary>
+    /// Stores the current agent's EntityRuntimeData (live config block) in the blackboard.
+    /// Used by BT/Node/context systems for runtime config and profile resolution.
+    /// Critical for dynamic config and context resolution at runtime.
+    /// DO NOT REMOVE unless you refactor all BT/context/config resolution paths.
+    /// </summary>
     public const string EntityConfig = "EntityConfig";
         
     /// <summary>

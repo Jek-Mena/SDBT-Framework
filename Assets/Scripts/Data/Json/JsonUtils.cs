@@ -169,18 +169,6 @@ public static class JsonUtils
             }
         }
     }
-
-    /// <summary>
-    /// Retrieves the 'config' block from the JSON object or throws if missing — for strict validation during node construction.
-    /// </summary>
-    [System.Obsolete] // To use Resolve and rename resolve to GetConfig
-    public static JObject GetConfig(JObject jObject, string context)
-    {
-        var config = jObject[CoreKeys.Config] as JObject ?? jObject;
-        if (config == null)
-            throw new Exception($"{context} Missing or invalid 'config' block.");
-        return config;
-    }
     
     /// <summary>
     /// Retrieves a boolean value from the specified JSON object using the provided key. 
@@ -209,110 +197,5 @@ public static class JsonUtils
             throw new Exception($"[JsonUtils] Key '{key}' present but not a valid boolean string in context: {context}");
         }
         throw new Exception($"[JsonUtils] Key '{key}' present but not a boolean or boolean string in context: {context}");
-    }
-
-    /*
-    • Responsibility: Given a root JSON object and a dot-path string, it navigates the object tree and returns the value at that path.
-    • It is a pure helper function.
-    • It should NOT know about the blackboard, plugins, or any of your game’s logic.
-    • It does NOT recurse a whole tree; it just finds a value at a path.
-    • Keep this utility. It’s your core “pointer” mechanic.
-     */
-    /// <summary>Resolves a dot-path (e.g., "timing.moveDuration") within a JObject tree.</summary>
-    public static JToken ResolveDotPath(JObject root, string path, string context)
-    {
-        var parts = path.Split('.');
-        JToken current = root;
-
-        foreach (var part in parts)
-        {
-            if (current is JObject obj && obj.TryGetValue(part, out var next))
-                current = next;
-            else
-                throw new Exception($"[{context}] Cannot resolve path '{path}' — failed at '{part}'");
-        }
-
-        return current;
-    }
-
-    /*
-    • Responsibility: Recursively traverse a JSON tree (such as a behavior tree node config).
-        • Wherever it finds an object of the form { "$ref": "some.path" }, it uses ResolveDotPath on your config to replace that node with the value it points to.
-        • It is a tree transformer.
-    • It is the “ref expander” that makes all your JSON references work.
-    • This is what you call on your config or tree before you hand it off to anything else.
-    • Keep this, but make it always use ResolveDotPath.
-    • Never use “flat key” blackboard lookups anymore.
-     */
-    /// <summary>
-    /// Recursively walks the given JSON node, replacing all objects of the form { "$ref": "some.path" }
-    /// with the resolved value from the BtConfig in the blackboard, using dot-paths.
-    ///
-    /// [ARCHITECTURE NOTE] Only use RawJson for config-to-blackboard mapping in pipeline/build phase.
-    /// All runtime config access should be via blackboard and strongly-typed models.
-    /// </summary>
-    public static void ResolveRefs(JToken node, BtContext context)
-    {
-        var blackboard = context.Blackboard;
-        // Get config root ONCE for performance; throw if missing.
-        var configData = blackboard.Get<EntityRuntimeData>(BlackboardKeys.EntityConfig).Definition.Config;
-        if (configData == null)
-            throw new Exception("[ResolveRefs] BtConfig missing or invalid in blackboard.");
-
-        ResolveRefsRecursive(node, configData);
-    }
-
-    /// <summary>
-    /// Determines whether a JToken contains any unresolved references.
-    /// Considers a reference unresolved if it contains a key matching CoreKeys.Ref
-    /// or has nested tokens that do.
-    /// </summary>
-    /// <param name="token">The JToken to search for unresolved references.</param>
-    /// <returns>True if any unresolved references are found; otherwise, false.</returns>
-    public static bool HasUnresolvedRefs(JToken token)
-    {
-        if (token.Type == JTokenType.Object)
-        {
-            var obj = (JObject)token;
-            if (obj.ContainsKey(CoreKeys.Ref)) return true;
-
-            return obj.Properties().Any(prop => HasUnresolvedRefs(prop.Value));
-        }
-        else if (token.Type == JTokenType.Array)
-        {
-            return token.Children().Any(HasUnresolvedRefs);
-        }
-
-        return false;
-    }
-    
-    // Internal: recursive helper. DO NOT call this directly outside this file.
-    private static void ResolveRefsRecursive(JToken node, JObject configRoot)
-    {
-        if (node.Type == JTokenType.Object)
-        {
-            var obj = (JObject)node;
-            foreach (var prop in obj.Properties().ToList()) // .ToList() because you may mutate the collection
-            {
-                if (prop.Value is JObject child && child.TryGetValue(CoreKeys.Ref, out var refKeyToken))
-                {
-                    var path = refKeyToken.Value<string>();
-                    // Use dot-path resolution, always.
-                    var value = ResolveDotPath(configRoot, path, "ResolveRefs");
-                    // Replace the entire { "$ref": ... } with the resolved value.
-                    obj[prop.Name] = value is JToken jt ? jt : JToken.FromObject(value);
-                }
-                else
-                {
-                    // Continue recursing for all properties
-                    ResolveRefsRecursive(prop.Value, configRoot);
-                }
-            }
-        }
-        else if (node.Type == JTokenType.Array)
-        {
-            foreach (var item in node.Children())
-                ResolveRefsRecursive(item, configRoot);
-        }
     }
 }

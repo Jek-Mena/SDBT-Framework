@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AI.BehaviorTree.Keys;
+using Newtonsoft.Json.Linq;
 
 public class RotationActionBuilder
 {
@@ -12,7 +13,7 @@ public class RotationActionBuilder
     /// <returns>
     /// A JSON object containing the type and configuration fields for the rotation target.
     /// </returns>
-    public JObject RotateToTarget(string rotationKey = AgentConfigProfileBlocks.Rotation) =>
+    public JObject RotateToTarget(string rotationKey = BtNodeProfileSelectorKeys.Rotation) =>
         new JObject()
         {
             [CoreKeys.Type] = BtNodeTypes.Rotation.RotateToTarget,

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AI.BehaviorTree.Keys;
+using Newtonsoft.Json.Linq;
 
 public class PauseSchema : BtNodeSchema
 {
@@ -11,7 +12,7 @@ public class PauseSchema : BtNodeSchema
             JsonType = JTokenType.Float,
             IsRequired = true,
             AllowRef = true,
-            ParamSection = AgentConfigProfileBlocks.Timing
+            ParamSection = BtNodeProfileSelectorKeys.Timing
         });
     }
 }

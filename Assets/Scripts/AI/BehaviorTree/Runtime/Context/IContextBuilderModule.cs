@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿using AI.BehaviorTree.Runtime.Context;
+
+/// <summary>
 /// [ARCHITECTURE UPDATE -- 2025-06-17]
 /// All context builder modules receive the full BtContext,
 /// ensuring access to the Agent, Blackboard, Controller, and all other shared runtime systems.

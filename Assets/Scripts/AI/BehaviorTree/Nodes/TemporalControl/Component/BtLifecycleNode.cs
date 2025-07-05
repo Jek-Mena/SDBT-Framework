@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Runtime.Context;
 
 /// <summary>
 /// A decorator node that wraps any IBehaviorNode and calls OnExit() when it transitions

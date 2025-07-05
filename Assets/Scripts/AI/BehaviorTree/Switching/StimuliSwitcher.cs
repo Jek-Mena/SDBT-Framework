@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Runtime.Context;
+using AI.BehaviorTree.Switching;
 using UnityEngine;
 
 public class StimuliSwitcher : MonoBehaviour, IBehaviorTreeSwitcher
 {
-    [Header("Switch Profile Key")]
-    private string _activeProfileKey = "DefaultSwitch";
-    
     public event Action<string, string, string> OnSwitchRequested;
     private string _lastKey;
 
@@ -20,11 +20,11 @@ public class StimuliSwitcher : MonoBehaviour, IBehaviorTreeSwitcher
     public string EvaluateSwitch(BtContext context, string currentTreeKey)
     {
         if (context.Blackboard.SwitchProfiles == null ||
-            !context.Blackboard.SwitchProfiles.TryGetValue(_activeProfileKey, out var conditions)
+            !context.Blackboard.SwitchProfiles.TryGetValue(AgentProfileSelectorKeys.Switch.DefaultProfile, out var conditions)
             || conditions == null 
             || conditions.Count == 0)
         {
-            Debug.LogError($"[{ScriptName}] No switch profile '{_activeProfileKey}' found on agent {context.Agent.name}!");
+            Debug.LogError($"[{ScriptName}] No switch profile '{AgentProfileSelectorKeys.Switch.DefaultProfile}' found on agent {context.Agent.name}!");
             return null;
         }
         

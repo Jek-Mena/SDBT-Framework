@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AI.BehaviorTree.Keys;
+using Newtonsoft.Json.Linq;
 
 public class TimeoutSchema : BtNodeSchema
 {
@@ -10,7 +11,7 @@ public class TimeoutSchema : BtNodeSchema
             JsonType = JTokenType.String,
             IsRequired = true,
             AllowRef = false,
-            ParamSection = AgentConfigProfileBlocks.Timing
+            ParamSection = BtNodeProfileSelectorKeys.Timing
         });
         AddField(new BtNodeSchemaField
         {
@@ -18,7 +19,7 @@ public class TimeoutSchema : BtNodeSchema
             JsonType = JTokenType.Float,
             IsRequired = true,
             AllowRef = true,
-            ParamSection = AgentConfigProfileBlocks.Timing
+            ParamSection = BtNodeProfileSelectorKeys.Timing
         });
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AI.BehaviorTree.Core.Data;
 
 /// <summary>
 /// [2025-06-26]

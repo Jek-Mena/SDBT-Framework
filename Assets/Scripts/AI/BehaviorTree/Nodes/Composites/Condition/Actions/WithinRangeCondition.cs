@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Runtime.Context;
+using UnityEngine;
 
 // NOTE: This node is not currently in use. 
 // Upgraded for consistency and overlay/debugging.

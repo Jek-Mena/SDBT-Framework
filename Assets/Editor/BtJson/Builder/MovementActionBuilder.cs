@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AI.BehaviorTree.Keys;
+using Newtonsoft.Json.Linq;
 
 public class MovementActionBuilder
 {
@@ -12,7 +13,7 @@ public class MovementActionBuilder
     /// <returns>
     /// A JSON object containing the type and configuration fields for the movement target.
     /// </returns>
-    public JObject MoveToTarget(string movementKey = AgentConfigProfileBlocks.Movement)
+    public JObject MoveToTarget(string movementKey = BtNodeProfileSelectorKeys.Movement)
     {
         return new JObject
         {

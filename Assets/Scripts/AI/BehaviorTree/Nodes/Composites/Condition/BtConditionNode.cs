@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Runtime;
+using AI.BehaviorTree.Runtime.Context;
 
 // NOTE: This base class is NOT currently used in the live tree. 
 // Upgraded for future extensibility and debug overlay support.

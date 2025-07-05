@@ -1,10 +1,13 @@
 ﻿using System;
 
-[Serializable]
-public class SwitchCondition
+namespace AI.BehaviorTree.Switching
 {
-    public string stimulusKey;
-    public string comparisonOperator; // "LessThan", "GreaterThan", "Equal", "NotEqual", etc.
-    public float threshold;
-    public string behaviorTree;
+    [Serializable]
+    public class SwitchCondition
+    {
+        public string stimulusKey;
+        public string comparisonOperator; // "LessThan", "GreaterThan", "Equal", "NotEqual", etc.
+        public float threshold;
+        public string behaviorTree;
+    }
 }

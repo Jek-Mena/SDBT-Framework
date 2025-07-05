@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Runtime.Context;
 using Newtonsoft.Json.Linq;
 
 public static class BtProfileResolver
@@ -15,8 +17,8 @@ public static class BtProfileResolver
         // Map config key (e.g. "targetProfile") to blackboard dictionary property
         var profileSources = new Dictionary<string, Func<Blackboard, IDictionary<string, object>>>
         {
-            { AgentConfigProfileBlocks.Targeting, bb => bb.TargetingProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
-            { AgentConfigProfileBlocks.Movement, bb => bb.MovementProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
+            { BtNodeProfileSelectorKeys.Targeting, bb => bb.TargetingProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
+            { BtNodeProfileSelectorKeys.Movement, bb => bb.MovementProfiles?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value) },
             // Extend here for more profile systems, e.g. movementProfile, attackProfile, etc.
         };
 
@@ -28,10 +30,6 @@ public static class BtProfileResolver
     /// For each profile key, attempts to resolve the profile from the blackboard dictionary and store the resolved profile in the node configuration.
     /// If the resolution fails, an exception is thrown. Also processes child nodes recursively.
     /// </summary>
-    /// <param name="node">The JSON object representing the node configuration to resolve profiles for.</param>
-    /// <param name="blackboard">The blackboard containing runtime data, including profile dictionaries.</param>
-    /// <param name="profileSources">A dictionary mapping profile keys to functions that retrieve the associated profile dictionaries from the blackboard.</param>
-    /// <exception cref="Exception">Thrown when a profile cannot be resolved for a specified key in the JSON node configuration.</exception>
     private static void ResolveProfilesRecursive(JObject node, BtContext context,
         Dictionary<string, Func<Blackboard, IDictionary<string, object>>> profileSources)
     {

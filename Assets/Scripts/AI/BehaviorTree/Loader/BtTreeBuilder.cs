@@ -1,100 +1,109 @@
 ﻿using System;
+using AI.BehaviorTree.Runtime.Context;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public static class BtTreeBuilder
+namespace AI.BehaviorTree.Loader
 {
-    // Use this to handle string or inline object format from any plugin or context
-    public static IBehaviorNode LoadFromToken(JToken treeToken, BtContext context)
+    public static class BtTreeBuilder
     {
-        var scriptName = nameof(BtTreeBuilder);
+        private const string ScriptName = nameof(BtTreeBuilder);
 
-        if (treeToken.Type == JTokenType.String)
+        /// <summary>
+        /// Loads a behavior tree from a JToken.
+        /// - If the token is a string, treats it as a resource tree ID and loads from Unity Resources.
+        /// - If the token is an object, treats it as an inline tree definition and builds it directly.
+        /// Resolves all references and profiles before building the tree.
+        /// Throws if the format is invalid.
+        /// </summary>
+        public static IBehaviorNode LoadTreeFromToken(JToken treeToken, BtContext context)
         {
-            var treeId = treeToken.ToString();
-            return Load(treeId, context);
-        }
-        else if (treeToken.Type == JTokenType.Object)
-        {
+            if (treeToken.Type == JTokenType.String)
+            {
+                var treeId = treeToken.ToString();
+                return LoadTreeFromResources(treeId, context);
+            }
+
+            if (treeToken.Type != JTokenType.Object)
+                throw new Exception(
+                    $"[{ScriptName}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
+        
             var obj = (JObject)treeToken;
             var rootToken = obj[CoreKeys.Root] ?? obj;
             
-            JsonUtils.ResolveRefs(rootToken, context);
-            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            BtTreeBuilderExtension.ResolveRefs(rootToken, context);
+            Debug.Assert(!BtTreeBuilderExtension.HasUnresolvedRefs(rootToken), $"[{ScriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
             
-            BtProfileResolver.ResolveAllProfiles(rootToken as JObject, context);
+            //BtProfileResolver.ResolveAllProfiles(rootToken as JObject, context);
             
             return Build(rootToken, context);
+
         }
-        else
+    
+        private static IBehaviorNode Build(JToken json, BtContext context)
         {
-            throw new Exception($"[{scriptName}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
+            // Recursively build with the correct delegate signature
+            return Build(new TreeNodeData((JObject)json), context, nodeData => Build(nodeData, context));
         }
-    }
     
-    private static IBehaviorNode Build(JToken json, BtContext context)
-    {
-        // Recursively build with the correct delegate signature
-        return Build(new TreeNodeData((JObject)json), context, nodeData => Build(nodeData, context));
-    }
-    
-    // Overload for recursive calls with TreeNodeData
-    private static IBehaviorNode Build(TreeNodeData nodeData, BtContext context)
-    {
-        // Recursion with the correct delegate signature
-        return Build(nodeData, context, childNodeData => Build(childNodeData, context));
-    }
-    
-    private static IBehaviorNode Build(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> recurse)
-    {
-        var alias = nodeData.BtType;
-        if (string.IsNullOrEmpty(alias))
-            throw new Exception($"[BtTreeBuilder] Missing or empty 'type'/'btKey' in node: {nodeData}");
-
-        var factory = BtNodeRegistry.GetFactoryByAlias(alias);
-        var node = factory.CreateNode(nodeData, context, recurse);
-
-        // Wrap with lifecycle if needed
-        if (node is IExitableBehavior)
-            node = new BtLifecycleNode(node);
-
-        return node;
-    }
-    
-    /// <summary>
-    /// Loads a behavior tree from a JSON text asset under Resources/BTrees/{treeId}.json.
-    /// Supports both:
-    /// - Wrapped format: { "name": "treeName", "root": { ... } }
-    /// - Raw node format: { "type": "Bt/Sequence", ... }
-    /// </summary>
-    private static IBehaviorNode Load(string treeId, BtContext context)
-    {
-        var scriptName = nameof(BtTreeBuilder);
-        var path = $"Data/BTs/{treeId}";
-        var textAsset = Resources.Load<TextAsset>(path);
-
-        if (!textAsset)
-            throw new Exception($"[{scriptName}] Could not load BT file at Resources/{path}.json");
-
-        try
+        // Overload for recursive calls with TreeNodeData
+        private static IBehaviorNode Build(TreeNodeData nodeData, BtContext context)
         {
-            var fileJson = JObject.Parse(textAsset.text);
-            var rootToken = fileJson[CoreKeys.Root] ?? fileJson;
+            // Recursion with the correct delegate signature
+            return Build(nodeData, context, childNodeData => Build(childNodeData, context));
+        }
+    
+        private static IBehaviorNode Build(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> recurse)
+        {
+            var alias = nodeData.BtType;
+            if (string.IsNullOrEmpty(alias))
+                throw new Exception($"[{ScriptName}] Missing or empty 'type'/'btKey' in node: {nodeData}");
 
-            JsonUtils.ResolveRefs(rootToken, context);
-            Debug.Assert(!JsonUtils.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            var factory = BtNodeRegistry.GetFactoryByAlias(alias);
+            var node = factory.CreateNode(nodeData, context, recurse);
+
+            // Wrap with lifecycle if needed
+            if (node is IExitableBehavior)
+                node = new BtLifecycleNode(node);
+
+            return node;
+        }
+    
+        /// <summary>
+        /// Loads a behavior tree from Unity Resources using the specified tree ID.
+        /// Expects a JSON file at Resources/Data/BTs/{treeId}.json.
+        /// Resolves all references before building the tree.
+        /// Throws if the file is missing or invalid.
+        /// </summary>
+        private static IBehaviorNode LoadTreeFromResources(string treeId, BtContext context)
+        {
+            var scriptName = nameof(BtTreeBuilder);
+            var path = $"Data/BTs/{treeId}"; // [2025-07-05] TODO need to fix this path(?) Most likely handle the path at LoadTreeFromToken.  
+            var textAsset = Resources.Load<TextAsset>(path);
+
+            if (!textAsset)
+                throw new Exception($"[{scriptName}] Could not load BT file at Resources/{path}.json");
+
+            try
+            {
+                var fileJson = JObject.Parse(textAsset.text);
+                var rootToken = fileJson[CoreKeys.Root] ?? fileJson;
+
+                BtTreeBuilderExtension.ResolveRefs(rootToken, context);
+                Debug.Assert(!BtTreeBuilderExtension.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
             
-            if (rootToken is not JObject rootNode)
-                throw new Exception($"[{scriptName}] Invalid tree structure: '{CoreKeys.Root}' must be an object with a '{CoreKeys.Type}' field.");
+                if (rootToken is not JObject rootNode)
+                    throw new Exception($"[{scriptName}] Invalid tree structure: '{CoreKeys.Root}' must be an object with a '{CoreKeys.Type}' field.");
 
-            if (string.IsNullOrEmpty(rootNode[CoreKeys.Type]?.ToString()))
-                throw new Exception($"[{scriptName}] Missing or empty '{CoreKeys.Type}' in root node.");
+                if (string.IsNullOrEmpty(rootNode[CoreKeys.Type]?.ToString()))
+                    throw new Exception($"[{scriptName}] Missing or empty '{CoreKeys.Type}' in root node.");
             
-            return Build(rootNode, context);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"[{scriptName}] Failed to parse behavior tree '{treeId}': {ex.Message}", ex);
+                return Build(rootNode, context);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"[{scriptName}] Failed to parse behavior tree '{treeId}': {ex.Message}", ex);
+            }
         }
     }
 }

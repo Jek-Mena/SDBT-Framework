@@ -2,6 +2,8 @@
 // Upgraded for debug overlay/traversal consistency.
 
 using System.Collections.Generic;
+using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Runtime.Context;
 
 public class ImpulseMoverNode : IBehaviorNode
 {

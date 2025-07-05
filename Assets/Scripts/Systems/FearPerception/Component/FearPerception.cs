@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 /// <summary>
@@ -12,7 +14,7 @@ public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
     {
         base.Initialize(context);
         
-        Profile = context.Blackboard.GetFearPerceptionProfile(AgentDefaultProfileValues.Fear);
+        Profile = context.Blackboard.GetFearPerceptionProfile(AgentProfileSelectorKeys.Fear.DefaultProfile);
         if (Profile == null)
             Debug.LogError($"[{ScriptName}] No FearPerceptionData profile found for this agent/context!");
     }

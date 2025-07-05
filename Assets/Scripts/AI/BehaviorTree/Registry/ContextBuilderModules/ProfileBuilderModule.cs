@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Runtime.Context;
+using AI.BehaviorTree.Switching;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -25,8 +28,9 @@ public class ProfileBuilderModule : IContextBuilderModule
         if (agentProfiles != null)
         {
             Debug.Log($"[{ScriptName}] Parsing agent-global profiles...");
-            blackboard.HealthProfiles = ParseProfileBlock<HealthData>(agentProfiles, AgentConfigProfileBlocks.Health);
-            blackboard.FearProfiles = ParseProfileBlock<FearPerceptionData>(agentProfiles, AgentConfigProfileBlocks.FearPerception);
+            blackboard.HealthProfiles = ParseProfileBlock<HealthData>(agentProfiles, AgentProfileSelectorKeys.Health.Profiles);
+            blackboard.FearProfiles = ParseProfileBlock<FearPerceptionData>(agentProfiles, AgentProfileSelectorKeys.Fear.Profiles);
+            blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(agentProfiles, AgentProfileSelectorKeys.Switch.Profiles);
             Debug.Log($"[{ScriptName}] Finished parsing agent-global profiles...");
         }
         else
@@ -39,11 +43,10 @@ public class ProfileBuilderModule : IContextBuilderModule
         if (behaviorProfiles != null)
         {
             Debug.Log($"[{ScriptName}] Parsing behavior profiles...");
-            blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(behaviorProfiles, AgentConfigProfileBlocks.Targeting);
-            blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (behaviorProfiles, AgentConfigProfileBlocks.Movement);
-            blackboard.RotationProfiles = ParseProfileBlock<RotationData>(behaviorProfiles, AgentConfigProfileBlocks.Rotation);
-            blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(behaviorProfiles, AgentConfigProfileBlocks.Timing);
-            blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(behaviorProfiles, AgentConfigProfileBlocks.Switches);
+            blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(behaviorProfiles, BtNodeProfileSelectorKeys.Targeting);
+            blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (behaviorProfiles, BtNodeProfileSelectorKeys.Movement);
+            blackboard.RotationProfiles = ParseProfileBlock<RotationData>(behaviorProfiles, BtNodeProfileSelectorKeys.Rotation);
+            blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(behaviorProfiles, BtNodeProfileSelectorKeys.Timing);
             Debug.Log($"[{ScriptName}] Finished parsing behavior profiles...");
         }
         else
@@ -64,7 +67,7 @@ public class ProfileBuilderModule : IContextBuilderModule
         
         if (block == null)
         {
-            Debug.LogError($"[{ScriptName}] Profile block '{blockKey}' missing in {blockKey}.");
+            Debug.LogError($"[{ScriptName}] Profile block '{blockKey}' missing in profile block.");
             return new Dictionary<string, TProfile>();
         }
 
@@ -90,7 +93,7 @@ public class ProfileBuilderModule : IContextBuilderModule
         
         if (block == null)
         {
-            Debug.LogError($"[{ScriptName}] Profile block '{blockKey}' missing in {blockKey}.");
+            Debug.LogError($"[{ScriptName}] Profile block '{blockKey}' missing in profile block.");
             return new Dictionary<string, List<TElement>>();
         }
 

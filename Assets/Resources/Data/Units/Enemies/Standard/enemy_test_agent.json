@@ -18,6 +18,22 @@
         "Threshold": 2.0,
         "CurveType": "Linear"
       }
+    },
+    "SwitchProfiles": {
+      "DefaultSwitch": [
+        {
+          "stimulusKey": "CurrentHealth",
+          "comparisonOperator": "LessThan",
+          "threshold": 20,
+          "behaviorTree": "move_and_wait"
+        },
+        {
+          "stimulusKey": "CurrentHealth",
+          "comparisonOperator": "GreaterThanOrEqual",
+          "threshold": 20,
+          "behaviorTree": "move_and_wait"
+        }
+      ]
     }
   },
   "behaviorProfiles": {
@@ -58,22 +74,6 @@
         "label": "PauseForX",
         "duration": 5.0
       }
-    },
-    "SwitchProfiles": {
-      "DefaultSwitch": [
-        {
-          "stimulusKey": "CurrentHealth",
-          "comparisonOperator": "LessThan",
-          "threshold": 20,
-          "behaviorTree": "move_and_wait"
-        },
-        {
-          "stimulusKey": "CurrentHealth",
-          "comparisonOperator": "GreaterThanOrEqual",
-          "threshold": 20,
-          "behaviorTree": "move_and_wait"
-        }
-      ]
     }
   }
 }

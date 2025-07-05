@@ -25,6 +25,8 @@ public static class BtConfigRegistry
     {
         return BtTemplates.GetValueOrDefault(key);
     }
+
+    public static IEnumerable<string> GetAllKeys() => BtTemplates.Keys;
     
     /// <summary>
     /// Utility for tests/debug: clear the registry (for test teardown, not for game usage).

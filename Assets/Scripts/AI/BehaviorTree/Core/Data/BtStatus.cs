@@ -1,8 +1,11 @@
-public enum BtStatus
+namespace AI.BehaviorTree.Core.Data
 {
-    Success,
-    Failure,
-    Running,
-    Idle,
-    Warning
+    public enum BtStatus
+    {
+        Success,
+        Failure,
+        Running,
+        Idle,
+        Warning
+    }
 }
