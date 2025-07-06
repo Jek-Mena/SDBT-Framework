@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Switching;
@@ -13,24 +14,20 @@ public class ProfileBuilderModule : IContextBuilderModule
     
     public void Build(BtContext context)
     {
-        var blackboard = context.Blackboard;
-        
-        // Injects the full config JObject into the blackboard at context build time.
-        var runtimeData = context.Agent.GetComponent<EntityRuntimeData>();
-        blackboard.Set(BlackboardKeys.EntityConfig, runtimeData);
+        var agentProfiles = context.AgentProfiles;
         
         // Load both profile blocks (agent and behavior)
-        var agentProfiles = runtimeData.Definition.Config[CoreKeys.AgentProfiles] as JObject;
-        var behaviorProfiles = runtimeData.Definition.Config[CoreKeys.BehaviorProfiles] as JObject;
+        var rawAgentProfiles = context.Definition.Config[CoreKeys.AgentProfiles] as JObject;
+        var rawBehaviorProfiles = context.Definition.Config[CoreKeys.BehaviorProfiles] as JObject;
         
         // AGENT-GLOBAL PROFILES
         // Only used for systems like Fear, Health, etc.
-        if (agentProfiles != null)
+        if (rawAgentProfiles != null)
         {
             Debug.Log($"[{ScriptName}] Parsing agent-global profiles...");
-            blackboard.HealthProfiles = ParseProfileBlock<HealthData>(agentProfiles, AgentProfileSelectorKeys.Health.Profiles);
-            blackboard.FearProfiles = ParseProfileBlock<FearPerceptionData>(agentProfiles, AgentProfileSelectorKeys.Fear.Profiles);
-            blackboard.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(agentProfiles, AgentProfileSelectorKeys.Switch.Profiles);
+            agentProfiles.HealthProfiles = ParseProfileBlock<HealthData>(rawAgentProfiles, AgentProfileSelectorKeys.Health.Profiles);
+            agentProfiles.FearProfiles = ParseProfileBlock<FearPerceptionData>(rawAgentProfiles, AgentProfileSelectorKeys.Fear.Profiles);
+            agentProfiles.SwitchProfiles = ParseProfileBlockList<SwitchCondition>(rawAgentProfiles, AgentProfileSelectorKeys.Switch.Profiles);
             Debug.Log($"[{ScriptName}] Finished parsing agent-global profiles...");
         }
         else
@@ -40,13 +37,13 @@ public class ProfileBuilderModule : IContextBuilderModule
         
         // BEHAVIOR PROFILES
         // Only used for BT node config: movement, timing, targeting, etc.
-        if (behaviorProfiles != null)
+        if (rawBehaviorProfiles != null)
         {
             Debug.Log($"[{ScriptName}] Parsing behavior profiles...");
-            blackboard.TargetingProfiles = ParseProfileBlock<TargetingData>(behaviorProfiles, BtNodeProfileSelectorKeys.Targeting);
-            blackboard.MovementProfiles  = ParseProfileBlock<MovementData> (behaviorProfiles, BtNodeProfileSelectorKeys.Movement);
-            blackboard.RotationProfiles = ParseProfileBlock<RotationData>(behaviorProfiles, BtNodeProfileSelectorKeys.Rotation);
-            blackboard.TimingProfiles = ParseProfileBlock<TimedExecutionData>(behaviorProfiles, BtNodeProfileSelectorKeys.Timing);
+            agentProfiles.TargetingProfiles = ParseProfileBlock<TargetingData>(rawBehaviorProfiles, BtNodeProfileSelectorKeys.Targeting);
+            agentProfiles.MovementProfiles  = ParseProfileBlock<MovementData> (rawBehaviorProfiles, BtNodeProfileSelectorKeys.Movement);
+            agentProfiles.RotationProfiles = ParseProfileBlock<RotationData>(rawBehaviorProfiles, BtNodeProfileSelectorKeys.Rotation);
+            agentProfiles.TimingProfiles = ParseProfileBlock<TimedExecutionData>(rawBehaviorProfiles, BtNodeProfileSelectorKeys.Timing);
             Debug.Log($"[{ScriptName}] Finished parsing behavior profiles...");
         }
         else

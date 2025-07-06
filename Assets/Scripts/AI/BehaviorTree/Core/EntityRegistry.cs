@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Core;
 
 //(Singleton-style, but you can swap to DI if needed. Place in a core or systems folder.)
 public static class EntityRegistry

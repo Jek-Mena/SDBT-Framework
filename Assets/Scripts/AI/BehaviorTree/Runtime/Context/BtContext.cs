@@ -1,3 +1,4 @@
+using AI.BehaviorTree.Core;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime.Context
@@ -15,15 +16,27 @@ namespace AI.BehaviorTree.Runtime.Context
     /// </summary>
     public class BtContext
     {
-        public GameObject Agent { get; }
-        public Blackboard Blackboard { get; }
         public BtController Controller { get; }
+        public GameObject Agent { get; }
+        public AgentProfiles AgentProfiles { get; }
+        public EntityDefinition Definition { get; }
+        public EntityRuntimeData RuntimeData { get;}
+        public Blackboard Blackboard { get; }
     
-        public BtContext(BtController controller, Blackboard blackboard, GameObject agent)
+        public BtContext(
+            BtController controller,
+            GameObject agent,
+            AgentProfiles profile, 
+            EntityDefinition definition,
+            EntityRuntimeData runtimeData,
+            Blackboard blackboard)
         {
             Controller = controller;
-            Blackboard = blackboard;
             Agent = agent;
+            AgentProfiles = profile;
+            Definition = definition;
+            RuntimeData = runtimeData;
+            Blackboard = blackboard;
         }
     
         // Facade Properties for leaf node convenience.

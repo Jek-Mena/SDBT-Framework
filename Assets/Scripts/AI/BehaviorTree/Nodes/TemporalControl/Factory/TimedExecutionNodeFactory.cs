@@ -30,7 +30,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
 
     public virtual IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
     {
-        var blackboard = context.Blackboard;
+        var agentProfiles = context.AgentProfiles;
 
         var config = nodeData.Settings;
         if (config == null)
@@ -38,7 +38,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
         
         // Get the timing profile key
         var timingProfileKey = config[BtConfigFields.Profiles.Timing]?.ToString();
-        var timeData = blackboard.GetTimingProfile(timingProfileKey);
+        var timeData = agentProfiles.GetTimingProfile(timingProfileKey);
         
         IBehaviorNode child = null;
         if (_hasChild)

@@ -50,9 +50,9 @@ public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode
             ImpulseDirectionMode.Right => transform.right,
             ImpulseDirectionMode.Up => transform.up,
             ImpulseDirectionMode.Down => -transform.up,
-            ImpulseDirectionMode.ToTarget when _btController.Blackboard.Target != null => (_btController.Blackboard.Target.position - transform.position).normalized,
-            ImpulseDirectionMode.AwayFromTarget when _btController.Blackboard.Target != null => (transform.position - _btController.Blackboard.Target.position).normalized,
-            ImpulseDirectionMode.Custom when _btController.Blackboard.ImpulseDirection != Vector3.zero => _btController.Blackboard.ImpulseDirection.normalized,
+            //ImpulseDirectionMode.ToTarget when _btController.Blackboard.Target != null => (_btController.Blackboard.Target.position - transform.position).normalized,
+            //ImpulseDirectionMode.AwayFromTarget when _btController.Blackboard.Target != null => (transform.position - _btController.Blackboard.Target.position).normalized,
+            //ImpulseDirectionMode.Custom when _btController.Blackboard.ImpulseDirection != Vector3.zero => _btController.Blackboard.ImpulseDirection.normalized,
             _ => null
         };
 

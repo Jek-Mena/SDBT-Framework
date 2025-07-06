@@ -19,8 +19,10 @@ public class StimuliSwitcher : MonoBehaviour, IBehaviorTreeSwitcher
     /// </summary>
     public string EvaluateSwitch(BtContext context, string currentTreeKey)
     {
-        if (context.Blackboard.SwitchProfiles == null ||
-            !context.Blackboard.SwitchProfiles.TryGetValue(AgentProfileSelectorKeys.Switch.DefaultProfile, out var conditions)
+        var agentProfiles = context.AgentProfiles;
+        
+        if (agentProfiles.SwitchProfiles == null ||
+            !agentProfiles.SwitchProfiles.TryGetValue(AgentProfileSelectorKeys.Switch.DefaultProfile, out var conditions)
             || conditions == null 
             || conditions.Count == 0)
         {

@@ -37,8 +37,8 @@ public class MoveToTargetNode : IBehaviorNode
         }
 
         // Resolve data from blackboard profile dictionaries
-        var movementData = context.Blackboard.GetMovementProfile(_movementProfileKey);
-        var targetingData = context.Blackboard.GetTargetingProfile(_targetProfileKey);
+        var movementData = context.AgentProfiles.GetMovementProfile(_movementProfileKey);
+        var targetingData = context.AgentProfiles.GetTargetingProfile(_targetProfileKey);
 
         var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
         if (resolver == null)

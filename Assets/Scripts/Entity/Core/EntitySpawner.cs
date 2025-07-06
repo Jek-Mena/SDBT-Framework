@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AI.BehaviorTree.Core;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class EntitySpawner : MonoBehaviour
@@ -36,7 +37,7 @@ public class EntitySpawner : MonoBehaviour
         runtimeData.Definition = def;
         
         // Build context and assign Behavior Tree
-        var blackboardBuilder = new BtBlackboardBuilder();
+        var blackboardBuilder = new BtContextBuilder();
         ContextModuleRegistrationList.RegisterAll(blackboardBuilder);
         
         // Build context (pure, no wiring up)

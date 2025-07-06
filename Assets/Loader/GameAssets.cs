@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Core;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ public static class GameAssets
     private const string ScriptName = nameof(GameAssets); 
         
     // Main registry: entityId -> EntityDefinition (config + prefab)
-    private static readonly Dictionary<string, EntityDefinition> _entityDefs = new();
+    private static readonly Dictionary<string, EntityDefinition> EntityDefs = new();
 
     /// <summary>
     /// Loads all entity configs and prefabs from Resources folders at boot.
@@ -54,7 +55,7 @@ public static class GameAssets
         }
         
         // --- Build EntityDefinition registry ---
-        _entityDefs.Clear();
+        EntityDefs.Clear();
         foreach (var entityId in configs.Keys)
         {
             // Find prefab by path or by entityId
@@ -83,16 +84,16 @@ public static class GameAssets
                 Prefab = prefab,
                 Config = configs[entityId]
             };
-            _entityDefs[entityId] = def;
+            EntityDefs[entityId] = def;
         }
-        Debug.Log($"[{ScriptName}] Bootstrap complete. Registered {_entityDefs.Count} entities.");
+        Debug.Log($"[{ScriptName}] Bootstrap complete. Registered {EntityDefs.Count} entities.");
         
         //--- Debug ---
-        foreach (var entityId in _entityDefs.Keys)
+        foreach (var entityId in EntityDefs.Keys)
         {
             Debug.Log($"[{ScriptName}] Entity: {entityId}");
-            Debug.Log($"[{ScriptName}] Config: {_entityDefs[entityId].Config}"); 
-            Debug.Log($"[{ScriptName}] Prefab: {_entityDefs[entityId].Prefab}");
+            Debug.Log($"[{ScriptName}] Config: {EntityDefs[entityId].Config}"); 
+            Debug.Log($"[{ScriptName}] Prefab: {EntityDefs[entityId].Prefab}");
         }
     }
     
@@ -101,7 +102,7 @@ public static class GameAssets
     /// </summary>
     public static EntityDefinition GetEntity(string entityId)
     {
-        if (_entityDefs.TryGetValue(entityId, out var def))
+        if (EntityDefs.TryGetValue(entityId, out var def))
             return def;
 
         Debug.LogError($"[{ScriptName}] Entity not found: {entityId}");
@@ -111,5 +112,5 @@ public static class GameAssets
     /// <summary>
     /// Returns all registered entity IDs (useful for editors/debug/AI Director).
     /// </summary>
-    public static IEnumerable<string> AllEntityIds => _entityDefs.Keys;
+    public static IEnumerable<string> AllEntityIds => EntityDefs.Keys;
 }

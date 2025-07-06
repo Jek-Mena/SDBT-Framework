@@ -10,7 +10,7 @@
 /// </summary>
 public static class ContextModuleRegistrationList
 {
-    public static void RegisterAll(BtBlackboardBuilder builder)
+    public static void RegisterAll(BtContextBuilder builder)
     {
         Debug.Log("Registering all context modules...");
         var modules = new IContextBuilderModule[]

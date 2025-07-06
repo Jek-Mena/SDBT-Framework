@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Runtime.Context;
 using Newtonsoft.Json.Linq;
 using Unity.VisualScripting;
@@ -11,14 +12,12 @@ public static class BtTreeBuilderExtension
     
     public static void ResolveRefs(JToken node, BtContext context)
     {
-        var blackboard = context.Blackboard;
         // Get config root ONCE for performance; throw if missing.
-        var configData = blackboard.Get<EntityRuntimeData>(BlackboardKeys.EntityConfig).Definition.Config;
+        var configData = context.Definition.Config;
         if (configData == null)
-            throw new Exception($"[{ScriptName}] Missing Entity/Agent config in blackboard.");
+            throw new Exception($"[{ScriptName}] Missing Entity/Agent config in context!");
 
-        Debug.Log($"[DEBUG] Loading BT tree. Token: {node}, Type: {node.Type}");
-
+        Debug.Log($"[{ScriptName}] Loading BT tree. Token: {node}, Type: {node.Type}");
         ResolveRefsRecursive(node, configData);
     }
     

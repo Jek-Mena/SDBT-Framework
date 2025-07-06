@@ -7,14 +7,13 @@ namespace AI.BehaviorTree.Runtime
 {
     public class BtController : MonoBehaviour
     {
+        public BtContext Context;
+        public IBehaviorNode RootNode { get; private set; }
+        
         private StimuliSwitcher _switcherComponent;
         private IBehaviorTreeSwitcher _switcher;
         private string _activeTreeKey;
-    
-        public BtContext Context;
-        public Blackboard Blackboard;
-        public IBehaviorNode RootNode { get; private set; }
-
+        
         private void Awake()
         {
             _switcherComponent = this.RequireComponent<StimuliSwitcher>();
@@ -77,7 +76,6 @@ namespace AI.BehaviorTree.Runtime
         public void Initialize(BtContext context)
         {
             Context = context;
-            Blackboard = context.Blackboard;
         }
 
         private void SetTree(IBehaviorNode rootNode) => RootNode = rootNode;

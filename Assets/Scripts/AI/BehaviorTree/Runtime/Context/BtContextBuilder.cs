@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Runtime;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
@@ -20,7 +21,7 @@ using UnityEngine;
 ///
 /// - Supports future extensions such as Roslyn-generated modules for dynamic BT behaviors.
 /// </summary>
-public class BtBlackboardBuilder
+public class BtContextBuilder
 {
     /// <summary>
     /// Registry of all service injectors. Each module encapsulates a single domain (e.g., movement, status effects).
@@ -42,38 +43,46 @@ public class BtBlackboardBuilder
     /// </summary>
     public BtContext BuildContext(GameObject agent)
     {
-        // Retrieve and ensure the BtController component exists on the entity.
+        // Retrieve and ensure that the BtController component exists on the entity.
         var controller = agent.RequireComponent<BtController>();
+        // Retrieve and ensure that the EntityRuntimeData and definition (immutable) exist on the entity.
+        // If the EntityRuntimeData does not exist check GameAssets.
+        var runtimeData = agent.RequireComponent<EntityRuntimeData>();
+        var definition = runtimeData.Definition;
         
-        // Check if the blackboard has already been built for this entity.
-        // If so, throw an exception to prevent redundant initialization.
-        if (controller.Blackboard != null)
-            throw new Exception($"[{nameof(BtBlackboardBuilder)}] Blackboard already set for {agent.name}! Double build is a bug.");
-        
+        var profiles = new AgentProfiles();
         var blackboard = new Blackboard();
-        // Create a preliminary context with what you have
-        var context = new BtContext(controller, blackboard, agent);
+        
+        // Create a preliminary context with what we have. Blackboard
+        var context = new BtContext(
+            controller, 
+            agent, 
+            profiles, 
+            definition, 
+            runtimeData, 
+            blackboard);
 
         Debug.Log(
-            $"[{nameof(BtBlackboardBuilder)}] Starting context build for '{agent.name}'\nUsing {_modules.Count} modules:\n" +
+            $"[{nameof(BtContextBuilder)}] Starting context build for '{agent.name}'\nUsing {_modules.Count} modules:\n" +
             string.Join("\n- ", _modules.ConvertAll(m => m.GetType().Name).Prepend(""))
         );
-
+        
         foreach (var module in _modules)
         {
-            Debug.Log($"[{nameof(BtBlackboardBuilder)}] -- Executing {module.GetType().Name}...");
+            Debug.Log($"[{nameof(BtContextBuilder)}] -- Executing {module.GetType().Name}...");
             try
             {
                 module.Build(context);
-                Debug.Log($"[{nameof(BtBlackboardBuilder)}] ---- {module.GetType().Name} completed successfully.");
+                Debug.Log($"[{nameof(BtContextBuilder)}] ---- {module.GetType().Name} completed successfully.");
             }
             catch (Exception ex)
             {
-                throw new Exception($"[{nameof(BtBlackboardBuilder)}] Failed to build context for {agent.name}: {ex.Message}", ex);
+                throw new Exception($"[{nameof(BtContextBuilder)}] Failed to build context for {agent.name}: {ex.Message}", ex);
             }
         }
         
-        Debug.Log($"[{nameof(BtBlackboardBuilder)}] Blackboard built for '{agent.name}'. Dump:\n{blackboard.DumpContents()}");
+        Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +
+                  $"Profile Dump:\n{profiles.DumpContents()}");
             
         return context;
     }

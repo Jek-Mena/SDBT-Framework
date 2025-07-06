@@ -35,8 +35,8 @@ public class RotateToTargetNode : IBehaviorNode
         }
 
         // Resolve data from blackboard profile dictionaries
-        var rotationData = context.Blackboard.GetRotationProfile(_rotationProfileKey);
-        var targetingData = context.Blackboard.GetTargetingProfile(_targetProfileKey);
+        var rotationData = context.AgentProfiles.GetRotationProfile(_rotationProfileKey);
+        var targetingData = context.AgentProfiles.GetTargetingProfile(_targetProfileKey);
 
         var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
         if (resolver == null)

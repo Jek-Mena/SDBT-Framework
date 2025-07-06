@@ -19,26 +19,3 @@ public interface IContextBuilderModule
     /// </summary>
     void Build(BtContext context);
 }
-
-/*
-   ┌──────────────────────────┐
-   │   ProfileContextBuilder  │  ← Owns full Blackboard creation
-   └──────────────────────────┘
-             │
-             │ calls
-             ▼
-   ┌──────────────────────────────┐
-   │  IContextBuilderModule[]     │  ← Injects parts of the blackboard
-   │  e.g., Movement, Targeting   │
-   └──────────────────────────────┘
-             │
-             ▼
-   ┌────────────────────┐
-   │     Blackboard     │  ← Shared runtime context
-   └────────────────────┘
-
-   Legend:
-   - IContextBuilder → Coordinates everything
-   - IContextBuilderModule → Only modifies a slice of the blackboard
-   - Blackboard → Shared runtime memory per entity
-*/

@@ -28,12 +28,12 @@ public class BtValidator
     public BtValidator Targeting(string targetProfileKey)
     {
         // Check profile exists in the blackboard's TargetingProfiles
-        if (_context.Blackboard.TargetingProfiles == null)
+        if (_context.AgentProfiles.TargetingProfiles == null)
         {
             _errors.Add($"[{ScriptName}] TargetingProfiles dictionary missing.");
             return this;
         }
-        if (!_context.Blackboard.TargetingProfiles.TryGetValue(targetProfileKey, out var targetingData))
+        if (!_context.AgentProfiles.TargetingProfiles.TryGetValue(targetProfileKey, out var targetingData))
         {
             _errors.Add($"[{ScriptName}] TargetingProfile '{targetProfileKey}' missing.");
             return this;
