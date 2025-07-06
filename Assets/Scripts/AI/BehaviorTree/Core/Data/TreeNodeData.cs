@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Keys;
 
 /// <summary>
 /// Strongly-typed wrapper for a serialized behavior tree node.
@@ -23,7 +24,7 @@ public class TreeNodeData
     /// The configuration/settings object for this node (e.g. parameters, options).
     /// Returns null if not present.
     /// </summary>
-    public JObject Settings => Raw[BtJsonFields.Config] as JObject;
+    public JObject Settings => Raw[BtJsonFields.ConfigField] as JObject;
 
     /// <summary>
     /// The list of child nodes (composite, decorators).

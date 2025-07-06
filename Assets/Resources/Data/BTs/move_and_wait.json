@@ -7,12 +7,14 @@
         "children": [
           {
             "type": "Bt/Parallel",
-            "config": { "exitCondition": "FirstSuccess" },
+            "config": { 
+              "exitCondition": "FirstSuccess" 
+            },
             "children": [
               {
                 "type": "Bt/Timer",
                 "config": {
-                  "timingId": "DefaultMoveLimit",
+                  "timingId": "MoveLimit",
                   "domains": ["Domain/Movement"]
                 }
               },

@@ -14,7 +14,7 @@ public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
     {
         base.Initialize(context);
         
-        Profile = context.AgentProfiles.GetFearPerceptionProfile(AgentProfileSelectorKeys.Fear.DefaultProfile);
+        Profile = context.AgentProfiles.GetFearPerceptionProfile(EntityJsonFields.AgentProfiles.DefaultFear);
         if (Profile == null)
             Debug.LogError($"[{ScriptName}] No FearPerceptionData profile found for this agent/context!");
     }

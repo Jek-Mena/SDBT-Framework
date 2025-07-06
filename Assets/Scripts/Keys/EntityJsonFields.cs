@@ -56,8 +56,6 @@ public static class EntityJsonFields
         public const string MovementKey = "MovementProfiles";
         public const string RotationKey = "RotationProfiles";
         public const string TimingKey = "TimingProfiles";
-
-        
         
         public static class TargetingProfile
         {
@@ -105,30 +103,5 @@ public static class EntityJsonFields
             public const string ResetOnExit = "resetOnExit";        // Reset timer or state on early exit
             public const string Mode = "mode";                      // Determines how the timer or state should reset upon early exit
         }
-    }
-    
-    [System.Obsolete]
-    public const string Components = "components";
-    [System.Obsolete]
-    public const string Params = "params";
-    public const string ExitCondition = "exitCondition"; // Should be in BtConfigFields
-    public const string Domain = "Domain"; // Should be in BtConfigFields
-}
-
-public static class BtJsonFields  {
-    public const string Root = "root";
-    public const string Type = "type";
-    public const string Child = "child";
-    public const string Children = "children";
-    public const string Config = "config";
-    public const string Ref = "$ref";
-
-    public static class ConfigFields
-    {
-        public const string Domains = "domains";
-        public const string Target = "targetId";
-        public const string Movement = "movementId";
-        public const string Rotation = "rotationId";
-        public const string Timing = "timingId";
     }
 }

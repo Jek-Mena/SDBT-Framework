@@ -1,3 +1,4 @@
+using Keys;
 using Newtonsoft.Json.Linq;
 
 public class MoveToTargetSchema : BtNodeSchema
@@ -9,7 +10,7 @@ public class MoveToTargetSchema : BtNodeSchema
         AddField(new BtNodeSchemaField
         {
             // movement: expects an object (could also be string if your $ref pattern is "movement.profileKey", adjust if needed)
-            Key = BtJsonFields.Config,
+            Key = BtJsonFields.ConfigField,
             JsonType = JTokenType.Object,
             IsRequired = true,
             AllowRef = true,

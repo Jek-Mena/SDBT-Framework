@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Keys;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Editor.BtJson
@@ -23,7 +24,7 @@ namespace Editor.BtJson
             var node = new JObject
             {
                 [BtJsonFields.Type] = nodeType,
-                [BtJsonFields.Config] = config
+                [BtJsonFields.ConfigField] = config
             };
         
             // Add empty children array if node is composite or decorator

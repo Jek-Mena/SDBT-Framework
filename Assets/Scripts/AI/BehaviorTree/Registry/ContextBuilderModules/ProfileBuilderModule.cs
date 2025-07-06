@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using AI.BehaviorTree.Core;
-using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Switching;
 using Newtonsoft.Json.Linq;

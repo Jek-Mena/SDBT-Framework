@@ -3,6 +3,7 @@ using AI.BehaviorTree.Keys;
 using Editor.BtJson;
 using Editor.BtJson.Panel;
 using Editor.BtJson.Utilities;
+using Keys;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -131,6 +132,7 @@ public class BtEditorWindow : EditorWindow
             File.WriteAllText(path, _treeJson.ToString());
     }
     
+    [System.Obsolete("Outdated but might be useful for future.")]
     private void LoadEntityConfig(string path)
     {
         if (string.IsNullOrEmpty(path) || !File.Exists(path))
@@ -139,8 +141,8 @@ public class BtEditorWindow : EditorWindow
         var configText = File.ReadAllText(path);
         var configRoot = JObject.Parse(configText);
         
-        _currentEntityConfigParams = configRoot[EntityJsonFields.Components]?[0]?[EntityJsonFields.Params] as JObject;
-        _refSelectorFieldRenderer.SetParamRoot(_currentEntityConfigParams);
+        //_currentEntityConfigParams = configRoot[EntityJsonFields.Components]?[0]?[EntityJsonFields.Params] as JObject;
+        //_refSelectorFieldRenderer.SetParamRoot(_currentEntityConfigParams);
     }
     
     private JObject CreateNewTreeJson()
@@ -174,7 +176,7 @@ public class BtEditorWindow : EditorWindow
         var newNode = new JObject
         {
             [BtJsonFields.Type] = nodeType,
-            [BtJsonFields.Config] = config
+            [BtJsonFields.ConfigField] = config
         };
         
         // Add empty children array if node is composite or decorator

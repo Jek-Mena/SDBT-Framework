@@ -1,4 +1,5 @@
 ﻿using Editor.BtJson.Utilities;
+using Keys;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -32,7 +33,7 @@ namespace Editor.BtJson.Panel
                 EditorGUILayout.LabelField("Type", selectedNode[BtJsonFields.Type]?.ToString());
 
                 // Config
-                var config = selectedNode[BtJsonFields.Config] as JObject;
+                var config = selectedNode[BtJsonFields.ConfigField] as JObject;
                 if (config == null)
                 {
                     EditorGUILayout.HelpBox("No config found.", MessageType.None);

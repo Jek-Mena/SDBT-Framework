@@ -1,4 +1,5 @@
 using System;
+using Keys;
 
 public class BtParallelNodeFactory : CompositeNodeFactory<BtParallelNode>
 {
@@ -10,7 +11,7 @@ public class BtParallelNodeFactory : CompositeNodeFactory<BtParallelNode>
         var config = nodeData.Settings;
         var exitCondition = ParallelExitCondition.FirstSuccess;
         
-        if (config != null && config.TryGetValue(BtNodeFields.Parallel.ExitCondition, out var exitToken) 
+        if (config != null && config.TryGetValue(BtJsonFields.Config.Nodes.Parallel.ExitCondition, out var exitToken) 
                            && Enum.TryParse(exitToken.ToString(), out ParallelExitCondition parsed))
             exitCondition = parsed;
         

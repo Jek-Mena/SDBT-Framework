@@ -1,5 +1,6 @@
 ﻿using System;
 using AI.BehaviorTree.Runtime.Context;
+using Keys;
 
 public class RotateToTargetNodeFactory : IBtNodeFactory
 {
@@ -8,13 +9,13 @@ public class RotateToTargetNodeFactory : IBtNodeFactory
         var scriptName = nameof(RotateToTargetNodeFactory);
         var config = nodeData.Settings;
         if (config == null)
-            throw new Exception($"[{scriptName}] Missing {BtJsonFields.Config} for RotateToTarget node.");
+            throw new Exception($"[{scriptName}] Missing {BtJsonFields.ConfigField} for RotateToTarget node.");
 
         // Get the rotation profile key
-        var rotationProfileKey = config[BtJsonFields.ConfigFields.Rotation]?.ToString();
+        var rotationProfileKey = config[BtJsonFields.Config.Rotation]?.ToString();
         
         // Get the targeting profile key
-        var targetProfileKey = config[BtJsonFields.ConfigFields.Target]?.ToString();
+        var targetProfileKey = config[BtJsonFields.Config.Target]?.ToString();
         
         return new RotateToTargetNode(rotationProfileKey, targetProfileKey);
     }

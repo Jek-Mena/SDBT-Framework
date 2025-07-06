@@ -1,5 +1,6 @@
 using System;
 using AI.BehaviorTree.Runtime.Context;
+using Keys;
 using Newtonsoft.Json.Linq;
 
 public class BtRepeaterNodeFactory : IBtNodeFactory
@@ -15,7 +16,7 @@ public class BtRepeaterNodeFactory : IBtNodeFactory
         {
             if (settings.ContainsKey(BtJsonFields.Ref))
                 throw new InvalidOperationException($"[{scriptName}] Config contains unresolved {BtJsonFields.Ref}. ResolveRefs failed upstream.");
-            maxRepeats = JsonUtils.GetIntOrDefault(settings, BtNodeFields.Repeater.MaxRepeats, -1, scriptName);
+            maxRepeats = JsonUtils.GetIntOrDefault(settings, BtJsonFields.Config.Nodes.Repeater.MaxRepeats, -1, scriptName);
         }
         
         var childNode = buildChildNode(nodeData.GetSingleChild(scriptName));

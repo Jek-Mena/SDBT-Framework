@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using Keys;
 using Newtonsoft.Json.Linq;
 
 public static class BtJsonValidator
@@ -80,7 +81,7 @@ public static class BtJsonValidator
             result.Warnings.Add($"[{path}] Unknown node type '{typeKey}'.");
         }
 
-        var config = obj[BtJsonFields.Config] as JObject;
+        var config = obj[BtJsonFields.ConfigField] as JObject;
         if (config is JObject cfg && cfg.TryGetValue(BtJsonFields.Ref, out var cfgRef))
         {
             var cfgRefPath = cfgRef.ToString();

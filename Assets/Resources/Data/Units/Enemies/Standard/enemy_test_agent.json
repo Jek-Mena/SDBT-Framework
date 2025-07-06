@@ -66,7 +66,7 @@
       }
     },
     "TimingProfiles": {
-      "DefaultMoveLimit": {
+      "MoveLimit": {
         "label": "MoveLimit",
         "duration": 5.0
       },
