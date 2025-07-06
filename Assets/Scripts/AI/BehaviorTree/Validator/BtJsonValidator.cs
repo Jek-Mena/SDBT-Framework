@@ -34,17 +34,17 @@ public static class BtJsonValidator
         // Capture top-lefel $refs
         foreach (var prop in root.Properties())
         {
-            if(prop.Name != CoreKeys.Root)
+            if(prop.Name != BtJsonFields.Root)
                 knownRefs.Add(Hash + prop.Name);
         }
 
-        if(!root.TryGetValue(CoreKeys.Root, out var rootNode))
+        if(!root.TryGetValue(BtJsonFields.Root, out var rootNode))
         {
-            result.Errors.Add($"Missing {CoreKeys.Root} node in JSON.");
+            result.Errors.Add($"Missing {BtJsonFields.Root} node in JSON.");
             return result;
         }
 
-        ValidateNode(rootNode, CoreKeys.Root, knownRefs, root, result);
+        ValidateNode(rootNode, BtJsonFields.Root, knownRefs, root, result);
         return result;
     }
 
@@ -57,7 +57,7 @@ public static class BtJsonValidator
         }
 
         // Handle $ref
-        if (obj.TryGetValue(CoreKeys.Ref, out var refToken))
+        if (obj.TryGetValue(BtJsonFields.Ref, out var refToken))
         {
             var refPath = refToken.ToString();
             if (!refPath.StartsWith(Hash))
@@ -68,7 +68,7 @@ public static class BtJsonValidator
         }
 
         // Validate node type
-        if (!obj.TryGetValue(CoreKeys.Type, out var typeToken))
+        if (!obj.TryGetValue(BtJsonFields.Type, out var typeToken))
         {
             result.Errors.Add($"[{path}] Missing required field: either 'type' or 'btKey' must be present.");
             return;
@@ -80,8 +80,8 @@ public static class BtJsonValidator
             result.Warnings.Add($"[{path}] Unknown node type '{typeKey}'.");
         }
 
-        var config = obj[CoreKeys.Config] as JObject;
-        if (config is JObject cfg && cfg.TryGetValue(CoreKeys.Ref, out var cfgRef))
+        var config = obj[BtJsonFields.Config] as JObject;
+        if (config is JObject cfg && cfg.TryGetValue(BtJsonFields.Ref, out var cfgRef))
         {
             var cfgRefPath = cfgRef.ToString();
             if (!cfgRefPath.StartsWith(Hash))
@@ -91,17 +91,17 @@ public static class BtJsonValidator
         }
         
         // Basic shape rules (optional)
-        if (obj.TryGetValue(CoreKeys.Children, out var childrenToken) && childrenToken is JArray childrenArray)
+        if (obj.TryGetValue(BtJsonFields.Children, out var childrenToken) && childrenToken is JArray childrenArray)
         {
             for (int i = 0; i < childrenArray.Count; i++)
             {
-                ValidateNode(childrenArray[i], $"{path}.{CoreKeys.Children}[{i}]", knownRefs, root, result);
+                ValidateNode(childrenArray[i], $"{path}.{BtJsonFields.Children}[{i}]", knownRefs, root, result);
             }
         }
 
-        if (obj.TryGetValue(CoreKeys.Child, out var childToken))
+        if (obj.TryGetValue(BtJsonFields.Child, out var childToken))
         {
-            ValidateNode(childToken, $"{path}.{CoreKeys.Child}", knownRefs, root, result);
+            ValidateNode(childToken, $"{path}.{BtJsonFields.Child}", knownRefs, root, result);
         }
 
         if (BtNodeSchemaRegistry.TryGet(typeKey, out var schema))

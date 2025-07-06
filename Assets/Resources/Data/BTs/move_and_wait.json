@@ -12,15 +12,15 @@
               {
                 "type": "Bt/Timer",
                 "config": {
-                  "timingProfile": "MoveLimit",
+                  "timingId": "DefaultMoveLimit",
                   "domains": ["Domain/Movement"]
                 }
               },
               {
                 "type": "Bt/MoveToTarget",
                 "config": { 
-                  "targetProfile": "ChaseTarget",
-                  "movementProfile": "ChaserMovement"
+                  "targetId": "DefaultChaseTarget",
+                  "movementId": "DefaultChaserMovement"
                 }
               }
             ]
@@ -28,7 +28,7 @@
           {
             "type": "Bt/Pause",
             "config": {
-              "timingProfile": "Pause",
+              "timingId": "Pause",
               "domains": ["Domain/Movement"]
             }
           }

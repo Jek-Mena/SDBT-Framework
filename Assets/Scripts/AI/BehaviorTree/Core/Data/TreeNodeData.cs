@@ -17,19 +17,19 @@ public class TreeNodeData
     /// <summary>
     /// The node's type or alias key (e.g. "Bt/MoveTo", "Bt/Selector").
     /// </summary>
-    public string BtType => Raw[CoreKeys.Type]?.ToString();
+    public string BtType => Raw[BtJsonFields.Type]?.ToString();
 
     /// <summary>
     /// The configuration/settings object for this node (e.g. parameters, options).
     /// Returns null if not present.
     /// </summary>
-    public JObject Settings => Raw[CoreKeys.Config] as JObject;
+    public JObject Settings => Raw[BtJsonFields.Config] as JObject;
 
     /// <summary>
     /// The list of child nodes (composite, decorators).
     /// Returns null if not present.
     /// </summary>
-    public JArray Children => Raw[CoreKeys.Children] as JArray;
+    public JArray Children => Raw[BtJsonFields.Children] as JArray;
 
     /// <summary>
     /// Constructor.
@@ -49,7 +49,7 @@ public class TreeNodeData
     public TreeNodeData GetSingleChild(string context)
     {
         // Priority: explicit "child" key
-        var single = Raw[CoreKeys.Child] as JObject;
+        var single = Raw[BtJsonFields.Child] as JObject;
         if (single != null)
             return new TreeNodeData(single);
 

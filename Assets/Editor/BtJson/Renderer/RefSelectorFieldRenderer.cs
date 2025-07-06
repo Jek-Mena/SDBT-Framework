@@ -32,8 +32,8 @@ public class RefSelectorFieldRenderer : IJsonFieldRenderer
         var currentRef = "";
 
         // Extract current $ref value if any
-        if (currentValue != null && currentValue.Type == JTokenType.Object && currentValue[CoreKeys.Ref] != null)
-            currentRef = currentValue[CoreKeys.Ref].ToString();
+        if (currentValue != null && currentValue.Type == JTokenType.Object && currentValue[BtJsonFields.Ref] != null)
+            currentRef = currentValue[BtJsonFields.Ref].ToString();
 
         var isBlockMode = schemaField.RefType == RefSelectorType.Block;
         var blockRefPresent = !string.IsNullOrEmpty(currentRef);
@@ -54,18 +54,18 @@ public class RefSelectorFieldRenderer : IJsonFieldRenderer
             
             var currentIndex = !string.IsNullOrEmpty(currentRef) ? options.IndexOf(currentRef) : 0;
             var newIndex = EditorGUILayout.Popup(
-                ObjectNames.NicifyVariableName(key) + $" {CoreKeys.Ref}",
+                ObjectNames.NicifyVariableName(key) + $" {BtJsonFields.Ref}",
                 Mathf.Max(0, currentIndex),
                 options.ToArray()
             );
             
             var manualValue = options[newIndex];
-            manualValue = EditorGUILayout.TextField($"Manual {CoreKeys.Ref}", manualValue);
+            manualValue = EditorGUILayout.TextField($"Manual {BtJsonFields.Ref}", manualValue);
 
             if (!string.IsNullOrEmpty(manualValue) && manualValue != "(no options)")
             {
                 // When using block ref, you should **disable per-field** in the parent editor (BtEditorWindow)
-                return new JObject { [CoreKeys.Ref] = manualValue };
+                return new JObject { [BtJsonFields.Ref] = manualValue };
             }
             
             return currentValue;
@@ -91,18 +91,18 @@ public class RefSelectorFieldRenderer : IJsonFieldRenderer
         
         var fieldCurrentIndex = !string.IsNullOrEmpty(currentRef) ? options.IndexOf(currentRef) : 0;
         var fieldNewIndex = EditorGUILayout.Popup(
-            ObjectNames.NicifyVariableName(key) + $" {CoreKeys.Ref}",
+            ObjectNames.NicifyVariableName(key) + $" {BtJsonFields.Ref}",
             Mathf.Max(0, fieldCurrentIndex),
             options.ToArray()
         );
         
         var fieldManualValue = options[fieldNewIndex];
-        fieldManualValue = EditorGUILayout.TextField($"Manual {CoreKeys.Ref}", fieldManualValue);
+        fieldManualValue = EditorGUILayout.TextField($"Manual {BtJsonFields.Ref}", fieldManualValue);
 
         if (!string.IsNullOrEmpty(fieldManualValue) && fieldManualValue != "(no options)")
         {
             // When setting a field-level ref, you should **remove any block-level $ref** in the parent editor (BtEditorWindow)
-            return new JObject { [CoreKeys.Ref] = fieldManualValue };
+            return new JObject { [BtJsonFields.Ref] = fieldManualValue };
         }
 
         return currentValue;

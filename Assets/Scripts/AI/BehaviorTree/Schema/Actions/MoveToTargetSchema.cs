@@ -9,7 +9,7 @@ public class MoveToTargetSchema : BtNodeSchema
         AddField(new BtNodeSchemaField
         {
             // movement: expects an object (could also be string if your $ref pattern is "movement.profileKey", adjust if needed)
-            Key = CoreKeys.Config,
+            Key = BtJsonFields.Config,
             JsonType = JTokenType.Object,
             IsRequired = true,
             AllowRef = true,

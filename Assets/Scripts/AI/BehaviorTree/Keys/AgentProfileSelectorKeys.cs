@@ -12,18 +12,12 @@
     /// </summary>
     public static class AgentProfileSelectorKeys
     {
+        // TODO, DefaultProfile is for audit!
         public static class Fear
         {
             public const string Profiles = "FearProfiles";                  // BLOCK (dictionary of all fear profiles)    
             public const string CurrentProfile = "agentCurrentFearProfile"; // SELECTOR (which fear profile is active for this agent)
             public const string DefaultProfile = "DefaultFear";             // DEFAULT VALUE
-        }
-
-        public static class Health
-        {
-            public const string Profiles = "HealthProfiles";
-            public const string CurrentProfile = "agentCurrentHealthProfile";
-            public const string DefaultProfile = "DefaultHealth";
         }
 
         public static class Switch

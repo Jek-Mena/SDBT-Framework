@@ -2,6 +2,8 @@
 // Purpose: RegisterSchema all node schemas into the validator registry
 // Triggered via RuntimeInitializeOnLoadMethod or Editor static context
 
+using AI.BehaviorTree.Keys;
+
 public static class BtNodeSchemaRegistrationList
 {
     private static bool _hasInitialized;
@@ -14,10 +16,6 @@ public static class BtNodeSchemaRegistrationList
         {
             // Actions / Leaves
             MakeEntry<MoveToTargetSchema>(BtNodeTypes.Movement.MoveToTarget),
-            MakeEntry<PauseSchema>(BtNodeTypes.TimedExecution.Pause),
-            
-            // Temporal Condition
-            MakeEntry<TimeoutSchema>(BtNodeTypes.Decorators.Timeout),
             
             // Decorators
             MakeEntry<RepeaterSchema>(BtNodeTypes.Decorators.Repeater),

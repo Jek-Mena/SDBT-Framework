@@ -28,6 +28,6 @@ public class HealthBuilderModule : IContextBuilderModule
         }
         
         // Set current health into blackboard (for BT logic)
-        blackboard.Set(BlackboardKeys.Core.Common.CurrentHealth, healthComponent.CurrentHealth);
+        blackboard.Set(BlackboardKeys.Health.CurrentHealth, healthComponent.CurrentHealth);
     }
 }

@@ -26,7 +26,7 @@ namespace Editor.BtJson.Panel
             EditorGUILayout.BeginScrollView(Vector2.zero);
             try
             {
-                var root = _tree[CoreKeys.Root] as JObject;
+                var root = _tree[BtJsonFields.Root] as JObject;
                 if (root != null)
                     DrawNodeTree(root, 0, null, -1);
             }
@@ -46,7 +46,7 @@ namespace Editor.BtJson.Panel
             {
                 GUILayout.Space(indent * 20f);
         
-                var nodeType = node[CoreKeys.Type]?.ToString() ?? "(unknown)";
+                var nodeType = node[BtJsonFields.Type]?.ToString() ?? "(unknown)";
                 var isSelected = node == _selectedNode;
                 var label = isSelected ? $"▶ {nodeType}" : nodeType;
             
@@ -74,7 +74,7 @@ namespace Editor.BtJson.Panel
             }
         
             // Draw Children (if any)
-            var children = node[CoreKeys.Children] as JArray;
+            var children = node[BtJsonFields.Children] as JArray;
             if (children != null)
             {
                 for (var i = 0; i < children.Count; i++)

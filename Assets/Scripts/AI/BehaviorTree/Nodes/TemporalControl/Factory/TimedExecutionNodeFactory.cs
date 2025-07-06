@@ -37,7 +37,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
             throw new Exception($"[{_alias}] Missing 'config' for {typeof(TNode)} node.");
         
         // Get the timing profile key
-        var timingProfileKey = config[BtConfigFields.Profiles.Timing]?.ToString();
+        var timingProfileKey = config[BtJsonFields.ConfigFields.Timing]?.ToString();
         var timeData = agentProfiles.GetTimingProfile(timingProfileKey);
         
         IBehaviorNode child = null;
@@ -53,7 +53,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
         }
         
         string[] domains = null;
-        if (_acceptsDomains && config.TryGetValue(CoreKeys.Domain, out var domainsToken))
+        if (_acceptsDomains && config.TryGetValue(EntityJsonFields.Domain, out var domainsToken))
         {
             if (domainsToken.Type == JTokenType.Array)
                 domains = domainsToken.ToObject<string[]>();

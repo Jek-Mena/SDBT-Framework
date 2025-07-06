@@ -13,8 +13,8 @@ public class BtRepeaterNodeFactory : IBtNodeFactory
         // Optional safety net
         if (settings != null)
         {
-            if (settings.ContainsKey(CoreKeys.Ref))
-                throw new InvalidOperationException($"[{scriptName}] Config contains unresolved {CoreKeys.Ref}. ResolveRefs failed upstream.");
+            if (settings.ContainsKey(BtJsonFields.Ref))
+                throw new InvalidOperationException($"[{scriptName}] Config contains unresolved {BtJsonFields.Ref}. ResolveRefs failed upstream.");
             maxRepeats = JsonUtils.GetIntOrDefault(settings, BtNodeFields.Repeater.MaxRepeats, -1, scriptName);
         }
         

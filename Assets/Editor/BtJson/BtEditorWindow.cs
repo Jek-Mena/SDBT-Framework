@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using AI.BehaviorTree.Keys;
 using Editor.BtJson;
 using Editor.BtJson.Panel;
 using Editor.BtJson.Utilities;
@@ -138,7 +139,7 @@ public class BtEditorWindow : EditorWindow
         var configText = File.ReadAllText(path);
         var configRoot = JObject.Parse(configText);
         
-        _currentEntityConfigParams = configRoot[CoreKeys.Components]?[0]?[CoreKeys.Params] as JObject;
+        _currentEntityConfigParams = configRoot[EntityJsonFields.Components]?[0]?[EntityJsonFields.Params] as JObject;
         _refSelectorFieldRenderer.SetParamRoot(_currentEntityConfigParams);
     }
     
@@ -172,13 +173,13 @@ public class BtEditorWindow : EditorWindow
 
         var newNode = new JObject
         {
-            [CoreKeys.Type] = nodeType,
-            [CoreKeys.Config] = config
+            [BtJsonFields.Type] = nodeType,
+            [BtJsonFields.Config] = config
         };
         
         // Add empty children array if node is composite or decorator
         if (schemaObj.SupportsChildren)
-            newNode[CoreKeys.Children] = new JArray();
+            newNode[BtJsonFields.Children] = new JArray();
 
         return newNode;
     }

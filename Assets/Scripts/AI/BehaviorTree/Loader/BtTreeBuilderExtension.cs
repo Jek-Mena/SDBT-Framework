@@ -29,7 +29,7 @@ public static class BtTreeBuilderExtension
             case JTokenType.Object:
                 foreach (var prop in ((JObject)node).Properties().ToList())
                 {
-                    if (prop.Value is JObject child && child.TryGetValue(CoreKeys.Ref, out var refToken))
+                    if (prop.Value is JObject child && child.TryGetValue(BtJsonFields.Ref, out var refToken))
                         ((JObject)node)[prop.Name] = ResolveDotPath(configRoot, refToken.Value<string>(), "ResolveRefs");
                     else
                         ResolveRefsRecursive(prop.Value, configRoot);
@@ -75,7 +75,7 @@ public static class BtTreeBuilderExtension
     {
         return token.Type switch
         {
-            JTokenType.Object => ((JObject)token).ContainsKey(CoreKeys.Ref) ||
+            JTokenType.Object => ((JObject)token).ContainsKey(BtJsonFields.Ref) ||
                                  ((JObject)token).Properties().Any(p => HasUnresolvedRefs(p.Value)),
             JTokenType.Array => token.Children().Any(HasUnresolvedRefs),
             _ => false

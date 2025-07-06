@@ -29,17 +29,17 @@ namespace Editor.BtJson.Panel
                 }
 
                 // Type
-                EditorGUILayout.LabelField("Type", selectedNode[CoreKeys.Type]?.ToString());
+                EditorGUILayout.LabelField("Type", selectedNode[BtJsonFields.Type]?.ToString());
 
                 // Config
-                var config = selectedNode[CoreKeys.Config] as JObject;
+                var config = selectedNode[BtJsonFields.Config] as JObject;
                 if (config == null)
                 {
                     EditorGUILayout.HelpBox("No config found.", MessageType.None);
                     return;
                 }
                 
-                if (!BtNodeSchemaRegistry.TryGet(selectedNode[CoreKeys.Type]?.ToString(), out var schema))
+                if (!BtNodeSchemaRegistry.TryGet(selectedNode[BtJsonFields.Type]?.ToString(), out var schema))
                 {
                     EditorGUILayout.HelpBox("Schema not found for node type.", MessageType.Warning);
                     return;

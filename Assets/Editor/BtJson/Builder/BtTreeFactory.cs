@@ -10,8 +10,6 @@ namespace Editor.BtJson.Builder
         {
             return preset switch
             {
-                "BasicChase" => BtTreeSamples.BasicChase(),
-                "MoveAndWait" => BtTreeSamples.MoveAndWait(),
                 _ => throw new System.Exception($"Unknown preset: {preset}")
             };
         }

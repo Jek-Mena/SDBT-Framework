@@ -35,7 +35,7 @@ public static class GameAssets
             try
             {
                 var jObj = JObject.Parse(textAsset.text);
-                var entityId = jObj[CoreKeys.EntityId]?.ToString();
+                var entityId = jObj[EntityJsonFields.EntityId]?.ToString();
                 if (!string.IsNullOrWhiteSpace(entityId))
                     configs[entityId] = jObj;
             }
@@ -59,7 +59,7 @@ public static class GameAssets
         foreach (var entityId in configs.Keys)
         {
             // Find prefab by path or by entityId
-            var prefabPath = configs[entityId][CoreKeys.Prefab]?.ToString();
+            var prefabPath = configs[entityId][EntityJsonFields.Prefab]?.ToString();
             GameObject prefab = null;
 
             if (!string.IsNullOrEmpty(prefabPath))

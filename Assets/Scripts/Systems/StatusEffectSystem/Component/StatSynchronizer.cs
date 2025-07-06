@@ -27,9 +27,9 @@ public class StatSynchronizer : MonoBehaviour
 
         // -- Sync each multipliers to the blackboard
         Debug.Log("Syncing multipliers to blackboard...");
-        _context.Blackboard.Set(BlackboardKeys.Core.Multipliers.Movement, modifiers.Movement);
-        _context.Blackboard.Set(BlackboardKeys.Core.Multipliers.Attack, modifiers.Attack);
-        _context.Blackboard.Set(BlackboardKeys.Core.Multipliers.Armor, modifiers.Armor);
+        _context.Blackboard.Set(BlackboardKeys.Multipliers.Movement, modifiers.Movement);
+        _context.Blackboard.Set(BlackboardKeys.Multipliers.Attack, modifiers.Attack);
+        _context.Blackboard.Set(BlackboardKeys.Multipliers.Armor, modifiers.Armor);
         // etc.
     }
 

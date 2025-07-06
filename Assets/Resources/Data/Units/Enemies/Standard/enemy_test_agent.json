@@ -38,7 +38,7 @@
   },
   "behaviorProfiles": {
     "MovementProfiles": {
-      "ChaserMovement": {
+      "DefaultChaserMovement": {
         "speed": 3.0,
         "acceleration": 3.0,
         "stoppingDistance": 0.5,
@@ -47,7 +47,7 @@
       }
     },
     "TargetingProfiles": {
-      "ChaseTarget": {
+      "DefaultChaseTarget": {
         "targetTag": "Player",
         "style": "Closest",
         "blackboardKey": "ChaseTarget",
@@ -59,14 +59,14 @@
       }
     },
     "RotationProfiles": {
-      "FaceTarget": {
+      "DefaultFaceTarget": {
         "speed": 120.0,
         "angleThreshold": 3.0,
         "updateThreshold": 0.05
       }
     },
     "TimingProfiles": {
-      "MoveLimit": {
+      "DefaultMoveLimit": {
         "label": "MoveLimit",
         "duration": 5.0
       },

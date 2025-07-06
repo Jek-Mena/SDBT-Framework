@@ -29,7 +29,7 @@ public abstract class BtNodeSchema: IBtNodeSchema
                 continue;
             }
 
-            if (token.Type == JTokenType.Object && token[CoreKeys.Ref] != null)
+            if (token.Type == JTokenType.Object && token[BtJsonFields.Ref] != null)
             {
                 if(!field.AllowRef)
                     result.Errors.Add($"[{path}].config Field '{field.Key}' does not support referencing other nodes.");

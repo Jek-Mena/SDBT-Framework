@@ -22,13 +22,13 @@ namespace Editor.BtJson
         
             var node = new JObject
             {
-                [CoreKeys.Type] = nodeType,
-                [CoreKeys.Config] = config
+                [BtJsonFields.Type] = nodeType,
+                [BtJsonFields.Config] = config
             };
         
             // Add empty children array if node is composite or decorator
             if (schemaObj.SupportsChildren)
-                node[CoreKeys.Children] = new JArray();
+                node[BtJsonFields.Children] = new JArray();
 
             return node;
         }

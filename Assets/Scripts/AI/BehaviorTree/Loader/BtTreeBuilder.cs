@@ -29,10 +29,10 @@ namespace AI.BehaviorTree.Loader
                     $"[{ScriptName}] Invalid tree structure:  must be string (tree ID) or object (inline BT).");
         
             var obj = (JObject)treeToken;
-            var rootToken = obj[CoreKeys.Root] ?? obj;
+            var rootToken = obj[BtJsonFields.Root] ?? obj;
             
             BtTreeBuilderExtension.ResolveRefs(rootToken, context);
-            Debug.Assert(!BtTreeBuilderExtension.HasUnresolvedRefs(rootToken), $"[{ScriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
+            Debug.Assert(!BtTreeBuilderExtension.HasUnresolvedRefs(rootToken), $"[{ScriptName}] Unresolved {BtJsonFields.Ref} found post-resolution.");
             
             //BtProfileResolver.ResolveAllProfiles(rootToken as JObject, context);
             
@@ -87,16 +87,16 @@ namespace AI.BehaviorTree.Loader
             try
             {
                 var fileJson = JObject.Parse(textAsset.text);
-                var rootToken = fileJson[CoreKeys.Root] ?? fileJson;
+                var rootToken = fileJson[BtJsonFields.Root] ?? fileJson;
 
                 BtTreeBuilderExtension.ResolveRefs(rootToken, context);
-                Debug.Assert(!BtTreeBuilderExtension.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {CoreKeys.Ref} found post-resolution.");
+                Debug.Assert(!BtTreeBuilderExtension.HasUnresolvedRefs(rootToken), $"[{scriptName}] Unresolved {BtJsonFields.Ref} found post-resolution.");
             
                 if (rootToken is not JObject rootNode)
-                    throw new Exception($"[{scriptName}] Invalid tree structure: '{CoreKeys.Root}' must be an object with a '{CoreKeys.Type}' field.");
+                    throw new Exception($"[{scriptName}] Invalid tree structure: '{BtJsonFields.Root}' must be an object with a '{BtJsonFields.Type}' field.");
 
-                if (string.IsNullOrEmpty(rootNode[CoreKeys.Type]?.ToString()))
-                    throw new Exception($"[{scriptName}] Missing or empty '{CoreKeys.Type}' in root node.");
+                if (string.IsNullOrEmpty(rootNode[BtJsonFields.Type]?.ToString()))
+                    throw new Exception($"[{scriptName}] Missing or empty '{BtJsonFields.Type}' in root node.");
             
                 return Build(rootNode, context);
             }
