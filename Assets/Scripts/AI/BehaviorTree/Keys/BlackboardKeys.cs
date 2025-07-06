@@ -5,15 +5,21 @@
 /// - These are NOT config/profile selectors. These are per-agent, runtime "slots" for working memory/state.
 /// - Every key here is used as a string index for storing or retrieving values on the blackboard (typically a Dictionary&lt;string, object&gt;).
 /// - Grouped by domain/system for clarity. Only keep keys that are actively used in the current pipeline.
+/// - ONLY defined here if actually read/written by Blackboard.Set/Get in your pipeline.
 /// 
-/// Example usage:
+/// Correct usage:
 /// <code>
+///     // Store/update a value on the blackboard at runtime
 ///     Context.Blackboard.Set(BlackboardKeys.Fear.Level, currentFearValue);
+///
+///     // Retrieve a value from the blackboard at runtime
 ///     var source = Context.Blackboard.Get&lt;FearStimulus&gt;(BlackboardKeys.Fear.Source);
 /// </code>
-/// 
+///
+/// DO NOT use BlackboardKeys for:
+/// - Config/profile block or selector names (use AgentProfileSelectorKeys or NodeProfileSelectorKeys instead)
+/// - Static, editor-only, or design-time data
 /// </summary>
-
 public static class BlackboardKeys
 {
     /// <summary>
@@ -31,6 +37,21 @@ public static class BlackboardKeys
     /// </summary>
     public static class Core
     {
+        // Subsystems or managers commonly stored on blackboard
+        public static class Actions 
+        {
+            public const string MovementLogic = "MovementLogic";
+            public const string ImpulseLogic = "ImpulseLogic";
+            public const string RotationLogic = "RotationLogic";
+        }
+        
+        public static class Managers
+        {
+            public const string StatusEffectManager = "StatusEffectManager";
+            public const string TimeExecutionManager = "TimeExecutionManager";
+            public const string UpdatePhaseExecutor = "UpdatePhaseExecutor";
+        }
+        
         public static class Common
         {
             public const string CurrentHealth = "CurrentHealth";
@@ -47,24 +68,12 @@ public static class BlackboardKeys
             public const string TargetingData = "TargetingData";
         }
         
-        public static class Actions 
-        {
-            public const string MovementLogic = "MovementLogic";
-            public const string ImpulseLogic = "ImpulseLogic";
-            public const string RotationLogic = "RotationLogic";
-        }
         
         public static class Resolver
         {
             public const string TargetResolver = "TargetResolver";
         }
         
-        public static class Managers
-        {
-            public const string StatusEffectManager = "StatusEffectManager";
-            public const string TimeExecutionManager = "TimeExecutionManager";
-            public const string UpdatePhaseExecutor = "UpdatePhaseExecutor";
-        }
 
         public static class Multipliers
         {
@@ -76,6 +85,11 @@ public static class BlackboardKeys
         // Add more as needed.
     }
 
+    public static class Health
+    {
+        public const string CurrentHealth = "CurrentHealth";
+    }
+    
     public static class Fear
     {
         public const string StimuliNearby = "StimuliNearby";
