@@ -15,8 +15,8 @@ public class ProfileBuilderModule : IContextBuilderModule
         var agentProfiles = context.AgentProfiles;
         
         // Load both profile blocks (agent and behavior)
-        var rawAgentProfiles = context.Definition.Config[EntityJsonFields.AgentProfilesField] as JObject;
-        var rawBehaviorProfiles = context.Definition.Config[EntityJsonFields.BehaviorProfilesField] as JObject;
+        var rawAgentProfiles = context.Definition.Config[BtEntityJsonFields.AgentProfilesField] as JObject;
+        var rawBehaviorProfiles = context.Definition.Config[BtEntityJsonFields.BehaviorProfilesField] as JObject;
         
         // AGENT-GLOBAL PROFILES
         // Only used for systems like Fear, Health, etc.
@@ -24,16 +24,16 @@ public class ProfileBuilderModule : IContextBuilderModule
         {
             Debug.Log($"[{ScriptName}] Parsing agent-global profiles...");
             agentProfiles.HealthProfiles = ParseProfileBlock<HealthData>
-                (rawAgentProfiles, EntityJsonFields.AgentProfiles.HealthKey);
+                (rawAgentProfiles, BtEntityJsonFields.AgentProfiles.HealthKey);
             agentProfiles.FearProfiles = ParseProfileBlock<FearPerceptionData>
-                (rawAgentProfiles, EntityJsonFields.AgentProfiles.FearKey);
+                (rawAgentProfiles, BtEntityJsonFields.AgentProfiles.FearKey);
             agentProfiles.SwitchProfiles = ParseProfileBlockList<SwitchCondition>
-                (rawAgentProfiles, EntityJsonFields.AgentProfiles.SwitchKey);
+                (rawAgentProfiles, BtEntityJsonFields.AgentProfiles.SwitchKey);
             Debug.Log($"[{ScriptName}] Finished parsing agent-global profiles...");
         }
         else
         {
-            Debug.LogError($"[{ScriptName}] {EntityJsonFields.AgentProfilesField} block is missing!");
+            Debug.LogError($"[{ScriptName}] {BtEntityJsonFields.AgentProfilesField} block is missing!");
         }
         
         // BEHAVIOR PROFILES
@@ -42,18 +42,18 @@ public class ProfileBuilderModule : IContextBuilderModule
         {
             Debug.Log($"[{ScriptName}] Parsing behavior profiles...");
             agentProfiles.TargetingProfiles = ParseProfileBlock<TargetingData>
-                (rawBehaviorProfiles,EntityJsonFields.BehaviorProfiles.TargetingKey);
+                (rawBehaviorProfiles,BtEntityJsonFields.BehaviorProfiles.TargetingKey);
             agentProfiles.MovementProfiles  = ParseProfileBlock<MovementData>
-                (rawBehaviorProfiles,EntityJsonFields.BehaviorProfiles.MovementKey);
+                (rawBehaviorProfiles,BtEntityJsonFields.BehaviorProfiles.MovementKey);
             agentProfiles.RotationProfiles = ParseProfileBlock<RotationData>
-                (rawBehaviorProfiles,EntityJsonFields.BehaviorProfiles.RotationKey);
+                (rawBehaviorProfiles,BtEntityJsonFields.BehaviorProfiles.RotationKey);
             agentProfiles.TimingProfiles = ParseProfileBlock<TimedExecutionData>
-                (rawBehaviorProfiles,EntityJsonFields.BehaviorProfiles.TimingKey);
+                (rawBehaviorProfiles,BtEntityJsonFields.BehaviorProfiles.TimingKey);
             Debug.Log($"[{ScriptName}] Finished parsing behavior profiles...");
         }
         else
         {
-            Debug.LogError($"[{ScriptName}] {EntityJsonFields.BehaviorProfilesField} block is missing!");       
+            Debug.LogError($"[{ScriptName}] {BtEntityJsonFields.BehaviorProfilesField} block is missing!");       
         }
     }
 

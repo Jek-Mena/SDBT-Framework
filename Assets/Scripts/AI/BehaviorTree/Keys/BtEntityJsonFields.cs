@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 /// 
 /// - Use ONLY for parsing/loading config from JSON/YAML, never for runtime or blackboard.
 /// </summary>
-public static class EntityJsonFields
+public static class BtEntityJsonFields
 {
     // Top-level fields
     public const string EntityId = "entityId";
@@ -77,6 +77,7 @@ public static class EntityJsonFields
             public const string Acceleration = "acceleration";
             public const string StoppingDistance = "stoppingDistance";
             public const string UpdateThreshold = "updateThreshold";
+            public const string Direction = "direction";
         }
 
         public static class RotationProfile

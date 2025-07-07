@@ -52,9 +52,9 @@ namespace AI.BehaviorTree.Runtime.Context
                 throw new Exception(
                     $"[{ScriptName}] Profile dictionary '{dictName}' is null. Context/module may be missing.");
             if (string.IsNullOrWhiteSpace(key))
-                throw new Exception($"[{ScriptName}] Requested profile key is null or empty for '{dictName}'.");
+                throw new Exception($"[{ScriptName}] Requested profile key '{key}' is null or empty for '{dictName}'.");
             if (!dict.TryGetValue(key, out var profile))
-                throw new Exception($"[{ScriptName}] Profile '{key}' not found in '{dictName}'. " +
+                throw new Exception($"[{ScriptName}] Profile key: '{key}' not found in '{dictName}'. " +
                                     $"Available: [{string.Join(", ", dict.Keys)}]");
             return profile;
         }

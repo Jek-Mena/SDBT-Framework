@@ -21,8 +21,8 @@
               {
                 "type": "Bt/MoveToTarget",
                 "config": { 
-                  "targetId": "DefaultChaseTarget",
-                  "movementId": "DefaultChaserMovement"
+                  "targetId": "DefaultTarget",
+                  "movementId": "DefaultNavmeshMovement"
                 }
               }
             ]

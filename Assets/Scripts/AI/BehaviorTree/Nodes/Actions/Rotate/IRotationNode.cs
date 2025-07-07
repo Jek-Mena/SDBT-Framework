@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 
-public interface IRotationNode
+namespace AI.BehaviorTree.Nodes.Actions.Rotate
 {
-    void ApplySettings(RotationData data);
-    bool TryRotateTo(Vector3 targetDesination);
-    void StopRotation();
-    void StartRotation();
-    bool IsFacingTarget(Vector3 targetPosition);
+    public interface IRotationNode
+    {
+        void Initialize(RotationData data);
+        void ApplySettings(RotationData data);
+        bool TryRotateTo(Vector3 targetDesination);
+        bool IsFacingTarget(Vector3 targetPosition);
+    }
 }

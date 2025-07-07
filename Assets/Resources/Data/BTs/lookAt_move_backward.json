@@ -1,0 +1,31 @@
+{
+  "root": {
+    "type": "Bt/Parallel",
+    "config": { 
+      "exitCondition": "FirstSuccess" 
+    },
+    "children": [
+      {
+        "type": "Bt/Timer",
+        "config": {
+          "timingId": "MoveLimit",
+          "domains": ["Domain/Movement"]
+        }
+      },
+      {
+        "type": "Bt/MoveToTarget",
+        "config": { 
+          "targetId": "DefaultTarget",
+          "movementId": "DefaultTransformMovement"
+        }
+      },
+      {
+        "type": "Bt/RotateToTarget",
+        "config": { 
+          "targetId" : "DefaultTarget",
+          "rotationId": "DefaultRotation",
+        }
+      },
+    ]
+  }
+}

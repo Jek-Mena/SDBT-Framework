@@ -22,11 +22,11 @@ public class StimuliSwitcher : MonoBehaviour, IBehaviorTreeSwitcher
         var agentProfiles = context.AgentProfiles;
         
         if (agentProfiles.SwitchProfiles == null ||
-            !agentProfiles.SwitchProfiles.TryGetValue(EntityJsonFields.AgentProfiles.DefaultSwitch, out var conditions)
+            !agentProfiles.SwitchProfiles.TryGetValue(BtEntityJsonFields.AgentProfiles.DefaultSwitch, out var conditions)
             || conditions == null 
             || conditions.Count == 0)
         {
-            Debug.LogError($"[{ScriptName}] No switch profile '{EntityJsonFields.AgentProfiles.DefaultSwitch}' found on agent {context.Agent.name}!");
+            Debug.LogError($"[{ScriptName}] No switch profile '{BtEntityJsonFields.AgentProfiles.DefaultSwitch}' found on agent {context.Agent.name}!");
             return null;
         }
         

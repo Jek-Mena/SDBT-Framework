@@ -1,8 +1,11 @@
 ﻿using System;
+using AI.BehaviorTree.Nodes.Actions.Rotate;
 using UnityEngine;
 
 public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectManager
 {
+    private const string ScriptName = nameof(QuaternionLookAt);
+    
     private RotationData _rotationData;
     private StatusEffectManager _statusEffectManager;
     

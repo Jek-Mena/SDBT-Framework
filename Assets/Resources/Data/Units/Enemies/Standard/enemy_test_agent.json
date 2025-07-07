@@ -25,7 +25,7 @@
           "stimulusKey": "CurrentHealth",
           "comparisonOperator": "LessThan",
           "threshold": 20,
-          "behaviorTree": "move_and_wait"
+          "behaviorTree": "lookAt_move_backward"
         },
         {
           "stimulusKey": "CurrentHealth",
@@ -38,16 +38,24 @@
   },
   "behaviorProfiles": {
     "MovementProfiles": {
-      "DefaultChaserMovement": {
+      "DefaultNavmeshMovement": {
         "speed": 3.0,
         "acceleration": 3.0,
         "stoppingDistance": 0.5,
         "angularSpeed": 150.0,
         "updateThreshold": 0.25
+      },
+      "DefaultTransformMovement": {
+        "speed": 1.5,
+        "acceleration" : 1.5,
+        "stoppingDistance": 0.5,
+        "angularSpeed": 150.0,
+        "updateThreshold": 0.25,
+        "direction": "Backward"
       }
     },
     "TargetingProfiles": {
-      "DefaultChaseTarget": {
+      "DefaultTarget": {
         "targetTag": "Player",
         "style": "Closest",
         "blackboardKey": "ChaseTarget",
@@ -59,7 +67,7 @@
       }
     },
     "RotationProfiles": {
-      "DefaultFaceTarget": {
+      "DefaultRotation": {
         "speed": 120.0,
         "angleThreshold": 3.0,
         "updateThreshold": 0.05

@@ -22,7 +22,7 @@
             public const string Movement = "movementId";
             public const string Rotation = "rotationId";
             public const string Timing = "timingId";
-
+            
             public static class Nodes
             {
                 public static class Repeater

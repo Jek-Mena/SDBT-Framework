@@ -1,4 +1,5 @@
-﻿using AI.BehaviorTree.Runtime.Context;
+﻿using AI.BehaviorTree.Nodes.Actions.Rotate;
+using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 public class RotationBuilderModule : IContextBuilderModule
@@ -13,12 +14,24 @@ public class RotationBuilderModule : IContextBuilderModule
         var rotationNode = agent.GetComponent<IRotationNode>();
         if (rotationNode == null) 
         {
-            Debug.LogError($"[{scriptName}] No IMovementNode found on '{agent.name}'. " + 
-                           "Ensure your AI prefab has a movement component attached.");
-            throw new System.Exception("[{scriptName}] Movement logic missing!");
+            Debug.LogError($"[{scriptName}] No IRotationNode found on '{agent.name}'. " + 
+                           "Ensure your AI prefab has a rotation component attached.");
+            throw new System.Exception($"[{scriptName}] Rotation logic missing!");
+        }
+        
+        rotationNode.Initialize(new RotationData());
+        Debug.Log($"[{scriptName}] {rotationNode} initialize for {agent.name}");   
+        
+        // Inject StatusEffectManager only if supported
+        if (rotationNode is IUsesStatusEffectManager effectUser)
+        {
+            if (context.Blackboard.StatusEffectManager)
+            {
+                effectUser.SetStatusEffectManager(context.Blackboard.StatusEffectManager);
+                Debug.Log($"[{scriptName}] {nameof(StatusEffectManager)} initialize for {agent.name}");   
+            }
         }
         
         blackboard.RotationLogic = rotationNode;
-        Debug.Log($"[Inject: {scriptName}]");   
     }
 }

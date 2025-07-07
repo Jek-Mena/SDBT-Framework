@@ -1,4 +1,5 @@
-﻿using AI.BehaviorTree.Runtime.Context;
+﻿using AI.BehaviorTree.Nodes.Actions.Movement;
+using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 // TODO: Future expansion: Let the system support the usage of multiple possible movement components by iterating or support some selection logic, but for now, keep it simple and DRY.
@@ -21,15 +22,18 @@ public class MovementBuilderModule : IContextBuilderModule
 
         // Initialize with dummy data just to guarantee pipeline safety (real profile will come from the BT node)
         movementNode.Initialize(new MovementData());
+        Debug.Log($"[{scriptName}] {movementNode} initialize for {agent.name}");
         
         // Inject StatusEffectManager only if supported
         if (movementNode is IUsesStatusEffectManager effectUser)
         {
-            if (context.Blackboard.StatusEffectManager) 
+            if (context.Blackboard.StatusEffectManager)
+            {
                 effectUser.SetStatusEffectManager(context.Blackboard.StatusEffectManager);
+                Debug.Log($"[{scriptName}] {nameof(StatusEffectManager)} initialize for {agent.name}");
+            }
         }
 
         blackboard.MovementLogic = movementNode;
-        Debug.Log($"[Inject: {scriptName}]");
     }
 }
