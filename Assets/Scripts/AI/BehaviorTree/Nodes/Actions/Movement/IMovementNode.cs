@@ -2,6 +2,7 @@
 // When extracting Core to a shared library or testing context, replace Vector3 with Position struct
 // and migrate all movement calls accordingly.
 
+using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement

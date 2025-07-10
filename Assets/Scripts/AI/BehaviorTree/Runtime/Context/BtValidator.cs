@@ -13,7 +13,7 @@ public class BtValidator
 
     public BtValidator Movement()
     {
-        if (_context.Movement == null)
+        if (!_context.MovementOrchestrator)
             _errors.Add($"[{ScriptName}] Movement logic missing.");
         return this;
     }

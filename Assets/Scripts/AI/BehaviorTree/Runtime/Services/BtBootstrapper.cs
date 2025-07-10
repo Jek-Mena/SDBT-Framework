@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using AI.BehaviorTree.Registry.List;
+using AI.BehaviorTree.Runtime.Context;
+using Loader;
+using UnityEngine;
 
 public static class BtBootstrapper
 {
@@ -18,8 +21,8 @@ public static class BtBootstrapper
         BtNodeRegistrationList.Initialize();
         
         // Set up and register context builder and context modules
-        var btBlackboardBuilder = new BtContextBuilder();
-        ContextModuleRegistrationList.RegisterAll(btBlackboardBuilder);
+        // var btBlackboardBuilder = new BtContextBuilder();
+        // ContextModuleRegistrationList.RegisterAll(btBlackboardBuilder);
     }
 }
 

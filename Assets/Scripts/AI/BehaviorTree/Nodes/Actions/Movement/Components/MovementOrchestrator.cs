@@ -1,0 +1,113 @@
+﻿using System;
+using System.Collections.Generic;
+using AI.BehaviorTree.Nodes.Abstractions;
+using AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh;
+using AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement;
+using AI.BehaviorTree.Nodes.Actions.Movement.Data;
+using AI.BehaviorTree.Runtime.Context;
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
+{
+    public class MovementOrchestrator : MonoBehaviour
+    {
+        private const string ScriptName = nameof(MovementOrchestrator);
+        
+        private Dictionary<MovementNodeType, IMovementExecutor> _executors;
+        private IMovementExecutor _currentExecutor;
+        private MovementNodeType _currentExecutorType;
+
+        [Header("References")]
+        [SerializeField] private NavMeshAgent agent;
+        [SerializeField] private bool useNavMesh = true;
+        
+        private BtContext _context;
+        private StatusEffectManager _statusEffectManager;
+        
+        public void Initialize(BtContext context)
+        {
+            _context = context;
+            agent = context.Agent.RequireComponent<NavMeshAgent>();
+            
+            _executors = new Dictionary<MovementNodeType, IMovementExecutor>
+            {
+                { MovementNodeType.NavMesh, new NavMeshMoveToTargetExecutor(agent) },
+                { MovementNodeType.Transform, new TransformMoveToTargetExecutor(_context.Agent.transform)}
+            };
+
+            _currentExecutorType = MovementNodeType.NavMesh;
+            _currentExecutor = _executors[_currentExecutorType];
+
+            _context = context;
+            Dispose(); // Unsubscribe from the previous status effect manager
+            _statusEffectManager = _context.StatusEffectManager;
+            _statusEffectManager.DomainBlocked += OnDomainBlocked;
+            _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
+        }
+        
+        public void SetCurrentType(MovementNodeType type)
+        {
+            if(_currentExecutorType == type) return;
+            _currentExecutor?.CancelMovement();
+
+            if (_executors.TryGetValue(type, out var executor))
+            {
+                _currentExecutor = executor;
+                _currentExecutorType = type;
+                _currentExecutor.StartMovement();
+            }
+            else
+            {
+                Debug.LogError($"[{ScriptName}] Executor not found for {type}");
+            }
+        }
+     
+        /// <summary>
+        /// Called by BTNode <see cref="MoveToTargetNode"/>
+        /// </summary>
+        public bool TryMoveTo(Vector3 destination, MovementData data)
+        {
+            SetCurrentType(data.MovementType);
+            _currentExecutor.ApplySettings(data);
+            
+            Debug.Log($"[MovementOrchestrator] TryMoveTo: type={data.MovementType}, target={destination}");
+            if (_currentExecutor == null)
+                Debug.LogError($"[MovementOrchestrator] Executor NOT FOUND for {data.MovementType}");
+            else
+                Debug.Log($"[MovementOrchestrator] Using executor: {_currentExecutor.Type}");
+            
+            return _currentExecutor.TryMoveTo(destination);
+        }
+        
+        public void Tick(float deltaTime)
+        {
+            if (_currentExecutor is ITickableExecutor tickable)
+                tickable.Tick(deltaTime);
+        }
+        
+        private void OnDomainBlocked(string domain)
+        {
+            if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
+            Debug.Log($"[{ScriptName}] Movement domain blocked, stopping executor.");
+            _currentExecutor?.PauseMovement();
+        }
+
+        private void OnDomainUnblocked(string domain)
+        {
+            if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
+            Debug.Log("[Orchestrator] Movement domain unblocked, resuming executor.");
+            _currentExecutor?.StartMovement();
+        }
+        
+        // Be a good citizen—unsubscribe when destroyed/disposed!
+        public void Dispose()
+        {
+            if(!_statusEffectManager) return;
+            _statusEffectManager.DomainBlocked -= OnDomainBlocked;
+            _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
+        }
+        
+        public bool IsAtDestination() => _currentExecutor.IsAtDestination();
+    }
+}

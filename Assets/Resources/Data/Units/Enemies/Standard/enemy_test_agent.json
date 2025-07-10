@@ -22,15 +22,15 @@
     "SwitchProfiles": {
       "DefaultSwitch": [
         {
-          "stimulusKey": "CurrentHealth",
-          "comparisonOperator": "LessThan",
-          "threshold": 20,
+          "stimulusKey": "IsAfraid",
+          "comparisonOperator": "Equal",
+          "threshold": true,
           "behaviorTree": "lookAt_move_backward"
         },
         {
           "stimulusKey": "CurrentHealth",
           "comparisonOperator": "GreaterThanOrEqual",
-          "threshold": 20,
+          "threshold": 0,
           "behaviorTree": "move_and_wait"
         }
       ]
@@ -39,6 +39,7 @@
   "behaviorProfiles": {
     "MovementProfiles": {
       "DefaultNavmeshMovement": {
+        "movementType": "NavMesh",
         "speed": 3.0,
         "acceleration": 3.0,
         "stoppingDistance": 0.5,
@@ -46,6 +47,7 @@
         "updateThreshold": 0.25
       },
       "DefaultTransformMovement": {
+        "movementType": "Transform",
         "speed": 1.5,
         "acceleration" : 1.5,
         "stoppingDistance": 0.5,

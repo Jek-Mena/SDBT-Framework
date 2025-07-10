@@ -94,7 +94,10 @@ namespace AI.BehaviorTree.Runtime
 
             if (RootNode != null && Context != null)
             {
+                var deltaTime = Time.deltaTime;
                 var result = RootNode.Tick(Context);
+                Context.DeltaTime = deltaTime;
+                Context.MovementOrchestrator.Tick(deltaTime);
                 Debug.Log($"[BT Tick] Status: {result}");
             }
         }

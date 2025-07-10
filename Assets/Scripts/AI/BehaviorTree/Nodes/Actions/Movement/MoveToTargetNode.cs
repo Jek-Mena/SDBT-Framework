@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -57,18 +58,13 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 _lastStatus = BtStatus.Failure;
                 return _lastStatus;
             }
+            
+            var canMove = context.MovementOrchestrator.TryMoveTo(target.position, movementData);
 
-            context.Movement.ApplySettings(movementData);
-            var canMove = context.Movement.TryMoveTo(target.position);
+            _lastStatus = canMove
+                ? context.MovementOrchestrator.IsAtDestination() ? BtStatus.Success : BtStatus.Running
+                : BtStatus.Failure;
 
-            if (canMove)
-            {
-                _lastStatus = context.Movement.IsAtDestination() ? BtStatus.Success : BtStatus.Running;
-            }
-            else
-            {
-                _lastStatus = BtStatus.Failure;
-            }
             return _lastStatus;
         }
     }

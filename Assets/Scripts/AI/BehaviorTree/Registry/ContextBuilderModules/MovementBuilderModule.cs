@@ -1,8 +1,10 @@
 ﻿using AI.BehaviorTree.Nodes.Actions.Movement;
+using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 // TODO: Future expansion: Let the system support the usage of multiple possible movement components by iterating or support some selection logic, but for now, keep it simple and DRY.
+[System.Obsolete]
 public class MovementBuilderModule : IContextBuilderModule
 {
     public void Build(BtContext context)
@@ -27,9 +29,9 @@ public class MovementBuilderModule : IContextBuilderModule
         // Inject StatusEffectManager only if supported
         if (movementNode is IUsesStatusEffectManager effectUser)
         {
-            if (context.Blackboard.StatusEffectManager)
+            if (blackboard.StatusEffectManager)
             {
-                effectUser.SetStatusEffectManager(context.Blackboard.StatusEffectManager);
+                effectUser.SetStatusEffectManager(blackboard.StatusEffectManager);
                 Debug.Log($"[{scriptName}] {nameof(StatusEffectManager)} initialize for {agent.name}");
             }
         }

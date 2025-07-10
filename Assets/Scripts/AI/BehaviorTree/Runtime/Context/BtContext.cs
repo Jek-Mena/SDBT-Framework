@@ -1,5 +1,6 @@
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
+using AI.BehaviorTree.Nodes.Actions.Movement.Components;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
 using UnityEngine;
 
@@ -24,14 +25,18 @@ namespace AI.BehaviorTree.Runtime.Context
         public EntityDefinition Definition { get; }
         public EntityRuntimeData RuntimeData { get;}
         public Blackboard Blackboard { get; }
-    
+        public MovementOrchestrator MovementOrchestrator { get; set; }
+        public float DeltaTime;
+        
         public BtContext(
-            BtController controller,
             GameObject agent,
+            BtController controller,
             AgentProfiles profile, 
             EntityDefinition definition,
             EntityRuntimeData runtimeData,
-            Blackboard blackboard)
+            Blackboard blackboard,
+            MovementOrchestrator movementOrchestrator
+            )
         {
             Controller = controller;
             Agent = agent;
@@ -39,8 +44,10 @@ namespace AI.BehaviorTree.Runtime.Context
             Definition = definition;
             RuntimeData = runtimeData;
             Blackboard = blackboard;
+            MovementOrchestrator = movementOrchestrator;
         }
-    
+
+
         // Facade Properties for leaf node convenience.
         public IMovementNode Movement => Blackboard.MovementLogic;
         public IRotationNode Rotation => Blackboard.RotationLogic;

@@ -1,28 +1,35 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public static class BtConfigRegistrationList
+namespace AI.BehaviorTree.Registry.List
 {
-    private const string ScriptName = nameof(BtConfigRegistrationList);
-    private static bool _hasInitialized;
-    
-    public static void Initialize()
+    public static class BtConfigRegistrationList
     {
-        if (_hasInitialized) return;
-        _hasInitialized = true;
-
-        var configFolder = "Data/BTs"; // Resources path
-        var textAssets = Resources.LoadAll<TextAsset>(configFolder);
-
-        foreach (var asset in textAssets)
+        private const string ScriptName = nameof(BtConfigRegistrationList);
+        private static bool _hasInitialized;
+    
+        public static void Initialize()
         {
-            var btJson = JObject.Parse(asset.text);
-            var key = Path.GetFileNameWithoutExtension(asset.name);
-            BtConfigRegistry.RegisterTemplate(key, btJson);
-            Debug.Log($"[{ScriptName}] Registered BT '{key}' from '{asset.name}'");
+            if (_hasInitialized) return;
+            _hasInitialized = true;
+
+            var configFolder = "Data/BTs"; // Resources path
+            var textAssets = Resources.LoadAll<TextAsset>(configFolder);
+
+            var registeredBTs = new List<string>();
+            
+            foreach (var asset in textAssets)
+            {
+                var btJson = JObject.Parse(asset.text);
+                var key = Path.GetFileNameWithoutExtension(asset.name);
+                BtConfigRegistry.RegisterTemplate(key, btJson);
+                registeredBTs.Add($"'{key}' (from '{asset.name}')");
+            }
+            
+            var summary = string.Join(",\n  ", registeredBTs);
+            Debug.Log($"[{ScriptName}] Bootstrap complete. \nRegistered BTs:\n  {summary}\nTotal: {registeredBTs.Count}");
         }
-        
-        Debug.Log($"[{ScriptName}] Bootstrap complete. Total of {textAssets.Length} BTs registered.");
     }
 }
