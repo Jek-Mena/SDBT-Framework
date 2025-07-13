@@ -43,6 +43,7 @@ namespace AI.BehaviorTree.Runtime.Context
         public StatusEffectManager StatusEffectManager { get; set; }
         public MovementOrchestrator MovementOrchestrator { get; set; }
         public BtPersonaSwitcher PersonaSwitcher { get; set; }
+        public int BtSessionId { get; set; }
         // ───────────────
         // Dynamic Key-Value Context Store
         // Only for non-core, optional extensions; never use for primary context fields.

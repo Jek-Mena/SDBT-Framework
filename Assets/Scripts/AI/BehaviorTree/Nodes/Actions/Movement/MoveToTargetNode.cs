@@ -66,8 +66,9 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 return LastStatus;
             }
             
-            var canMove = context.Blackboard.MovementOrchestrator.TryMoveTo(target.position, movementData);
-
+            var canMove = context.Blackboard.MovementOrchestrator.TryMoveTo(target.position, movementData, context.Blackboard.BtSessionId);
+            Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
+            
             LastStatus = canMove
                 ? context.Blackboard.MovementOrchestrator.IsAtDestination() ? BtStatus.Success : BtStatus.Running
                 : BtStatus.Failure;

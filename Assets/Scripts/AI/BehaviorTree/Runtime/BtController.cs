@@ -17,6 +17,8 @@ namespace AI.BehaviorTree.Runtime
         
         private IBtPersonaSwitcher _personaSwitcher;
         private string _activePersonaTreeKey;
+
+        private int _btSessionId = 0;
         
         private void OnSwitchRequested(string fromKey, string toKey, string reason)
         {
@@ -52,7 +54,13 @@ namespace AI.BehaviorTree.Runtime
         
             // Use current agent's context (must be up to date)
             var rootNode = BtTreeBuilder.LoadTreeFromToken(agentBtJson, Context);
-        
+
+            // Bump the session
+            _btSessionId++;
+            Context.Blackboard.BtSessionId = _btSessionId;
+            
+            Context.Blackboard.MovementOrchestrator.TakeOwnership(Context.Blackboard.BtSessionId);
+            
             // Assign to controller
             SetTree(rootNode);
             Debug.Log($"[BtController] Successfully switched to BT '{treeKey}'");
