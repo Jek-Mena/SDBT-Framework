@@ -1,6 +1,7 @@
 ﻿using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 // TODO: Future expansion: Let the system support the usage of multiple possible movement components by iterating or support some selection logic, but for now, keep it simple and DRY.

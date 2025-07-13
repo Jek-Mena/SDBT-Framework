@@ -10,6 +10,12 @@ public class RotateToTargetNode : IBehaviorNode
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
     public string DisplayName => BtNodeDisplayName.Rotation.RotateToTarget;
+    
+    public void Reset(BtContext context)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     private readonly string _rotationProfileKey;
@@ -54,12 +60,12 @@ public class RotateToTargetNode : IBehaviorNode
             return _lastStatus;
         }
 
-        context.Rotation.ApplySettings(rotationData);
-        var canRotate = context.Rotation.TryRotateTo(target.position);
+        context.Blackboard.RotationLogic.ApplySettings(rotationData);
+        var canRotate = context.Blackboard.RotationLogic.TryRotateTo(target.position);
 
         if (canRotate)
         {
-            _lastStatus = context.Rotation.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running;
+            _lastStatus = context.Blackboard.RotationLogic.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running;
         }
         else
         {

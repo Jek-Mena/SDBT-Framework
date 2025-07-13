@@ -1,61 +1,51 @@
 using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-public class BtSelectorNode : IBehaviorNode
+namespace AI.BehaviorTree.Nodes.Composites.Selector
 {
-    private BtStatus _lastStatus = BtStatus.Idle;
-    public BtStatus LastStatus => _lastStatus;
-    public string DisplayName => BtNodeDisplayName.Composite.Selector;
-
-    private readonly List<IBehaviorNode> _children;
-    public IEnumerable<IBehaviorNode> GetChildren => _children;
-
-    private int _currentIndex;
-    private const string ScriptName = nameof(BtSelectorNode);
-    
-    public BtSelectorNode(List<IBehaviorNode> children)
+    public class BtSelectorNode : IBehaviorNode
     {
-        _children = children;
-        _currentIndex = 0;
-    }
-
-    public BtStatus Tick(BtContext context)
-    {
-        if (!BtValidator.Require(context)
-                .Children(_children)
-                .Check(out var error)
-           )
+        private readonly List<IBehaviorNode> _children;
+        private readonly IChildSelectorStrategy _selectorStrategy;
+        public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
+        public string DisplayName { get; set; }
+        public void Reset(BtContext context)
         {
-            Debug.Log(error);
-            _lastStatus = BtStatus.Failure;
-            return _lastStatus;
+            // Reset all children so their internal state is fresh
+            foreach (var child in _children)
+                child.Reset(context);
+
+            // Reset own status or any internal state
+            LastStatus = BtStatus.Idle;
+            // If your selector strategy holds internal state, reset it here as well
+            // (Not needed for stateless strategies, but add a Reset() call if they support it)
         }
 
-        while (_currentIndex < _children.Count)
-        {
-            Debug.Log($"[{ScriptName}] Ticking child {_currentIndex}");
-            var status = _children[_currentIndex].Tick(context);
+        public IEnumerable<IBehaviorNode> GetChildren => _children; // Expose children for debug tools, visualization, etc.
 
-            switch (status)
+        public BtSelectorNode(
+            List<IBehaviorNode> children, 
+            IChildSelectorStrategy selectorStrategy,
+            string displayName = nameof(BtSelectorNode))
+        {
+            _children = children;
+            _selectorStrategy = selectorStrategy;
+        }
+
+        public BtStatus Tick(BtContext context)
+        {
+            var index = _selectorStrategy.SelectChildIndex(_children, context);
+            if (index < 0 || index >= _children.Count)
             {
-                case BtStatus.Success:
-                    _lastStatus = BtStatus.Success;
-                    _currentIndex = 0; // Reset for next evaluation
-                    return _lastStatus;
-                case BtStatus.Running:
-                    _lastStatus = BtStatus.Running;
-                    return _lastStatus;
-                case BtStatus.Failure:
-                default:
-                    _currentIndex++;
-                    break;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
+            
+            LastStatus = _children[index].Tick(context);
+            return LastStatus;
         }
-
-        _currentIndex = 0;
-        _lastStatus = BtStatus.Failure;
-        return _lastStatus;
     }
 }

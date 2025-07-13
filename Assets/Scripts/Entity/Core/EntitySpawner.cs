@@ -4,6 +4,7 @@ using AI.BehaviorTree.Runtime.Context;
 using Loader;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using Utils.Component;
 
 public class EntitySpawner : MonoBehaviour
 {
@@ -36,7 +37,7 @@ public class EntitySpawner : MonoBehaviour
         agent.name = $"{entityId}-{agent.GetInstanceID()}";
         
         // Assign the definition to the agent
-        var runtimeData = agent.RequireComponent<EntityRuntimeData>();
+        var runtimeData = agent.RequireComponent<AgentRuntimeData>();
         runtimeData.Definition = def;
         
         // Build context and assign Behavior Tree

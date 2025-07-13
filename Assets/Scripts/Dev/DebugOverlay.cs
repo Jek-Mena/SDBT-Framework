@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 /// <summary>

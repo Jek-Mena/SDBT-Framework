@@ -9,7 +9,7 @@ namespace AI.BehaviorTree.Core
     /// 
     /// Extend with extra fields if needed (BT path, icon, default stats, etc).
     /// </summary>
-    public class EntityDefinition
+    public class AgentDefinition
     {
         /// <summary> Unique identifier for this entity config. Example: "enemy_standard_chaser" </summary>
         public string EntityId;

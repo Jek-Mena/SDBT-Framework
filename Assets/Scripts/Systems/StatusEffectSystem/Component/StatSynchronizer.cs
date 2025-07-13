@@ -1,5 +1,7 @@
 ﻿using System;
+using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 public class StatSynchronizer : MonoBehaviour

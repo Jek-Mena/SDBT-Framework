@@ -1,5 +1,9 @@
-﻿using AI.BehaviorTree.Runtime.Context;
+﻿using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
+using Utils.Component;
+
 // [2025-07-06 ARCHITECTURE WARNING]
 // The following loop dynamically adds custom stats to the blackboard using raw string keys:
 // foreach (var kvp in modifiers.Custom) blackboard.Set(kvp.Key, kvp.Value);

@@ -1,100 +1,103 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-/// <summary>
-/// Always-sensing fear perception. Queries the manager, processes fear, and writes to the blackboard.
-/// </summary>
-public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
+namespace Systems.FearPerception.Component
 {
-    private const string ScriptName = nameof(FearPerception);
+    /// <summary>
+    /// Always-sensing fear perception. Queries the manager, processes fear, and writes to the blackboard.
+    /// </summary>
+    public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
+    {
+        private const string ScriptName = nameof(FearPerception);
     
-    public override void Initialize(BtContext context)
-    {
-        base.Initialize(context);
+        public override void Initialize(BtContext context)
+        {
+            base.Initialize(context);
         
-        Profile = context.AgentProfiles.GetFearPerceptionProfile(BtEntityJsonFields.AgentProfiles.DefaultFear);
-        if (Profile == null)
-            Debug.LogError($"[{ScriptName}] No FearPerceptionData profile found for this agent/context!");
-    }
-
-    protected override void ProcessStimuli(List<FearStimulus> stimuli)
-    {
-        var position = transform.position;
-        var totalFear = 0f;
-        var maxContribution = 0f;
-        FearStimulus? mainThreat = null;
-
-        if (stimuli == null || stimuli.Count == 0)
-        {
-            Debug.Log($"[{ScriptName}] Agent '{name}' detected NO fear stimuli this tick.");
+            Profile = context.AgentProfiles.GetFearPerceptionProfile(BtAgentJsonFields.AgentProfiles.DefaultFear);
+            if (Profile == null)
+                Debug.LogError($"[{ScriptName}] No FearPerceptionData profile found for this agent/context!");
         }
-        else
+
+        protected override void ProcessStimuli(List<FearStimulus> stimuli)
         {
-            Debug.Log($"[{ScriptName}] Agent '{name}' received {stimuli.Count} fear stimuli. My position: {position}");
+            var position = transform.position;
+            var totalFear = 0f;
+            var maxContribution = 0f;
+            FearStimulus? mainThreat = null;
 
-            foreach (var stim in stimuli)
+            if (stimuli != null && stimuli.Count != 0)
             {
-                var distance = Vector3.Distance(position, stim.Position);
-                Debug.Log($"[{ScriptName}] - Stimulus at {stim.Position}, radius: {stim.Radius}, strength: {stim.Strength}, distance: {distance}");
+                // Debug.Log($"[{ScriptName}] Agent '{name}' received {stimuli.Count} fear stimuli. My position: {position}");
 
-                if (distance < stim.Radius)
+                foreach (var stim in stimuli)
                 {
-                    // Simple weighted: linear falloff
-                    var contribution = stim.Strength * (1f - distance / stim.Radius);
-                    totalFear += contribution;
-                    Debug.Log($"[{ScriptName}] -- INSIDE range! Contribution: {contribution}");
+                    var distance = Vector3.Distance(position, stim.Position);
+                    Debug.Log($"[{ScriptName}] - Stimulus at {stim.Position}, radius: {stim.Radius}, strength: {stim.Strength}, distance: {distance}");
 
-                    if (contribution > maxContribution)
+                    if (distance < stim.Radius)
                     {
+                        // Simple weighted: linear falloff
+                        var contribution = stim.Strength * (1f - distance / stim.Radius);
+                        totalFear += contribution;
+                        Debug.Log($"[{ScriptName}] -- INSIDE range! Contribution: {contribution}");
+
+                        if (!(contribution > maxContribution)) continue;
+                        
                         maxContribution = contribution;
                         mainThreat = stim;
                     }
-                }
-                else
-                {
-                    Debug.Log($"[{ScriptName}] -- OUTSIDE range.");
+                    else
+                    {
+                        Debug.Log($"[{ScriptName}] -- OUTSIDE range.");
+                    }
                 }
             }
-        }
+            else
+            {
+                Debug.Log($"[{ScriptName}] Agent '{name}' detected NO fear stimuli this tick.");
+            }
 
-        Context.Blackboard.Set(BlackboardKeys.Fear.Level, totalFear);
+            // Normalize TotalFear
+            // Pick a "maxExpectedFear" value that makes sense for your game.
+            // Example: if a single strong threat can contribute 2, and 2-3 is max "panic", use 2 or 3.
+            // Adjust this based on the config!
+            var maxExpectedFear = 2.0f; // <-- Adjust as needed
+            var normalizedFear = Mathf.Clamp01(totalFear / maxExpectedFear);
+            
+            Debug.Log($"[{ScriptName}]🟠Writing FearStimulusLevel={normalizedFear}");
+            Context.Blackboard.Set(BlackboardKeys.Fear.StimulusLevel, normalizedFear);
 
-        if (mainThreat.HasValue)
-        {
-            Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
-            Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value);
+            if (mainThreat.HasValue)
+            {
+                Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
+                Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value);
+            }
+            else
+            {
+                Debug.Log($"[{ScriptName}] No main threat found.");
+                Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
+            }
         }
-        else
-        {
-            Debug.Log($"[{ScriptName}] No main threat found.");
-            Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
-        }
-    }
     
-    protected override List<FearStimulus> QueryStimuli()
-    {
-        if (Profile == null)
+        protected override List<FearStimulus> QueryStimuli()
         {
-            Debug.LogError($"[{ScriptName}] Profile missing; cannot query stimuli.");
-            return new List<FearStimulus>();
-        }
+            if (Profile == null)
+            {
+                Debug.LogError($"[{ScriptName}] Profile missing; cannot query stimuli.");
+                return new List<FearStimulus>();
+            }
 
-        return FearStimulusManager.Instance?.Query(transform.position, Profile.DetectionRange) 
-               ?? new List<FearStimulus>();
-    }
+            return FearStimulusManager.Instance?.Query(transform.position, Profile.DetectionRange) 
+                   ?? new List<FearStimulus>();
+        }
     
-    protected override void WriteStimuliToBlackboard(List<FearStimulus> stimuli)
-    {
-        Context.Blackboard.Set(BlackboardKeys.Fear.StimuliNearby, stimuli);
-    }
-    
-    private void Update()
-    {
-         // (Optional) Next: PerceptionPipelineManager
-         // If you want to support multiple perception modules (sound, vision, etc.) with clean ticking, make a PerceptionPipelineManager that ticks all attached PerceptionModule<>s each frame.
-         // But for now, a per-module Update is acceptable.
-        UpdatePerception();
+        protected override void WriteStimuliToBlackboard(List<FearStimulus> stimuli)
+        {
+            Context.Blackboard.Set(BlackboardKeys.Fear.StimuliNearby, stimuli);
+        }
     }
 }

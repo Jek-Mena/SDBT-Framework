@@ -2,6 +2,7 @@ using System;
 using AI.BehaviorTree.Runtime;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Utils.Component;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RigidbodyImpulseNode : MonoBehaviour, IImpulseNode

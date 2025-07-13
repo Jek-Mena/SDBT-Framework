@@ -29,7 +29,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
         _acceptsDomains = acceptsDomains;
     }
 
-    public virtual IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+    public virtual IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
     {
         var agentProfiles = context.AgentProfiles;
 
@@ -45,7 +45,7 @@ public class TimedExecutionNodeFactory<TNode> : IBtNodeFactory where TNode : IBe
         if (_hasChild)
         {
             var children = nodeData.Children?
-                .Select(childToken => buildChildNode(new TreeNodeData((JObject)childToken)))
+                .Select(childToken => buildChildNodeRecurs(new TreeNodeData((JObject)childToken)))
                 .ToList() ?? new List<IBehaviorNode>();
             
             if (children.Count != 1)

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
+using AI.BehaviorTree.Stimulus;
 using AI.BehaviorTree.Switching;
+using Newtonsoft.Json.Linq;
 
 namespace AI.BehaviorTree.Runtime.Context
 {
@@ -9,12 +11,16 @@ namespace AI.BehaviorTree.Runtime.Context
     {
         private const string ScriptName = nameof(AgentProfiles);
         
+        public string CurrentPersonaProfileKey { get; set; }
+        
         public Dictionary<string, TargetingData> TargetingProfiles { get; set; }
         public Dictionary<string, MovementData> MovementProfiles { get; set; }
         public Dictionary<string, RotationData> RotationProfiles { get; set; }
         public Dictionary<string, TimedExecutionData> TimingProfiles { get; set; }
         public Dictionary<string, HealthData> HealthProfiles { get; set; }
-        public Dictionary<string, List<SwitchCondition>> SwitchProfiles { get; set; }
+        public Dictionary<string, List<CurveProfileEntry>> CurveProfiles { get; set; }
+        public Dictionary<string, List<PersonaSwitchRule>> PersonaProfiles { get; set; }
+        public Dictionary<string, JToken> StimuliBehaviorTrees { get; set; }
         public Dictionary<string, FearPerceptionData> FearProfiles { get; set; }
 
         /// [2025-06-18 ARCHITECTURE NOTE]
@@ -35,8 +41,14 @@ namespace AI.BehaviorTree.Runtime.Context
         public HealthData GetHealthProfile(string key)
             => GetProfile(HealthProfiles, key, nameof(HealthProfiles));
 
-        public List<SwitchCondition> GetSwitchProfile(string key)
-            => GetProfile(SwitchProfiles, key, nameof(SwitchProfiles));
+        public List<CurveProfileEntry> GetCurveProfile(string key)
+            => GetProfile(CurveProfiles, key, nameof(CurveProfiles));
+        
+        public List<PersonaSwitchRule> GetPersonaProfile(string key)
+            => GetProfile(PersonaProfiles, key, nameof(PersonaProfiles));
+        
+        public object GetStimuliBehaviorTree(string key)
+            => GetProfile(StimuliBehaviorTrees, key, nameof(StimuliBehaviorTrees));
         
         public FearPerceptionData GetFearPerceptionProfile(string key)
             => GetProfile(FearProfiles, key, nameof(FearProfiles));

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 public class ImpulseMoverNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> _)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
     {
         // This node does not need config, but we COULD enforce it if you want per-node overrides later.
         // For now, leave logic injection to the plugin as discussed.

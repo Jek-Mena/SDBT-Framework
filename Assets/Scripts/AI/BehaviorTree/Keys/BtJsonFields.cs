@@ -22,6 +22,8 @@
             public const string Movement = "movementId";
             public const string Rotation = "rotationId";
             public const string Timing = "timingId";
+            public const string Stimulus = "stimulusId";
+            public const string CurveProfile = "curveProfileId";
             
             public static class Nodes
             {

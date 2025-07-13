@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using AI.BehaviorTree.Core;
+using AI.BehaviorTree.Keys;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace Loader
         private const string ScriptName = nameof(GameAssets); 
         
         // Main registry: entityId -> EntityDefinition (config + prefab)
-        private static readonly Dictionary<string, EntityDefinition> EntityDefs = new();
+        private static readonly Dictionary<string, AgentDefinition> EntityDefs = new();
 
         /// <summary>
         /// Loads all entity configs and prefabs from Resources folders at boot.
@@ -40,7 +41,7 @@ namespace Loader
                 try
                 {
                     var jObj = JObject.Parse(textAsset.text);
-                    var entityId = jObj[BtEntityJsonFields.EntityId]?.ToString();
+                    var entityId = jObj[BtAgentJsonFields.EntityId]?.ToString();
                     if (!string.IsNullOrWhiteSpace(entityId))
                         configs[entityId] = jObj;
                 }
@@ -64,7 +65,7 @@ namespace Loader
             foreach (var entityId in configs.Keys)
             {
                 // Find prefab by path or by entityId
-                var prefabPath = configs[entityId][BtEntityJsonFields.Prefab]?.ToString();
+                var prefabPath = configs[entityId][BtAgentJsonFields.Prefab]?.ToString();
                 GameObject prefab = null;
 
                 if (!string.IsNullOrEmpty(prefabPath))
@@ -83,7 +84,7 @@ namespace Loader
                     continue;
                 }
 
-                var def = new EntityDefinition
+                var def = new AgentDefinition
                 {
                     EntityId = entityId,
                     Prefab = prefab,
@@ -91,8 +92,7 @@ namespace Loader
                 };
                 EntityDefs[entityId] = def;
             }
-            Debug.Log($"[{ScriptName}] Bootstrap complete. Registered {EntityDefs.Count} entities.");
-        
+
             // --- Debug summary ---
             var entityDebugList = new List<string>();
             var logBuilder = new StringBuilder();
@@ -111,13 +111,13 @@ namespace Loader
                 logBuilder.AppendLine(configJson);
                 logBuilder.AppendLine("------------------------------------");
             }
-            Debug.Log($"[{ScriptName}] Total Registered Entities: {EntityDefs.Count}\n {logBuilder}");
+            Debug.Log($"[{ScriptName}] Bootstrap complete. Total Registered Entities: {EntityDefs.Count}\n {logBuilder}");
         }
     
         /// <summary>
         /// Get the EntityDefinition (config + prefab) by entityId.
         /// </summary>
-        public static EntityDefinition GetEntity(string entityId)
+        public static AgentDefinition GetEntity(string entityId)
         {
             if (EntityDefs.TryGetValue(entityId, out var def))
                 return def;

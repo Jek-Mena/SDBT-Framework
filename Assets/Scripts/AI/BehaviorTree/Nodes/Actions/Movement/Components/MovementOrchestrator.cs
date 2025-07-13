@@ -5,8 +5,11 @@ using AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh;
 using AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
+using Keys;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 using UnityEngine.AI;
+using Utils.Component;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
 {
@@ -25,6 +28,11 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
         private BtContext _context;
         private StatusEffectManager _statusEffectManager;
         
+        
+        private Vector3 _lastDestination = Vector3.positiveInfinity;
+        private MovementData _lastMoveData;
+        private bool _hasLastMove = false;
+        
         public void Initialize(BtContext context)
         {
             _context = context;
@@ -41,7 +49,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
 
             _context = context;
             Dispose(); // Unsubscribe from the previous status effect manager
-            _statusEffectManager = _context.StatusEffectManager;
+            _statusEffectManager = _context.Blackboard.StatusEffectManager;;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
         }
@@ -49,35 +57,66 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
         public void SetCurrentType(MovementNodeType type)
         {
             if(_currentExecutorType == type) return;
-            _currentExecutor?.CancelMovement();
+            
+            // Always fully stop the previous executor!
+            if (_currentExecutor != null)
+            {
+                _currentExecutor.CancelMovement();
+                Debug.Log($"[{ScriptName}] Cancelled previous executor: {_currentExecutor.Type}");
+            }
 
             if (_executors.TryGetValue(type, out var executor))
             {
                 _currentExecutor = executor;
                 _currentExecutorType = type;
-                _currentExecutor.StartMovement();
+                Debug.Log($"[{ScriptName}] Switched executor to: {type}");
             }
             else
             {
                 Debug.LogError($"[{ScriptName}] Executor not found for {type}");
             }
         }
-     
+        
+        public bool IsCurrentMove(Vector3 destination, MovementData data)
+        {
+            return _hasLastMove
+                   && Vector3.Distance(_lastDestination, destination) < data.UpdateThreshold
+                   && data.Equals(_lastMoveData);
+        }
+        
         /// <summary>
         /// Called by BTNode <see cref="MoveToTargetNode"/>
         /// </summary>
         public bool TryMoveTo(Vector3 destination, MovementData data)
         {
             SetCurrentType(data.MovementType);
+            
             _currentExecutor.ApplySettings(data);
             
-            Debug.Log($"[MovementOrchestrator] TryMoveTo: type={data.MovementType}, target={destination}");
+            //Debug.Log($"[MovementOrchestrator] TryMoveTo: type={data.MovementType}, target={destination}");
             if (_currentExecutor == null)
+            {
                 Debug.LogError($"[MovementOrchestrator] Executor NOT FOUND for {data.MovementType}");
-            else
-                Debug.Log($"[MovementOrchestrator] Using executor: {_currentExecutor.Type}");
+                return false;
+            }
             
-            return _currentExecutor.TryMoveTo(destination);
+            // --- Only act if intent changes ---
+            if (!IsCurrentMove(destination, data))
+            {
+                Debug.Log($"[MovementOrchestrator] New movement intent. Cancelling previous and moving to {destination} ({data.MovementType})");
+                _currentExecutor.CancelMovement();
+                var result = _currentExecutor.TryMoveTo(destination);
+                _currentExecutor.StartMovement(); // Explicitly "go"
+
+                _lastDestination = destination;
+                _lastMoveData = data;
+                _hasLastMove = true;
+
+                return result;
+            }
+
+            // Already moving to this target with these params
+            return true;
         }
         
         public void Tick(float deltaTime)
@@ -108,6 +147,9 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
             _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
         }
         
+        public void CancelMovement() => _currentExecutor?.CancelMovement();
+        public void PauseMovement() => _currentExecutor?.PauseMovement();
+        public void StartMovement() => _currentExecutor?.StartMovement();
         public bool IsAtDestination() => _currentExecutor.IsAtDestination();
     }
 }

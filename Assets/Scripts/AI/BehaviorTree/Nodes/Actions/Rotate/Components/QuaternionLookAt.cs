@@ -1,5 +1,7 @@
 ﻿using System;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
+using Keys;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectManager

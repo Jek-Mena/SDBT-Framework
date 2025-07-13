@@ -13,7 +13,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh
         private readonly NavMeshAgent _agent;
         private MovementData _currentSettings;
         private Vector3 _lastSetDestination;
-        private bool _isMoving;
 
         public NavMeshMoveToTargetExecutor(NavMeshAgent agent)
         {
@@ -25,8 +24,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh
         
         public bool TryMoveTo(Vector3 destination)
         {
-            Debug.Log($"[NavMeshExecutor] TryMoveTo: called, target={destination}, isMoving={_isMoving}");
-
             // Check if the agent is valid
             if (!IsAgentValid())
                 return false;
@@ -63,60 +60,54 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh
         public void StartMovement()
         {
             if (!IsAgentValid()) return;
-            _isMoving = true;
             _agent.isStopped = false;
-            Debug.Log($"{_agent.gameObject.name} Starting the NavMeshAgent.");
+            Debug.Log($"{ScriptName}🤖▶️{_agent.gameObject.name} Starting the NavMeshAgent.");
         }
 
         public void PauseMovement()
         {
             if (!IsAgentValid()) return;
-            _isMoving = false;
             _agent.isStopped = true;
-            Debug.Log($"{_agent.gameObject.name} Pausing the NavMeshAgent.");
+            Debug.Log($"{ScriptName}🤖⏸️{_agent.gameObject.name} Pausing the NavMeshAgent.");
         }
         
         public void CancelMovement()
         {
             if (!IsAgentValid()) return;
-            _isMoving = false;
             _agent.isStopped = true;
             _agent.ResetPath();
-            Debug.Log($"{_agent.gameObject.name} Cancelling the NavMeshAgent's path.");
+            Debug.Log($"{ScriptName}🤖⛔{_agent.gameObject.name} Cancelling the NavMeshAgent's path.");
         }
 
         public bool IsAtDestination()
         {
-            throw new System.NotImplementedException();
+            if (!_agent) return false;  // Or throw/log
+            // Unity NavMeshAgent logic:
+            return !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance
+                                       && (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f);
         }
         
         private bool IsAgentValid()
         {
             if (!_agent)
             {
-                Debug.LogError($"[{ScriptName}] NavMeshAgent is null");
+                Debug.LogError($"[{ScriptName}]🤖👻 NavMeshAgent is null");
                 return false;
             } 
         
             if (!_agent.isOnNavMesh)
             {
-                Debug.LogWarning($"[{ScriptName}] NavMeshAgent is NOT on NavMesh");
+                Debug.LogError($"[{ScriptName}]🤖⛔🗺️ NavMeshAgent is NOT on NavMesh");
                 return false;
             }
 
             if (!_agent.enabled)
             {
-                Debug.LogWarning($"[{ScriptName}] NavMeshAgent is DISABLED");
-                return false;
-            }
-
-            // If agent is stopped, warn and refuse to move
-            if (_agent.isStopped)
-            {
-                Debug.LogWarning($"[{ScriptName}] TryMoveTo called while NavMeshAgent is stopped.");
+                Debug.LogError($"[{ScriptName}]🤖🚫 NavMeshAgent is DISABLED");
                 return false;
             }
         
+            Debug.Log($"{ScriptName}🤖{_agent.name} is valid");
             return true;
         }
         

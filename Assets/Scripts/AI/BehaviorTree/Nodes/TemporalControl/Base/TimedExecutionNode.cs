@@ -20,6 +20,7 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
     protected BtStatus _lastStatus = BtStatus.Idle;
     public virtual BtStatus LastStatus => _lastStatus;
     public virtual string DisplayName => GetType().Name;
+
     public virtual IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     protected TimedExecutionNode(TimedExecutionData timeData)
@@ -36,6 +37,14 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
 
     public abstract BtStatus Tick(BtContext context);
 
+    public virtual void Reset(BtContext context)
+    {
+        _lastStatus = BtStatus.Idle;
+        TimerStarted = false;
+        // If you have any timers or custom state, reset/cancel them here
+        // Optionally: Timer?.Interrupt(Label);
+    }
+    
     protected BtStatus CheckTimerStatus()
     {
         return Timer.IsComplete(Label) ? BtStatus.Success : BtStatus.Running;
@@ -55,4 +64,5 @@ public abstract class TimedExecutionNode : IBehaviorNode, IExitableBehavior
         TimerStarted = true;
         Debug.Log($"[TimedExecutionNode] Timer started for {Label} with duration {TimeData.Duration}");
     }
+    
 }

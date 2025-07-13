@@ -21,6 +21,14 @@ public class BtSequenceNode : IBehaviorNode
         _currentIndex = 0;
     }
 
+    public void Reset(BtContext context)
+    {
+        foreach (var child in _children)
+            child.Reset(context);
+        _currentIndex = 0;
+        _lastStatus = BtStatus.Idle;
+    }
+    
     public BtStatus Tick(BtContext context)
     {
         if(!BtValidator.Require(context)

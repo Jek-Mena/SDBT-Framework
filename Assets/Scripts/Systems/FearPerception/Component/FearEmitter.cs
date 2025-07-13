@@ -1,4 +1,5 @@
 ﻿using System;
+using Systems.FearPerception.Component;
 using UnityEngine;
 
 public class FearEmitter : MonoBehaviour

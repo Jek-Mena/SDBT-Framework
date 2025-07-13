@@ -11,14 +11,14 @@ using Newtonsoft.Json.Linq;
 public abstract class CompositeNodeFactory<TNode> : IBtNodeFactory
     where TNode : IBehaviorNode
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
     {
         var childrenArray = nodeData.Children;
         if (childrenArray== null || childrenArray.Count == 0)
             throw new Exception($"{typeof(TNode).Name} requires/missing a 'children' array.");
 
         var children = childrenArray
-            .Select(childToken => buildChildNode(new TreeNodeData((JObject)childToken)))
+            .Select(childToken => buildChildNodeRecurs(new TreeNodeData((JObject)childToken)))
             .ToList();
 
         // By default, assumes TNode(List<IBehaviorNode>)

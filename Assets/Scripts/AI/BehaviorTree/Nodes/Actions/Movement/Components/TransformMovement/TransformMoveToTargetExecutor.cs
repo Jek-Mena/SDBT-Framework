@@ -41,16 +41,11 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement
                 return false;
             }
             
-            // Only issue a new move if target is far enough from the last one
-            if (!_isMoving || Vector3.Distance(_lastSetDestination, destination) > _currentSettings.UpdateThreshold)
-            {
-                _targetDestination = destination;
-                _lastSetDestination = destination;
-                _isMoving = true;
-                return true;
-            }
-            // Too close to previous command—ignore
-            return false;
+            // Always accept new move intent (idempotent).
+            _targetDestination = destination;
+            _lastSetDestination = destination;
+            _isMoving = true;
+            return true;
         }
 
         /// <summary>

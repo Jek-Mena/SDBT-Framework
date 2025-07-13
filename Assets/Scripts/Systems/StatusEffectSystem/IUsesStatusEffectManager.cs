@@ -1,4 +1,6 @@
-﻿public interface IUsesStatusEffectManager
+﻿using Systems.StatusEffectSystem.Component;
+
+public interface IUsesStatusEffectManager
 {
     void SetStatusEffectManager(StatusEffectManager manager);
     void OnDomainBlocked(string domain);

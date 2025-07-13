@@ -1,0 +1,9 @@
+{
+  "root": {
+    "type": "Bt/StimuliSelector",
+    "config": {
+      "stimulusId": "FearStimulusLevel",
+      "curveProfileId": "DefaultCurves"
+    }
+  }
+}

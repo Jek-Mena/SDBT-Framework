@@ -1,4 +1,6 @@
 ﻿using System;
+using AI.BehaviorTree.Nodes.TemporalControl.Component;
+using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
 using Newtonsoft.Json.Linq;
@@ -10,6 +12,22 @@ namespace AI.BehaviorTree.Loader
     {
         private const string ScriptName = nameof(BtTreeBuilder);
 
+        public static IBehaviorNode LoadTreeFromToken(object treeToken, BtContext context)
+        {
+
+            // If it's already a JToken, pass through
+            if (treeToken is JToken jt)
+                return LoadTreeFromToken(jt, context);
+
+            // Only accept string, fail on anything else (fail-fast)
+            if (treeToken is string str)
+                return LoadTreeFromToken(new JValue(str), context);
+
+            throw new ArgumentException(
+                $"[{ScriptName}] Invalid treeToken type: {treeToken.GetType().Name}. " +
+                "Expected string (tree ID) or JToken (inline BT).", nameof(treeToken));
+        }
+        
         /// <summary>
         /// Loads a behavior tree from a JToken.
         /// - If the token is a string, treats it as a resource tree ID and loads from Unity Resources.

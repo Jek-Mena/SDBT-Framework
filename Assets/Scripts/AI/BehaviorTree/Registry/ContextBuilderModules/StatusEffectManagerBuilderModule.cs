@@ -1,19 +1,25 @@
 ﻿using System;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
+using Utils.Component;
 
-public class StatusEffectManagerBuilderModule : IContextBuilderModule
+namespace AI.BehaviorTree.Registry.ContextBuilderModules
 {
-    public void Build(BtContext context)
+    public class StatusEffectManagerBuilderModule : IContextBuilderModule
     {
-        var scriptName = nameof(StatusEffectManagerBuilderModule);
-        var agent = context.Agent;
-        var blackboard = context.Blackboard;
+        private const string ScriptName = nameof(StatusEffectManagerBuilderModule);
+
+        public void Build(BtContext context)
+        {
+            var agent = context.Agent;
+            var blackboard = context.Blackboard;
             
-        var effect = agent.RequireComponent<StatusEffectManager>();
-        if (!effect)
-            throw new Exception($"[{scriptName}] {nameof(StatusEffectManager)} missing on {agent.name}");
-        blackboard.StatusEffectManager = effect;
-        Debug.Log($"[{scriptName}] Injected {nameof(StatusEffectManager)} for {agent.name}");
+            var effect = agent.RequireComponent<StatusEffectManager>();
+      
+            blackboard.StatusEffectManager = effect;
+            
+            Debug.Log($"[{ScriptName}] Injected {nameof(StatusEffectManager)} for {agent.name}");
+        }
     }
 }

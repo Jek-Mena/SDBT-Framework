@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement.Components;
+using AI.BehaviorTree.Switching;
 using UnityEngine;
+using Utils.Component;
 
 namespace AI.BehaviorTree.Runtime.Context
 {
@@ -46,23 +48,20 @@ namespace AI.BehaviorTree.Runtime.Context
         {
             // Retrieve and ensure that the following Monobehaviour Components exists on the entity.
             var controller = agent.RequireComponent<BtController>();
-            var runtimeData = agent.RequireComponent<EntityRuntimeData>(); // If the EntityRuntimeData does not exist check GameAssets.
-            var movementOrchestrator = agent.RequireComponent<MovementOrchestrator>();
-            
-            var definition = runtimeData.Definition;
+            var personaSwitcher = agent.RequireComponent<BtPersonaSwitcher>();
+            var definition = agent.RequireComponent<AgentRuntimeData>().Definition; // If the EntityRuntimeData does not exist check GameAssets.
         
             var profiles = new AgentProfiles();
             var blackboard = new Blackboard();
-        
+            
             // Create a preliminary context with what we have. Blackboard
             var context = new BtContext(
                 agent, 
                 controller, 
                 profiles, 
                 definition, 
-                runtimeData, 
                 blackboard,
-                movementOrchestrator
+                personaSwitcher
             );
 
             Debug.Log(
@@ -78,7 +77,7 @@ namespace AI.BehaviorTree.Runtime.Context
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[{nameof(BtContextBuilder)}] Failed to build context for {agent.name}: {ex.Message}");
+                    Debug.LogError($"[{nameof(BtContextBuilder)}] Failed to build context for {agent.name}: 🔴 {ex.Message}");
                 }
             }
         

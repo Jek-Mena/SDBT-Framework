@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 public class BtRepeaterNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
     {
         var scriptName = nameof(BtRepeaterNodeFactory);
         var settings = nodeData.Settings; // Optional
@@ -19,7 +19,7 @@ public class BtRepeaterNodeFactory : IBtNodeFactory
             maxRepeats = JsonUtils.GetIntOrDefault(settings, BtJsonFields.Config.Nodes.Repeater.MaxRepeats, -1, scriptName);
         }
         
-        var childNode = buildChildNode(nodeData.GetSingleChild(scriptName));
+        var childNode = buildChildNodeRecurs(nodeData.GetSingleChild(scriptName));
         return new BtRepeaterNode(childNode, maxRepeats);
     }
 }

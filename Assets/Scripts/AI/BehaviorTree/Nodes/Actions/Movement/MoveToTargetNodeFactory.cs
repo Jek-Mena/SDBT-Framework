@@ -6,7 +6,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
     public class MoveToTargetNodeFactory : IBtNodeFactory
     {
-        public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+        public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
         {
             var scriptName = nameof(MoveToTargetNodeFactory);
             var config = nodeData.Settings;

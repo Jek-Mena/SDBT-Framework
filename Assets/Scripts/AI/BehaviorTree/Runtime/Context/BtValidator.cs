@@ -13,14 +13,14 @@ public class BtValidator
 
     public BtValidator Movement()
     {
-        if (!_context.MovementOrchestrator)
+        if (!_context.Blackboard.MovementOrchestrator)
             _errors.Add($"[{ScriptName}] Movement logic missing.");
         return this;
     }
 
     public BtValidator Rotation()
     {
-        if (_context.Rotation == null)
+        if (_context.Blackboard.RotationLogic == null)
             _errors.Add($"[{ScriptName}] Rotation logic missing.");
         return this;
     }
@@ -54,7 +54,7 @@ public class BtValidator
 
     public BtValidator Timers()
     {
-        if (!_context.TimeExecutionManager)
+        if (!_context.Blackboard.TimeExecutionManager)
             _errors.Add($"[{ScriptName}] Timer system missing.");
         return this;
     }

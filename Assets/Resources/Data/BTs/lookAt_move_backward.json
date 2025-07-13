@@ -8,7 +8,7 @@
       {
         "type": "Bt/Timer",
         "config": {
-          "timingId": "MoveLimit",
+          "timingId": "FleeTimeLimit",
           "domains": ["Domain/Movement"]
         }
       },
@@ -23,9 +23,9 @@
         "type": "Bt/RotateToTarget",
         "config": { 
           "targetId" : "DefaultTarget",
-          "rotationId": "DefaultRotation",
+          "rotationId": "DefaultRotation"
         }
-      },
+      }
     ]
   }
 }

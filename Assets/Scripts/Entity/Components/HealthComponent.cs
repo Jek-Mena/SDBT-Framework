@@ -1,4 +1,5 @@
 ﻿
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 public class HealthComponent : MonoBehaviour, IUsesStatusEffectManager

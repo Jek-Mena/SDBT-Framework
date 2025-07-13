@@ -1,6 +1,7 @@
 {
   "entityId": "enemy_test_agent",
   "prefab": "Prefabs/Enemy/Standard/enemy_test_agent",
+  "agentCurrentPersonaProfile": "DefaultPersona",
   "agentCurrentHealthProfile": "DefaultHealth",
   "agentCurrentFearProfile": "DefaultFear",
   "agentProfiles": {
@@ -19,20 +20,15 @@
         "CurveType": "Linear"
       }
     },
-    "SwitchProfiles": {
-      "DefaultSwitch": [
-        {
-          "stimulusKey": "IsAfraid",
-          "comparisonOperator": "Equal",
-          "threshold": true,
-          "behaviorTree": "lookAt_move_backward"
-        },
-        {
-          "stimulusKey": "CurrentHealth",
-          "comparisonOperator": "GreaterThanOrEqual",
-          "threshold": 0,
-          "behaviorTree": "move_and_wait"
-        }
+    "CurveProfiles": {
+      "DefaultCurves": [
+        { "curveName": "Chase", "curveType": "Gaussian", "center": 0.1, "sharpness": 10, "max": 1.0, "stimuliBehaviorTree": "move_and_wait" },  
+        { "curveName": "Flee", "curveType": "Sigmoid", "center": 0.2, "sharpness": 20, "max": 1.2, "stimuliBehaviorTree": "lookAt_move_backward" }   
+      ]
+    },
+    "PersonaProfiles": {
+      "DefaultPersona": [
+        { "situationKey": "Default", "MainTreeKey": "fear_stimuli" }
       ]
     }
   },
@@ -76,8 +72,12 @@
       }
     },
     "TimingProfiles": {
-      "MoveLimit": {
-        "label": "MoveLimit",
+      "ChaseTimeLimit": {
+        "label": "ChaseTimeLimit",
+        "duration": 5.0
+      },
+      "FleeTimeLimit": {
+        "label": "FleeTimeLimit",
         "duration": 5.0
       },
       "Pause": {

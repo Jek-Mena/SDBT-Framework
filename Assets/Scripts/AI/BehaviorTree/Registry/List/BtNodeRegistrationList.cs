@@ -1,6 +1,9 @@
 using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Actions.Movement;
+using AI.BehaviorTree.Nodes.Composites.Selector;
+using AI.BehaviorTree.Nodes.Composites.Selector.Stimuli;
 using AI.BehaviorTree.Nodes.TemporalControl;
+using AI.BehaviorTree.Registry;
 using UnityEngine;
 
 /// <summary>
@@ -46,11 +49,13 @@ public static class BtNodeRegistrationList
             MakeEntry<BtRepeaterNodeFactory>(BtNodeTypes.Decorators.Repeater),
             // --- End Decorators ---
             
-            
             // --- Composite ---
             MakeEntry<BtSequenceNodeFactory>(BtNodeTypes.Composite.Sequence),
             MakeEntry<BtParallelNodeFactory>(BtNodeTypes.Composite.Parallel),
-            MakeEntry<BtSelectorNodeFactory>(BtNodeTypes.Composite.Selector)
+            
+            // ---- Selector(s)
+            MakeEntry<BtSelectorNodeFactory>(BtNodeTypes.Composite.Selector),
+            MakeEntry<BtStimuliSelectorNodeFactory>(BtNodeTypes.Composite.StimuliSelector),
             // --- End Composite ---
             
             // Add more here

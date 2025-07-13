@@ -1,4 +1,5 @@
 ﻿using AI.BehaviorTree.Registry.ContextBuilderModules;
+using AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -31,10 +32,10 @@ namespace AI.BehaviorTree.Registry.List
                 new StatusEffectManagerBuilderModule(),
                 new UpdatePhaseExecutorBuilderModule(),
             
-                //new TargetingContextBuilderModule(),
+                //new TargetingBuilderModule(),
                 new HealthBuilderModule(),
                 new MovementOrchestratorBuilderModule(),
-                //new MovementBuilderModule(),   // <-- ADD HERE, order matters if anything uses MovementLogic!
+                new PersonaSwitcherBuilderModule(),
                 new RotationBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
             
                 new PerceptionBuilderModule(),

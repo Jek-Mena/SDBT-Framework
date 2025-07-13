@@ -10,6 +10,11 @@ public class ImpulseMoverNode : IBehaviorNode
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
     public string DisplayName => BtNodeDisplayName.Movement.ImpulseMover;
+    public void Reset(BtContext context)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     public BtStatus Tick(BtContext context)

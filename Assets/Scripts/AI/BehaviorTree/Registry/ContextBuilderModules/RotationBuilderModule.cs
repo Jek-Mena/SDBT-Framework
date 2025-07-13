@@ -1,5 +1,6 @@
 ﻿using AI.BehaviorTree.Nodes.Actions.Rotate;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 public class RotationBuilderModule : IContextBuilderModule

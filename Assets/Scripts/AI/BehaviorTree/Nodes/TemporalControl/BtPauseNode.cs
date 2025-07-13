@@ -43,7 +43,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
                 };
                 _pauseEffect.SetCustomName(BtNodeDisplayName.TimedExecution.Pause);
 
-                context.StatusEffectManager.ApplyEffect(_pauseEffect);
+                context.Blackboard.StatusEffectManager.ApplyEffect(_pauseEffect);
                 _applied = true;
             }
 
@@ -51,12 +51,26 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
 
             if (status != BtStatus.Running && _applied)
             {
-                context.StatusEffectManager.RemoveEffects(_pauseEffect);
+                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
                 _applied = false;
             }
 
             _lastStatus = status;
             return _lastStatus;
+        }
+        
+        public override void Reset(BtContext context)
+        {
+            base.Reset(context);  // Resets _lastStatus and TimerStarted
+
+            // Remove pause effect if it's still active
+            if (_applied && _pauseEffect != null)
+            {
+                // Defensive: If context needed, ensure you can access it, or pass in if required
+                // context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect); // (if you have context)
+                _applied = false;
+            }
+            _pauseEffect = null;
         }
     }
 }

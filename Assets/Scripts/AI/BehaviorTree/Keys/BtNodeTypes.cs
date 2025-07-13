@@ -54,6 +54,8 @@ namespace AI.BehaviorTree.Keys
             public const string Sequence = "Bt/Sequence";
             public const string Selector = "Bt/Selector";
             public const string Parallel = "Bt/Parallel";
+            
+            public const string StimuliSelector = "Bt/StimuliSelector";
         }
     }
 }

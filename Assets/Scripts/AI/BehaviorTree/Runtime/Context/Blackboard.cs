@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Movement.Components;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
+using AI.BehaviorTree.Switching;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime.Context
@@ -23,10 +26,7 @@ namespace AI.BehaviorTree.Runtime.Context
     public class Blackboard
     {
         private const string ScriptName = nameof(Blackboard);
-
-        /// <summary>The actual Transform to target (set by DynamicTargetContextBuilder)</summary>
-        public Transform Target; // To be replaced by Targeting System
-
+        
         /// <summary>Navigation or pathfinding movement controller (e.g., NavMesh, grid, etc.)</summary>
         public IMovementNode MovementLogic { get; set; }
 
@@ -34,20 +34,15 @@ namespace AI.BehaviorTree.Runtime.Context
         public IImpulseNode ImpulseLogic { get; set; }
 
         /// <summary>Rotation controller</summary>
-        /// 0
         public IRotationNode RotationLogic { get; set; }
 
+        public AgentRuntimeData RuntimeData { get; set; }
         /// <summary>Timed execution logic for decorators or cooldown systems</summary>
         public TimeExecutionManager TimeExecutionManager { get; set; }
-
-        // --- Miscellaneous --- // TODO for sorting or deletion
-
-        /// <summary>Direction vector used for impulse movement</summary>
-        [System.Obsolete] public Vector3 ImpulseDirection;
         public UpdatePhaseExecutor UpdatePhaseExecutor { get; set; }
         public StatusEffectManager StatusEffectManager { get; set; }
         public MovementOrchestrator MovementOrchestrator { get; set; }
-
+        public BtPersonaSwitcher PersonaSwitcher { get; set; }
         // ───────────────
         // Dynamic Key-Value Context Store
         // Only for non-core, optional extensions; never use for primary context fields.

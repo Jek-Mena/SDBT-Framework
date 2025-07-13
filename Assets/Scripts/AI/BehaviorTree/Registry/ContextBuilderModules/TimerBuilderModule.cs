@@ -1,21 +1,25 @@
 ﻿using System;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
+using Utils.Component;
 
-public class TimerBuilderModule : IContextBuilderModule
+namespace AI.BehaviorTree.Registry.ContextBuilderModules
 {
-    public void Build(BtContext context)
+    public class TimerBuilderModule : IContextBuilderModule
     {
-        var scriptName = nameof(TimerBuilderModule);
-        var agent = context.Agent;
-        var blackboard = context.Blackboard;
+        public void Build(BtContext context)
+        {
+            var scriptName = nameof(TimerBuilderModule);
+            var agent = context.Agent;
+            var blackboard = context.Blackboard;
             
-        var timer = agent.RequireComponent<TimeExecutionManager>();
+            var timer = agent.RequireComponent<TimeExecutionManager>();
         
-        if (!timer)
-            throw new Exception($"[{scriptName}] {nameof(TimeExecutionManager)} missing on {agent.name}");
+            if (!timer)
+                throw new Exception($"[{scriptName}] {nameof(TimeExecutionManager)} missing on {agent.name}");
         
-        blackboard.TimeExecutionManager = timer;
-        Debug.Log($"[{scriptName}] Injected {nameof(TimeExecutionManager)} for {agent.name}");
+            blackboard.TimeExecutionManager = timer;
+            Debug.Log($"[{scriptName}] Injected {nameof(TimeExecutionManager)} for {agent.name}");
+        }
     }
 }

@@ -4,7 +4,7 @@ using Keys;
 
 public class RotateToTargetNodeFactory : IBtNodeFactory
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNode)
+    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
     {
         var scriptName = nameof(RotateToTargetNodeFactory);
         var config = nodeData.Settings;

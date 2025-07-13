@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Movement.Components;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
+using AI.BehaviorTree.Switching;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime.Context
@@ -22,37 +24,27 @@ namespace AI.BehaviorTree.Runtime.Context
         public BtController Controller { get; }
         public GameObject Agent { get; }
         public AgentProfiles AgentProfiles { get; }
-        public EntityDefinition Definition { get; }
-        public EntityRuntimeData RuntimeData { get;}
+        public AgentDefinition Definition { get; }
         public Blackboard Blackboard { get; }
-        public MovementOrchestrator MovementOrchestrator { get; set; }
+        public BtPersonaSwitcher PersonaSwitcher { get; }
+        public List<IPerceptionModule> PerceptionModules { get; set; }
+
         public float DeltaTime;
         
         public BtContext(
             GameObject agent,
             BtController controller,
             AgentProfiles profile, 
-            EntityDefinition definition,
-            EntityRuntimeData runtimeData,
+            AgentDefinition definition,
             Blackboard blackboard,
-            MovementOrchestrator movementOrchestrator
-            )
+            BtPersonaSwitcher personaSwitcher)
         {
             Controller = controller;
             Agent = agent;
             AgentProfiles = profile;
             Definition = definition;
-            RuntimeData = runtimeData;
             Blackboard = blackboard;
-            MovementOrchestrator = movementOrchestrator;
+            PersonaSwitcher = personaSwitcher;
         }
-
-
-        // Facade Properties for leaf node convenience.
-        public IMovementNode Movement => Blackboard.MovementLogic;
-        public IRotationNode Rotation => Blackboard.RotationLogic;
-        public TimeExecutionManager TimeExecutionManager => Blackboard.TimeExecutionManager;
-        public StatusEffectManager StatusEffectManager => Blackboard.StatusEffectManager;
-        public UpdatePhaseExecutor UpdatePhaseExecutor => Blackboard.UpdatePhaseExecutor;
     }
 }

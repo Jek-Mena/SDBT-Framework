@@ -10,8 +10,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
     {
         private const string ScriptName = nameof(MoveToTargetNode);
 
-        private BtStatus _lastStatus = BtStatus.Idle;
-        public BtStatus LastStatus => _lastStatus;
+        public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
+
         public string DisplayName => BtNodeDisplayName.Movement.MoveToTarget;
         public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
@@ -27,6 +27,13 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _targetProfileKey = targetProfileKey;
         }
 
+        public void Reset(BtContext context)
+        {
+            // Only called when node is interrupted or parent resets (e.g. after pause)
+            context.Blackboard.MovementOrchestrator.CancelMovement();
+            LastStatus = BtStatus.Idle;
+        }
+        
         public BtStatus Tick(BtContext context)
         {
             if (!BtValidator.Require(context)
@@ -35,8 +42,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                     .Check(out var error))
             {
                 Debug.Log(error);
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
 
             // Resolve data from blackboard profile dictionaries
@@ -47,25 +54,25 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             if (resolver == null)
             {
                 Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
 
             var target = resolver.ResolveTarget(context.Agent, targetingData);
             if (!target)
             {
                 Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
             
-            var canMove = context.MovementOrchestrator.TryMoveTo(target.position, movementData);
+            var canMove = context.Blackboard.MovementOrchestrator.TryMoveTo(target.position, movementData);
 
-            _lastStatus = canMove
-                ? context.MovementOrchestrator.IsAtDestination() ? BtStatus.Success : BtStatus.Running
+            LastStatus = canMove
+                ? context.Blackboard.MovementOrchestrator.IsAtDestination() ? BtStatus.Success : BtStatus.Running
                 : BtStatus.Failure;
 
-            return _lastStatus;
+            return LastStatus;
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using AI.BehaviorTree.Nodes.Composites.Parallel;
 using Keys;
 
 public class BtParallelNodeFactory : CompositeNodeFactory<BtParallelNode>

@@ -1,57 +1,42 @@
 using AI.BehaviorTree.Loader;
+using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
+using AI.BehaviorTree.Switching;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using Utils.Component;
 
 namespace AI.BehaviorTree.Runtime
 {
     public class BtController : MonoBehaviour
     {
+        private const string ScriptName = nameof(BtController);
+        
         public BtContext Context;
         public IBehaviorNode RootNode { get; private set; }
         
-        private StimuliSwitcher _switcherComponent;
-        private IBehaviorTreeSwitcher _switcher;
-        private string _activeTreeKey;
+        private IBtPersonaSwitcher _personaSwitcher;
+        private string _activePersonaTreeKey;
         
-        private void Awake()
-        {
-            _switcherComponent = this.RequireComponent<StimuliSwitcher>();
-            _switcher = _switcherComponent;
-            if (_switcher != null)
-                _switcher.OnSwitchRequested += OnSwitchRequested;
-            else
-                Debug.LogError("No IBehaviorTreeSwitcher component found on " + name);
-        }
-
-        private void Start()
-        {
-            var initialTreeKey = _switcherComponent.EvaluateSwitch(Context, _activeTreeKey);
-            if (!string.IsNullOrEmpty(initialTreeKey))
-                SwitchTree(initialTreeKey, "Initial switcher based on stimuli.");
-        }
-    
         private void OnSwitchRequested(string fromKey, string toKey, string reason)
         {
-            if (toKey != _activeTreeKey)
-            {
-                SwitchTree(toKey, $"event: {reason}");
-            }
+            if (toKey != _activePersonaTreeKey)
+                SwitchPersonaTree(toKey, $"event: {reason}");
         }
     
         // Switches to a new tree by key; this is the only tree assignment API.
-        public void SwitchTree(string treeKey, string reason)
+        public void SwitchPersonaTree(string treeKey, string reason)
         {
-            if (_activeTreeKey == treeKey) return;
+            if (_activePersonaTreeKey == treeKey) return;
         
             if (string.IsNullOrEmpty(treeKey))
             {
                 Debug.LogError("[BtController] treeKey is null or empty!");
                 return;
             }
-            _activeTreeKey = treeKey;
+            _activePersonaTreeKey = treeKey;
 
-            Debug.Log($"[BtController] Switching tree: {_activeTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
+            Debug.Log($"[BtController] Switching tree: {_activePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
 
             // Retrieve template (unresolved) from registry
             var btJsonTemplate = BtConfigRegistry.GetTemplate(treeKey);
@@ -76,30 +61,57 @@ namespace AI.BehaviorTree.Runtime
         public void Initialize(BtContext context)
         {
             Context = context;
+
+            _personaSwitcher = context.Blackboard.PersonaSwitcher;
+            if (_personaSwitcher != null)
+                _personaSwitcher.OnSwitchRequested += OnSwitchRequested;
+            else
+                Debug.LogError("No IBehaviorTreeSwitcher component found on " + name);
+
+            if (_personaSwitcher != null)
+            {
+                Debug.Log($"[{ScriptName}] Start() called on {gameObject.name}. Context: {Context != null}. PersonaSwitcher: {_personaSwitcher != null}");
+                var initialPersonaKey = _personaSwitcher.EvaluateSwitch(Context, _activePersonaTreeKey);
+                if (!string.IsNullOrEmpty(initialPersonaKey))
+                    SwitchPersonaTree(initialPersonaKey, "Initial switcher based on stimuli.");
+            }
+            else
+            {
+                Debug.LogError("No IBehaviorTreeSwitcher component found on " + name + "");        
+            }
         }
 
         private void SetTree(IBehaviorNode rootNode) => RootNode = rootNode;
 
         private void Update()
         {
-            if (_switcher != null && Context != null)
+            // Run all perception modules
+            foreach (var perception in Context.PerceptionModules)
+                perception.UpdatePerception();   
+            
+            
+            // Persona switcher logic
+            if (_personaSwitcher != null && Context != null)
             {
                 // TODO - add support for polling(not sure?) but deal eventually deal with the Expensive Invocation
-                var newKey = _switcher.EvaluateSwitch(Context, _activeTreeKey);
+                var newKey = _personaSwitcher.EvaluateSwitch(Context, _activePersonaTreeKey);
                 if (!string.IsNullOrEmpty(newKey))
                 {
-                    SwitchTree(newKey, "polled switcher");
+                    SwitchPersonaTree(newKey, "polled switcher");
                 }
             }
 
+            // Behavior tree tick
             if (RootNode != null && Context != null)
             {
                 var deltaTime = Time.deltaTime;
                 var result = RootNode.Tick(Context);
                 Context.DeltaTime = deltaTime;
-                Context.MovementOrchestrator.Tick(deltaTime);
+                Context.Blackboard.MovementOrchestrator.Tick(deltaTime);
                 Debug.Log($"[BT Tick] Status: {result}");
             }
+            
+            
         }
     }
 }

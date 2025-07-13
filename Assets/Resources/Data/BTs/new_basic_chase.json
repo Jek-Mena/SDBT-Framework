@@ -1,10 +1,13 @@
 {
   "root": {
-    "type": "Bt/Sequence",
+    "type": "Bt/Repeater",
     "children": [
       {
         "type": "Bt/MoveToTarget",
-        "config": { "$ref": "movement" }
+        "config": {
+          "targetId": "DefaultTarget",
+          "movementId": "DefaultNavmeshMovement"
+        }
       }
     ]
   }

@@ -8,6 +8,7 @@ public class BtRepeaterNode : IBehaviorNode
     private BtStatus _lastStatus = BtStatus.Idle;
     public BtStatus LastStatus => _lastStatus;
     public string DisplayName => BtNodeDisplayName.Decorators.Repeater;
+
     public IEnumerable<IBehaviorNode> GetChildren => new[] { _child };
 
     private readonly IBehaviorNode _child;
@@ -19,6 +20,13 @@ public class BtRepeaterNode : IBehaviorNode
         _child = child;
         _maxRepeats = maxRepeats;
         _repeatCount = 0;
+    }
+    
+    public void Reset(BtContext context)
+    {
+        _child.Reset(context);
+        _repeatCount = 0;
+        _lastStatus = BtStatus.Idle;
     }
 
     public BtStatus Tick(BtContext context)

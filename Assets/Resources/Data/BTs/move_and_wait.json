@@ -14,7 +14,7 @@
               {
                 "type": "Bt/Timer",
                 "config": {
-                  "timingId": "MoveLimit",
+                  "timingId": "ChaseTimeLimit",
                   "domains": ["Domain/Movement"]
                 }
               },

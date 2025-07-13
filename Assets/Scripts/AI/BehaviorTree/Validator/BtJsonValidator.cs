@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using AI.BehaviorTree.Registry;
 using Keys;
 using Newtonsoft.Json.Linq;
 
