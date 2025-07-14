@@ -18,9 +18,12 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction
                 .Where(c => c is IPerceptionModule)
                 .Cast<IPerceptionModule>()
                 .ToList();
-        
-            if(!perceptionModules.Any())
-                Debug.LogWarning($"[{scriptName}] No PerceptionModules found on {agent.name}");
+
+            if (!perceptionModules.Any())
+            {
+                Debug.LogError($"[{scriptName}] No PerceptionModules found on {agent.name}");
+                throw new Exception($"No PerceptionModules found on {agent.name}");
+            }
         
             Debug.Log(
                 $"[{scriptName}] Injecting {perceptionModules.Count} PerceptionModules for '{agent.name}':\n" +
@@ -40,7 +43,7 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction
                 }
             }
             
-            context.PerceptionModules = perceptionModules;
+            context.Blackboard.PerceptionModules = perceptionModules;
         }
     }
 }

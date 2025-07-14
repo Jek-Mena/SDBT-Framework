@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
+    [System.Obsolete("Use IMovementExecutor instead. FleeIntentExecutor is not yet properly implemented and will be refactored to use IMovementExecutor.")]
     public interface IMovementNode
     {
         void Initialize(MovementData data);

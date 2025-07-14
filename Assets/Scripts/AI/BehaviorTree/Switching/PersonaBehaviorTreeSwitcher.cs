@@ -7,16 +7,16 @@ using UnityEngine;
 
 namespace AI.BehaviorTree.Switching
 {
-    public class BtPersonaSwitcher : MonoBehaviour, IBtPersonaSwitcher
+    public class PersonaBehaviorTreeSwitcher : IBtPersonaSwitcher
     {
-        private const string ScriptName = nameof(BtPersonaSwitcher);
+        private const string ScriptName = nameof(PersonaBehaviorTreeSwitcher);
         public event Action<string, string, string> OnSwitchRequested;
 
         private List<PersonaSwitchRule> _rules;
         private string _defaultTreeKey;
     
         // Load rules from context / agentProfiles on startup
-        public void Initialize(BtContext context)
+        public PersonaBehaviorTreeSwitcher(BtContext context)
         {
             var personaProfileKey = context.AgentProfiles.CurrentPersonaProfileKey;
             Debug.Log($"[{ScriptName}] Initializing. Using persona profile key: '{personaProfileKey}'");
@@ -34,11 +34,11 @@ namespace AI.BehaviorTree.Switching
             // Set default as the rule with "Default" situationKey (optional: make configurable)
             _defaultTreeKey = _rules.FirstOrDefault(r => r.SituationKey == BtAgentJsonFields.AgentProfiles.PersonaProfile.DefaultSituation)?.MainTreeKey;
 
-            Debug.Log($"[{ScriptName}] Loaded {_rules.Count} rules. Default tree: {_defaultTreeKey}");
-            Debug.Log($"[PersonaSwitcher] 🔴 Default tree: '{_defaultTreeKey}', All rules: {string.Join(", ", _rules.Select(r => $"{r.SituationKey}->{r.MainTreeKey}"))}");
+            Debug.Log($"[{ScriptName}]📤🌲Loaded {_rules.Count} rules. Default tree: {_defaultTreeKey}");
+            Debug.Log($"[{ScriptName}]📤🌲Default tree: '{_defaultTreeKey}', All rules: {string.Join(", ", _rules.Select(r => $"{r.SituationKey}->{r.MainTreeKey}"))}");
             
             foreach (var rule in _rules)
-                Debug.Log($"[PersonaRule] situationKey={rule.SituationKey} mainTreeKey={rule.MainTreeKey}");
+                Debug.Log($"[{ScriptName}][PersonaRule] situationKey={rule.SituationKey} mainTreeKey={rule.MainTreeKey}");
         }
     
         public string EvaluateSwitch(BtContext context, string currentTreeKey)

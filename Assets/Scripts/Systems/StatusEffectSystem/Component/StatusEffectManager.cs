@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace Systems.StatusEffectSystem.Component
 {
@@ -12,7 +11,7 @@ namespace Systems.StatusEffectSystem.Component
     /// This class is responsible for maintaining a list of active status effects and ensuring their proper application and removal.
     /// It also provides mechanisms to notify other systems when domains are blocked or unblocked due to status effects.
     /// </remarks>
-    public class StatusEffectManager : MonoBehaviour, IBlocker
+    public class StatusEffectManager : IBlocker
     {
         // Called when a new domain block is applied
         public event Action<string> DomainBlocked;
@@ -29,7 +28,7 @@ namespace Systems.StatusEffectSystem.Component
         public IEnumerable<StatusEffect> GetActiveEffects() => _activeEffects;
     
         // Removes inactive status effects at the end of the frame
-        private void LateUpdate()
+        public void LateTick()
         {
             var expired = _activeEffects.Where(e => !e.IsActive()).ToList();
 

@@ -28,18 +28,14 @@ namespace AI.BehaviorTree.Registry.List
                 new ProfileBuilderModule(),
             
                 // All systems that depend on profiles must come AFTER profile injection
-                new TimerBuilderModule(),
-                new StatusEffectManagerBuilderModule(),
                 new UpdatePhaseExecutorBuilderModule(),
             
                 //new TargetingBuilderModule(),
                 new HealthBuilderModule(),
-                new MovementOrchestratorBuilderModule(),
-                new PersonaSwitcherBuilderModule(),
                 new RotationBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
             
                 new PerceptionBuilderModule(),
-                new StatBuilderModule(),
+                //new StatBuilderModule(),
             
                 new DebugOverlayBuilderModule()
             };

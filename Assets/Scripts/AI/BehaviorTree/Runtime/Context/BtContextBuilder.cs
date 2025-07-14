@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement.Components;
+using AI.BehaviorTree.Nodes.TemporalControl.Component;
 using AI.BehaviorTree.Switching;
+using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 using Utils.Component;
 
@@ -46,29 +48,29 @@ namespace AI.BehaviorTree.Runtime.Context
         /// </summary>
         public BtContext BuildContext(GameObject agent)
         {
-            // Retrieve and ensure that the following Monobehaviour Components exists on the entity.
+            // Order matters.
+            // 1. Retrieve and ensure that the following Monobehaviour Components exists on the entity.
             var controller = agent.RequireComponent<BtController>();
-            var personaSwitcher = agent.RequireComponent<BtPersonaSwitcher>();
             var definition = agent.RequireComponent<AgentRuntimeData>().Definition; // If the EntityRuntimeData does not exist check GameAssets.
         
             var profiles = new AgentProfiles();
             var blackboard = new Blackboard();
             
-            // Create a preliminary context with what we have. Blackboard
+            // 2. Create a preliminary context with what we have. Blackboard
             var context = new BtContext(
                 agent, 
                 controller, 
                 profiles, 
                 definition, 
-                blackboard,
-                personaSwitcher
+                blackboard
             );
-
+            
             Debug.Log(
                 $"[{nameof(BtContextBuilder)}] Starting context build for '{agent.name}'\nUsing {_modules.Count} modules:\n" +
                 string.Join("\n- ", _modules.ConvertAll(m => m.GetType().Name).Prepend(""))
             );
         
+            // 3. Build “complex” builder modules for real logic, data parsing, or order-dependent multi-step construction. 
             foreach (var module in _modules)
             {
                 try
@@ -81,6 +83,13 @@ namespace AI.BehaviorTree.Runtime.Context
                 }
             }
         
+            // 4. After constructing the context, set the agent's systems because in the module.Build "context.Agent.GetComponent" is used".
+            // Constructor injection for simple, self-contained systems.
+            blackboard.StatusEffectManager = new StatusEffectManager();
+            blackboard.TimeExecutionManager = new TimeExecutionManager();
+            blackboard.MovementOrchestrator = new MovementOrchestrator(context); // <<-- Depends on StatusEffectManager
+            blackboard.PersonaBehaviorTreeSwitcher = new PersonaBehaviorTreeSwitcher(context); // <<-- Depends on ProfileContextBuilderModule (built on step 3)
+            
             Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +
                       $"Profile Dump:\n{profiles.DumpContents()}");
             

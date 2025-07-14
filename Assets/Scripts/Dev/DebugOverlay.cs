@@ -8,15 +8,24 @@ using UnityEngine;
 /// [2025-06-26]
 /// Provides functionality to display and interact with a debug overlay within the Unity environment.
 /// This component is used to aid in debugging and monitoring behavior tree execution using context-specific data.
+///
+/// 
 /// </summary>
 public class DebugOverlay : MonoBehaviour
 {
+    // TODO [2025-07-14] [DebugOverlay Refactor]:
+    // Decouple debug info generation from MonoBehaviour/OnGUI.
+    // Long-term goal: Display overlay on agent click (not every frame).
+    // Options: Move overlay display to uGUI (Canvas), EditorWindow, or external tool.
+    // For now, keep using OnGUI for prototyping; refactor when interactive debug is needed.
+
     private BtContext _context;
     private StatusEffectManager _statusEffectManager;
 
     public void Initialize(BtContext context)
     {
         _context = context;
+        _statusEffectManager = context.Blackboard.StatusEffectManager;
     }
 
     public void SetStatusEffectManager(StatusEffectManager manager)
@@ -26,8 +35,7 @@ public class DebugOverlay : MonoBehaviour
     
     void OnGUI()
     {
-        if (_context == null) return;
-        if (!_statusEffectManager) return;
+        if (_context == null || _statusEffectManager == null) return;
 
         var sb = new StringBuilder();
         sb.AppendLine($"<b>{gameObject.name}</b>");

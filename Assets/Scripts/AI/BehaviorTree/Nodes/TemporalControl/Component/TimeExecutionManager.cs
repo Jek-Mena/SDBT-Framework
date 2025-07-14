@@ -2,65 +2,67 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// [2025-06-13] Refactored for TimerExecutionMono to TimerExecutionManager
-/// </summary>
-public class TimeExecutionManager : MonoBehaviour, ITimedExecutionNode
+namespace AI.BehaviorTree.Nodes.TemporalControl.Component
 {
-    private class TimerData
+    /// <summary>
+    /// [2025-06-13] Refactored for TimerExecutionMono to TimerExecutionManager
+    /// </summary>
+    public class TimeExecutionManager : ITimedExecutionNode
     {
-        public float EndTime;
-        public bool IsRunning => Time.time < EndTime;
-        public bool IsComplete => Time.time >= EndTime;
-
-        public TimerData(float duration) => EndTime = Time.time + duration;
-    }
-
-    private readonly Dictionary<string, TimerData> _timers = new();
-
-    public void StartTime(string key, float duration)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new Exception("[TimerExecutionMono] Tried to start timer with empty/null key.");
-        
-        if (_timers.ContainsKey(key))
-            throw new Exception($"[TimerExecutionMono] Timer key '{key}' already exists. Overwriting existing timer.");
-        
-        _timers[key] = new TimerData(duration);
-    }
-
-    public void Interrupt(string key)
-    {
-        if (_timers.Remove(key))
-            Debug.Log($"[Timer] Interrupted '{key}'");
-    }
-
-    public bool IsRunning(string key)
-    {
-        if (!_timers.TryGetValue(key, out var timer)) 
-            return false;
-        return timer.IsRunning;
-    }
-
-    public bool IsComplete(string key)
-    {
-        if (!_timers.TryGetValue(key, out var timer)) 
-            return false;
-        return timer.IsComplete;
-    }
-
-    //Clean up completed timers (helpful for long sessions)
-    private void LateUpdate()
-    {
-        if (_timers.Count == 0) return;
-        var expiredTimers = new List<string>();
-        foreach (var pair in _timers)
+        private class TimerData
         {
-            if (pair.Value.IsComplete)
-                expiredTimers.Add(pair.Key);
+            private readonly float _endTime;
+            public bool IsRunning => Time.time < _endTime;
+            public bool IsComplete => Time.time >= _endTime;
+            public TimerData(float duration) => _endTime = Time.time + duration;
         }
 
-        foreach (var key in expiredTimers)
-            _timers.Remove(key);
+        private readonly Dictionary<string, TimerData> _timers = new();
+
+        public void StartTime(string key, float duration)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new Exception("[TimerExecutionMono] Tried to start timer with empty/null key.");
+        
+            if (_timers.ContainsKey(key))
+                throw new Exception($"[TimerExecutionMono] Timer key '{key}' already exists. Overwriting existing timer.");
+        
+            _timers[key] = new TimerData(duration);
+        }
+
+        public void Interrupt(string key)
+        {
+            if (_timers.Remove(key))
+                Debug.Log($"[Timer] Interrupted '{key}'");
+        }
+
+        public bool IsRunning(string key)
+        {
+            if (!_timers.TryGetValue(key, out var timer)) 
+                return false;
+            return timer.IsRunning;
+        }
+
+        public bool IsComplete(string key)
+        {
+            if (!_timers.TryGetValue(key, out var timer)) 
+                return false;
+            return timer.IsComplete;
+        }
+
+        //Clean up completed timers (helpful for long sessions)
+        public void LateTick()
+        {
+            if (_timers.Count == 0) return;
+            var expiredTimers = new List<string>();
+            foreach (var pair in _timers)
+            {
+                if (pair.Value.IsComplete)
+                    expiredTimers.Add(pair.Key);
+            }
+
+            foreach (var key in expiredTimers)
+                _timers.Remove(key);
+        }
     }
 }

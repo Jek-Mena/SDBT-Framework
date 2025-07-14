@@ -19,7 +19,7 @@ public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectM
     public void SetStatusEffectManager(StatusEffectManager manager)
     {
         // Unsubscribe from previous manager (if any) to avoid leaks
-        if (_statusEffectManager)
+        if (_statusEffectManager != null)
         {
             _statusEffectManager.DomainBlocked -= OnDomainBlocked;
             _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
@@ -27,7 +27,7 @@ public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectM
 
         _statusEffectManager = manager;
 
-        if (_statusEffectManager)
+        if (_statusEffectManager != null)
         {
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
@@ -36,7 +36,7 @@ public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectM
 
     private void OnDestroy()
     {
-        if(!_statusEffectManager) return;
+        if(_statusEffectManager == null) return;
 
         _statusEffectManager.DomainBlocked -= OnDomainBlocked;
         _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
@@ -50,7 +50,7 @@ public class QuaternionLookAt : MonoBehaviour, IRotationNode, IUsesStatusEffectM
     public bool TryRotateTo(Vector3 targetPosition)
     {
         // Check for movement blocking
-        if (!_statusEffectManager)
+        if (_statusEffectManager == null)
         {
             Debug.LogError($"[NavMeshMoveToTarget] {name} StatusEffectManager not found. Movement blocking will not be applied.");
             return false;

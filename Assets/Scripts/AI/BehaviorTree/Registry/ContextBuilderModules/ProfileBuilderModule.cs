@@ -20,8 +20,8 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             var agentProfiles = context.AgentProfiles;
         
             // Load both profile blocks (agent and behavior)
-            var rawAgentProfiles = context.Definition.Config[BtAgentJsonFields.AgentProfilesField] as JObject;
-            var rawBehaviorProfiles = context.Definition.Config[BtAgentJsonFields.BehaviorProfilesField] as JObject;
+            var rawAgentProfiles = context.AgentDefinition.Config[BtAgentJsonFields.AgentProfilesField] as JObject;
+            var rawBehaviorProfiles = context.AgentDefinition.Config[BtAgentJsonFields.BehaviorProfilesField] as JObject;
         
             // AGENT-GLOBAL PROFILES
             // Only used for systems like Fear, Health, etc.
@@ -53,17 +53,16 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             }
         
             // Agents Current Profiles
-            if (context.Definition.Config != null)
+            if (context.AgentDefinition.Config != null)
             {
-                var personaProfileKey = context.Definition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
+                var personaProfileKey = context.AgentDefinition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
 
                 agentProfiles.CurrentPersonaProfileKey =
-                    context.Definition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
+                    context.AgentDefinition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
                 Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");
                 Debug.Log($"🟡 [{ScriptName}] PersonaProfiles loaded. Keys: [{string.Join(", ", agentProfiles.PersonaProfiles.Keys)}]");
                 // Add Health and Fear
             }
-        
         
             // BEHAVIOR PROFILES
             // Only used for BT node config: movement, timing, targeting, etc.

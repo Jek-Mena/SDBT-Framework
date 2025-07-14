@@ -1,3 +1,4 @@
+using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Loader;
 using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
@@ -20,12 +21,6 @@ namespace AI.BehaviorTree.Runtime
 
         private int _btSessionId = 0;
         
-        private void OnSwitchRequested(string fromKey, string toKey, string reason)
-        {
-            if (toKey != _activePersonaTreeKey)
-                SwitchPersonaTree(toKey, $"event: {reason}");
-        }
-    
         // Switches to a new tree by key; this is the only tree assignment API.
         public void SwitchPersonaTree(string treeKey, string reason)
         {
@@ -70,7 +65,7 @@ namespace AI.BehaviorTree.Runtime
         {
             Context = context;
 
-            _personaSwitcher = context.Blackboard.PersonaSwitcher;
+            _personaSwitcher = context.Blackboard.PersonaBehaviorTreeSwitcher;
             if (_personaSwitcher != null)
                 _personaSwitcher.OnSwitchRequested += OnSwitchRequested;
             else
@@ -89,14 +84,19 @@ namespace AI.BehaviorTree.Runtime
             }
         }
 
+        private void OnSwitchRequested(string fromKey, string toKey, string reason)
+        {
+            if (toKey != _activePersonaTreeKey)
+                SwitchPersonaTree(toKey, $"event: {reason}");
+        }
+        
         private void SetTree(IBehaviorNode rootNode) => RootNode = rootNode;
 
         private void Update()
         {
             // Run all perception modules
-            foreach (var perception in Context.PerceptionModules)
+            foreach (var perception in Context.Blackboard.PerceptionModules)
                 perception.UpdatePerception();   
-            
             
             // Persona switcher logic
             if (_personaSwitcher != null && Context != null)
@@ -118,8 +118,19 @@ namespace AI.BehaviorTree.Runtime
                 Context.Blackboard.MovementOrchestrator.Tick(deltaTime);
                 Debug.Log($"[BT Tick] Status: {result}");
             }
+        }
+        
+        private void LateUpdate()
+        {
+            if (!BtValidator.Require(Context)
+                    .MovementOrchestrator()
+                    .Check(out var error))
+            {
+                Debug.LogError(error);
+            }
             
-            
+            Context.Blackboard.TimeExecutionManager.LateTick();
+            Context.Blackboard.StatusEffectManager.LateTick();
         }
     }
 }

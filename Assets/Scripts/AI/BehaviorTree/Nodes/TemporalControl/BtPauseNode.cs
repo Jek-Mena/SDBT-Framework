@@ -19,7 +19,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         public override BtStatus Tick(BtContext context)
         {
             if (!BtValidator.Require(context)
-                    .Timers()
+                    .TimeExecutionManager()
                     .Effects()
                     .Check(out var error)
                )

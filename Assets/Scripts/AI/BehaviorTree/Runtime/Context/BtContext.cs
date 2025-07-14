@@ -24,10 +24,8 @@ namespace AI.BehaviorTree.Runtime.Context
         public BtController Controller { get; }
         public GameObject Agent { get; }
         public AgentProfiles AgentProfiles { get; }
-        public AgentDefinition Definition { get; }
+        public AgentDefinition AgentDefinition { get; }
         public Blackboard Blackboard { get; }
-        public BtPersonaSwitcher PersonaSwitcher { get; }
-        public List<IPerceptionModule> PerceptionModules { get; set; }
 
         public float DeltaTime;
         
@@ -35,16 +33,14 @@ namespace AI.BehaviorTree.Runtime.Context
             GameObject agent,
             BtController controller,
             AgentProfiles profile, 
-            AgentDefinition definition,
-            Blackboard blackboard,
-            BtPersonaSwitcher personaSwitcher)
+            AgentDefinition agentDefinition,
+            Blackboard blackboard)
         {
             Controller = controller;
             Agent = agent;
             AgentProfiles = profile;
-            Definition = definition;
+            AgentDefinition = agentDefinition;
             Blackboard = blackboard;
-            PersonaSwitcher = personaSwitcher;
         }
     }
 }

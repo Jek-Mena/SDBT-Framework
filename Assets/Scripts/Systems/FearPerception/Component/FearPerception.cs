@@ -16,10 +16,12 @@ namespace Systems.FearPerception.Component
         public override void Initialize(BtContext context)
         {
             base.Initialize(context);
-        
+            
             Profile = context.AgentProfiles.GetFearPerceptionProfile(BtAgentJsonFields.AgentProfiles.DefaultFear);
             if (Profile == null)
                 Debug.LogError($"[{ScriptName}] No FearPerceptionData profile found for this agent/context!");
+            else
+                Debug.Log($"[{ScriptName}] Profile type: {Profile.GetType()}\nProfile JSON: {JsonUtility.ToJson(Profile)}");
         }
 
         protected override void ProcessStimuli(List<FearStimulus> stimuli)

@@ -22,7 +22,7 @@ public class TimeoutNode : TimedExecutionNode
     public override BtStatus Tick(BtContext context)
     {
         if (!BtValidator.Require(context)
-                .Timers()
+                .TimeExecutionManager()
                 .Check(out var error)
            )
         {

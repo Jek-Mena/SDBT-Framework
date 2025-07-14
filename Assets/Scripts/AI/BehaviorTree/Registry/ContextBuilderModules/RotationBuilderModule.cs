@@ -26,7 +26,7 @@ public class RotationBuilderModule : IContextBuilderModule
         // Inject StatusEffectManager only if supported
         if (rotationNode is IUsesStatusEffectManager effectUser)
         {
-            if (context.Blackboard.StatusEffectManager)
+            if (context.Blackboard.StatusEffectManager != null)
             {
                 effectUser.SetStatusEffectManager(context.Blackboard.StatusEffectManager);
                 Debug.Log($"[{scriptName}] {nameof(StatusEffectManager)} initialize for {agent.name}");   

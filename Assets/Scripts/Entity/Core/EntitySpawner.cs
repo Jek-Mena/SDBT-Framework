@@ -2,62 +2,64 @@
 using AI.BehaviorTree.Registry.List;
 using AI.BehaviorTree.Runtime.Context;
 using Loader;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Utils.Component;
 
-public class EntitySpawner : MonoBehaviour
+namespace Entity.Core
 {
-    [Tooltip("If set, this spawner always spawns this entity type. Otherwise, call SpawnEntity manually.")]
-    [SerializeField] private string defaultEntityId = "enemy_test_agent";
-    [SerializeField] private Transform spawnPoint;
-    
-    private const string ScriptName = nameof(EntitySpawner);
-    
-    public GameObject SpawnEntity(string entityId, Vector3 position, Quaternion rotation)
+    public class EntitySpawner : MonoBehaviour
     {
-        if (string.IsNullOrWhiteSpace(entityId))
-            entityId = defaultEntityId;
-
-        if (position == Vector3.zero)
-            position = spawnPoint.position;
-        
-        // Get definition 
-        var def = GameAssets.GetEntity(entityId);
-        if (def == null)
+        [Tooltip("If set, this spawner always spawns this entity type. Otherwise, call SpawnEntity manually.")]
+        [SerializeField] private string defaultEntityId = "enemy_test_agent";
+        [SerializeField] private Transform spawnPoint;
+    
+        private const string ScriptName = nameof(EntitySpawner);
+    
+        public GameObject SpawnEntity(string entityId, Vector3 position, Quaternion rotation)
         {
-            Debug.LogError($"[{ScriptName}] No definition for '{entityId}'"); 
-            return null;
-        }
+            if (string.IsNullOrWhiteSpace(entityId))
+                entityId = defaultEntityId;
 
-        Debug.Log($"[EntitySpawner] Spawning '{entityId}'. Config: {def.Config}");
+            if (position == Vector3.zero)
+                position = spawnPoint.position;
         
-        // Instantiate entity
-        var agent = Instantiate(def.Prefab, position, rotation);
-        agent.name = $"{entityId}-{agent.GetInstanceID()}";
+            // Get definition 
+            var def = GameAssets.GetEntity(entityId);
+            if (def == null)
+            {
+                Debug.LogError($"[{ScriptName}] No definition for '{entityId}'"); 
+                return null;
+            }
+
+            Debug.Log($"[EntitySpawner] Spawning '{entityId}'. Config: {def.Config}");
         
-        // Assign the definition to the agent
-        var runtimeData = agent.RequireComponent<AgentRuntimeData>();
-        runtimeData.Definition = def;
+            // Instantiate entity
+            var agent = Instantiate(def.Prefab, position, rotation);
+            agent.name = $"{entityId}-{agent.GetInstanceID()}";
         
-        // Build context and assign Behavior Tree
-        var blackboardBuilder = new BtContextBuilder();
-        ContextModuleRegistrationList.RegisterAll(blackboardBuilder);
+            // Assign the definition to the agent
+            var runtimeData = agent.RequireComponent<AgentRuntimeData>();
+            runtimeData.Definition = def;
         
-        // Build context (pure, no wiring up)
-        var context = blackboardBuilder.BuildContext(agent);
+            // Build context and assign Behavior Tree
+            var blackboardBuilder = new BtContextBuilder();
+            ContextModuleRegistrationList.RegisterAll(blackboardBuilder);
         
-        var controller = context.Controller;
-        if (!controller)
-        {
-            Debug.LogError($"[{ScriptName}] BtController missing from '{agent.name}'");
-            return agent;       
+            // Build context (pure, no wiring up)
+            var context = blackboardBuilder.BuildContext(agent);
+        
+            var controller = context.Controller;
+            if (!controller)
+            {
+                Debug.LogError($"[{ScriptName}] BtController missing from '{agent.name}'");
+                return agent;       
+            }
+        
+            // Explicitly wire context to controller
+            controller.Initialize(context);
+        
+            return agent;
         }
-        
-        // Explicitly wire context to controller
-        controller.Initialize(context);
-        
-        return agent;
-    }
    
+    }
 }

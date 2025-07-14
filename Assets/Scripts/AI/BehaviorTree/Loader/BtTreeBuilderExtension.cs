@@ -14,7 +14,7 @@ public static class BtTreeBuilderExtension
     public static void ResolveRefs(JToken node, BtContext context)
     {
         // Get config root ONCE for performance; throw if missing.
-        var configData = context.Definition.Config;
+        var configData = context.AgentDefinition.Config;
         if (configData == null)
             throw new Exception($"[{ScriptName}] Missing Entity/Agent config in context!");
 

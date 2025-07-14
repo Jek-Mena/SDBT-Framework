@@ -38,7 +38,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         {
             if (!BtValidator.Require(context)
                     .Targeting(_targetProfileKey)
-                    .Movement()
+                    .MovementOrchestrator()
                     .Check(out var error))
             {
                 Debug.Log(error);

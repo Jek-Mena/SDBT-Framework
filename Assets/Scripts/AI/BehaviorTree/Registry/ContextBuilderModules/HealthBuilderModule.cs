@@ -24,7 +24,7 @@ public class HealthBuilderModule : IContextBuilderModule
         // Inject StatusEffectManager only if supported
         if (healthComponent is IUsesStatusEffectManager effectUser)
         {
-            if (context.Blackboard.StatusEffectManager) 
+            if (context.Blackboard.StatusEffectManager != null) 
                 effectUser.SetStatusEffectManager(context.Blackboard.StatusEffectManager);
         }
         

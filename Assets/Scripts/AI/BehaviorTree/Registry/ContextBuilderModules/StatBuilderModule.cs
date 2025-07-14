@@ -1,7 +1,6 @@
 ﻿using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Runtime.Context;
 using Systems.StatusEffectSystem.Component;
-using UnityEngine;
 using Utils.Component;
 
 // [2025-07-06 ARCHITECTURE WARNING]
@@ -15,30 +14,33 @@ using Utils.Component;
 //  - NEVER rely on ad-hoc keys from designers or other systems unless they're strictly controlled.
 // For now, do NOT refactor unless you have a clear, portfolio-worthy use case and API for custom stats.
 // ---
-public class StatBuilderModule : IContextBuilderModule
+namespace AI.BehaviorTree.Registry.ContextBuilderModules
 {
-    public void Build(BtContext context)
+    public class StatBuilderModule : IContextBuilderModule
     {
-        var scriptName = nameof(StatBuilderModule);
-        var agent = context.Agent;
-        var blackboard = context.Blackboard;
+        public void Build(BtContext context)
+        {
+            var scriptName = nameof(StatBuilderModule);
+            var agent = context.Agent;
+            var blackboard = context.Blackboard;
         
-        var statusManager = agent.RequireComponent<StatusEffectManager>();
-        var statSynchronizer = agent.RequireComponent<StatSynchronizer>(); // <<-- [2025-06-25] Red flag and needs to be abstract??? For checking 
+            var statusManager = blackboard.StatusEffectManager;
+            var statSynchronizer = agent.RequireComponent<StatSynchronizer>(); // <<-- [2025-06-25] Red flag and needs to be abstract??? For checking 
         
-        var modifiers = statusManager.agentModifiers.Stats;
+            var modifiers = statusManager.agentModifiers.Stats;
         
-        blackboard.Set(BlackboardKeys.Multipliers.Movement, modifiers.Movement);
-        blackboard.Set(BlackboardKeys.Multipliers.Attack, modifiers.Attack);
-        blackboard.Set(BlackboardKeys.Multipliers.Armor, modifiers.Armor);
+            blackboard.Set(BlackboardKeys.Multipliers.Movement, modifiers.Movement);
+            blackboard.Set(BlackboardKeys.Multipliers.Attack, modifiers.Attack);
+            blackboard.Set(BlackboardKeys.Multipliers.Armor, modifiers.Armor);
 
-        statSynchronizer.Initialize(context);
-        statSynchronizer.SetStatusEffectManager(statusManager);
+            statSynchronizer.Initialize(context);
+            statSynchronizer.SetStatusEffectManager(statusManager);
         
-        // Optional: loop custom stats if you use them
-        if (modifiers.Custom.Count <= 0) return;
+            // Optional: loop custom stats if you use them
+            if (modifiers.Custom.Count <= 0) return;
         
-        foreach (var kvp in modifiers.Custom)
-            blackboard.Set(kvp.Key, kvp.Value);
+            foreach (var kvp in modifiers.Custom)
+                blackboard.Set(kvp.Key, kvp.Value);
+        }
     }
 }

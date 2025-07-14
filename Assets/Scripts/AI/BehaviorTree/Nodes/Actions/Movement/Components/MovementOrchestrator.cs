@@ -13,46 +13,37 @@ using Utils.Component;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
 {
-    public class MovementOrchestrator : MonoBehaviour
+    public class MovementOrchestrator
     {
         private const string ScriptName = nameof(MovementOrchestrator);
-        
-        private Dictionary<MovementNodeType, IMovementExecutor> _executors;
+        private readonly Dictionary<MovementNodeType, IMovementExecutor> _executors;
+        private readonly StatusEffectManager _statusEffectManager;
         private IMovementExecutor _currentExecutor;
-        private MovementNodeType _currentExecutorType;
-
-        [Header("References")]
-        [SerializeField] private NavMeshAgent agent;
-        [SerializeField] private bool useNavMesh = true;
-        
-        private BtContext _context;
-        private StatusEffectManager _statusEffectManager;
-        
-        private Vector3 _lastDestination = Vector3.positiveInfinity;
         private MovementData _lastMoveData;
-        private bool _hasLastMove = false;
-
+        private MovementNodeType _currentExecutorType;
+        private Vector3 _lastDestination = Vector3.positiveInfinity;
         private int _activeExecutorId = -1;
+        private bool _hasLastMove;
 
-        public void Initialize(BtContext context)
+        public MovementOrchestrator(BtContext context)
         {
-            _context = context;
-            agent = context.Agent.RequireComponent<NavMeshAgent>();
+            var navMeshAgent = context.Agent.RequireComponent<NavMeshAgent>();
             
             _executors = new Dictionary<MovementNodeType, IMovementExecutor>
             {
-                { MovementNodeType.NavMesh, new NavMeshMoveToTargetExecutor(agent) },
-                { MovementNodeType.Transform, new TransformMoveToTargetExecutor(_context.Agent.transform)}
+                { MovementNodeType.NavMesh, new NavMeshMoveToTargetExecutor(navMeshAgent) },
+                { MovementNodeType.Transform, new TransformMoveToTargetExecutor(context.Agent.transform)}
             };
 
             _currentExecutorType = MovementNodeType.NavMesh;
             _currentExecutor = _executors[_currentExecutorType];
-
-            _context = context;
+            
             Dispose(); // Unsubscribe from the previous status effect manager
-            _statusEffectManager = _context.Blackboard.StatusEffectManager;;
+            _statusEffectManager = context.Blackboard.StatusEffectManager;;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
+            
+            Debug.Log($"[{ScriptName}] {nameof(MovementOrchestrator)} initialized for {context.Agent.name}");
         }
         
         public void SetCurrentType(MovementNodeType type)
@@ -163,7 +154,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
         // Be a good citizen—unsubscribe when destroyed/disposed!
         public void Dispose()
         {
-            if(!_statusEffectManager) return;
+            if(_statusEffectManager == null) return;
             _statusEffectManager.DomainBlocked -= OnDomainBlocked;
             _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
         }

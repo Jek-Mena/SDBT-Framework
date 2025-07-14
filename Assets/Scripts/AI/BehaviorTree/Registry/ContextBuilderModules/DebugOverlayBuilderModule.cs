@@ -1,18 +1,20 @@
 ﻿using AI.BehaviorTree.Runtime.Context;
 using Utils.Component;
 
-public class DebugOverlayBuilderModule : IContextBuilderModule
+namespace AI.BehaviorTree.Registry.ContextBuilderModules
 {
-    public void Build(BtContext context)
+    public class DebugOverlayBuilderModule : IContextBuilderModule
     {
-        var scriptName = nameof(DebugOverlayBuilderModule);
-        var agent = context.Agent;
-        var blackboard = context.Blackboard;
+        public void Build(BtContext context)
+        {
+            var scriptName = nameof(DebugOverlayBuilderModule);
+            var agent = context.Agent;
+            var blackboard = context.Blackboard;
         
-        // Injects the full config JObject into the blackboard at context build time.
-        var debugOverlay = agent.RequireComponent<DebugOverlay>();
+            // Injects the full config JObject into the blackboard at context build time.
+            var debugOverlay = agent.RequireComponent<DebugOverlay>();
         
-        debugOverlay.Initialize(context);
-        debugOverlay.SetStatusEffectManager(blackboard.StatusEffectManager);
+            debugOverlay.Initialize(context);
+        }
     }
 }
