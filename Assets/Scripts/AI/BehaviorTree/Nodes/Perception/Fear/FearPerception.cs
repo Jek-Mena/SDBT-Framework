@@ -93,7 +93,7 @@ namespace Systems.FearPerception.Component
                 return new List<FearStimulus>();
             }
 
-            return FearStimulusManager.Instance?.Query(transform.position, Profile.DetectionRange) 
+            return FearEmitterManager.Instance?.Query(transform.position, Profile.DetectionRange) 
                    ?? new List<FearStimulus>();
         }
     

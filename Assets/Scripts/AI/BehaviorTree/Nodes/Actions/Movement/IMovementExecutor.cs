@@ -1,16 +1,17 @@
 ﻿using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using UnityEngine;
 
-namespace AI.BehaviorTree.Nodes.Abstractions
+namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
     public interface IMovementExecutor
     {
-        MovementNodeType Type { get; }
-        bool TryMoveTo(Vector3 destination);
+        MoveToTargetNodeType Type { get; }
+        bool AcceptMoveIntent(Vector3 destination, MovementData data);
         void ApplySettings(MovementData data);
         void StartMovement();
         void PauseMovement();
         void CancelMovement();
         bool IsAtDestination();
+        bool IsCurrentMove(Vector3 destination, MovementData data);
     }
 }

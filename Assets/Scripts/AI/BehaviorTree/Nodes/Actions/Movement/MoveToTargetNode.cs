@@ -30,7 +30,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         public void Reset(BtContext context)
         {
             // Only called when node is interrupted or parent resets (e.g. after pause)
-            context.Blackboard.MovementOrchestrator.CancelMovement();
+            context.Blackboard.MovementIntentRouter.CancelMovement();
             LastStatus = BtStatus.Idle;
         }
         
@@ -66,11 +66,11 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 return LastStatus;
             }
             
-            var canMove = context.Blackboard.MovementOrchestrator.TryMoveTo(target.position, movementData, context.Blackboard.BtSessionId);
+            var canMove = context.Blackboard.MovementIntentRouter.TryIssueMoveIntent(target.position, movementData, context.Blackboard.BtSessionId);
             Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
             
             LastStatus = canMove
-                ? context.Blackboard.MovementOrchestrator.IsAtDestination() ? BtStatus.Success : BtStatus.Running
+                ? context.Blackboard.MovementIntentRouter.IsAtDestination() ? BtStatus.Success : BtStatus.Running
                 : BtStatus.Failure;
 
             return LastStatus;

@@ -43,4 +43,9 @@ public class HealthComponent : MonoBehaviour, IUsesStatusEffectManager
     {
         Debug.Log($"[{ScriptName}] Domained unblocked...");
     }
+
+    public void Dispose()
+    {
+        throw new System.NotImplementedException();
+    }
 }

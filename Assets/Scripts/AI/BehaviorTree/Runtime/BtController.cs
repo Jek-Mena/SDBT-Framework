@@ -54,7 +54,8 @@ namespace AI.BehaviorTree.Runtime
             _btSessionId++;
             Context.Blackboard.BtSessionId = _btSessionId;
             
-            Context.Blackboard.MovementOrchestrator.TakeOwnership(Context.Blackboard.BtSessionId);
+            Context.Blackboard.MovementIntentRouter.TakeOwnership(Context.Blackboard.BtSessionId);
+            Context.Blackboard.RotationIntentRouter.TakeOwnership(Context.Blackboard.BtSessionId);
             
             // Assign to controller
             SetTree(rootNode);
@@ -115,7 +116,7 @@ namespace AI.BehaviorTree.Runtime
                 var deltaTime = Time.deltaTime;
                 var result = RootNode.Tick(Context);
                 Context.DeltaTime = deltaTime;
-                Context.Blackboard.MovementOrchestrator.Tick(deltaTime);
+                Context.Blackboard.MovementIntentRouter.Tick(deltaTime);
                 Debug.Log($"[BT Tick] Status: {result}");
             }
         }

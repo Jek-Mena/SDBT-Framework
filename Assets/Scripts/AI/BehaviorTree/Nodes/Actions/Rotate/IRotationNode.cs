@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using AI.BehaviorTree.Nodes.Actions.Rotate.Data;
+using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Rotate
 {

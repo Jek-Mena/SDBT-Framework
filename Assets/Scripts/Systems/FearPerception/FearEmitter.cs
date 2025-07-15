@@ -1,5 +1,5 @@
 ﻿using System;
-using Systems.FearPerception.Component;
+using Systems.FearPerception;
 using UnityEngine;
 
 public class FearEmitter : MonoBehaviour
@@ -24,8 +24,8 @@ public class FearEmitter : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (FearStimulusManager.Instance)
-            FearStimulusManager.Instance.Unregister(this);
+        if (FearEmitterManager.Instance)
+            FearEmitterManager.Instance.Unregister(this);
     }
     
     /// <summary>

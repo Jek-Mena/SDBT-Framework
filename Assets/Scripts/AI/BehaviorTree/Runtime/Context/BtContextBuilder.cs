@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AI.BehaviorTree.Core;
-using AI.BehaviorTree.Nodes.Actions.Movement.Components;
+using AI.BehaviorTree.Nodes.Actions.Movement;
+using AI.BehaviorTree.Nodes.Actions.Rotate;
 using AI.BehaviorTree.Nodes.TemporalControl.Component;
 using AI.BehaviorTree.Switching;
 using Systems.StatusEffectSystem.Component;
@@ -87,7 +88,8 @@ namespace AI.BehaviorTree.Runtime.Context
             // Constructor injection for simple, self-contained systems.
             blackboard.StatusEffectManager = new StatusEffectManager();
             blackboard.TimeExecutionManager = new TimeExecutionManager();
-            blackboard.MovementOrchestrator = new MovementOrchestrator(context); // <<-- Depends on StatusEffectManager
+            blackboard.MovementIntentRouter = new MovementIntentRouter(context); // <<-- Depends on StatusEffectManager
+            blackboard.RotationIntentRouter = new RotationIntentRouter(context);
             blackboard.PersonaBehaviorTreeSwitcher = new PersonaBehaviorTreeSwitcher(context); // <<-- Depends on ProfileContextBuilderModule (built on step 3)
             
             Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +

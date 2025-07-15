@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Systems.FearPerception.Component
+namespace Systems.FearPerception
 {
     /// <summary>
     /// Central manager for all FearEmitter sources in the scene.
     /// Finds and tracks all emitters, supports dynamic registration for spawned emitters,
     /// and provides a query API for perception modules.
     /// </summary>
-    public class FearStimulusManager : MonoBehaviour
+    public class FearEmitterManager : MonoBehaviour
     {
-        public static FearStimulusManager Instance { get; private set; }
-        private const string ScriptName = nameof(FearStimulusManager);
+        public static FearEmitterManager Instance { get; private set; }
+        private const string ScriptName = nameof(FearEmitterManager);
         private readonly HashSet<FearEmitter> _emitters = new();
 
         private void Awake()

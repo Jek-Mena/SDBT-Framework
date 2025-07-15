@@ -24,15 +24,14 @@ namespace AI.BehaviorTree.Registry.List
                 // that depends on profiles (movement, targeting, etc.). If you add a new profile-dependent module,
                 // always register it after the profile module.
             
-                // Injects all profile dictionaries into blackboard
+                // Injects all profile dictionaries into the blackboard
                 new ProfileBuilderModule(),
             
                 // All systems that depend on profiles must come AFTER profile injection
                 new UpdatePhaseExecutorBuilderModule(),
             
                 //new TargetingBuilderModule(),
-                new HealthBuilderModule(),
-                new RotationBuilderModule(),   // <-- ADD HERE, order matters if anything uses RotationLogic!
+                //new HealthBuilderModule(),
             
                 new PerceptionBuilderModule(),
                 //new StatBuilderModule(),

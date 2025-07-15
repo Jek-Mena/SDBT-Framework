@@ -61,16 +61,12 @@ public class RotateToTargetNode : IBehaviorNode
         }
 
         context.Blackboard.RotationLogic.ApplySettings(rotationData);
-        var canRotate = context.Blackboard.RotationLogic.TryRotateTo(target.position);
+        var canRotate = context.Blackboard.RotationIntentRouter.TryRotateTo(target.position, rotationData, context.Blackboard.BtSessionId);
 
-        if (canRotate)
-        {
-            _lastStatus = context.Blackboard.RotationLogic.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running;
-        }
-        else
-        {
-            _lastStatus = BtStatus.Failure;
-        }
+        _lastStatus = canRotate
+            ? context.Blackboard.RotationLogic.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running
+            : BtStatus.Failure;
+        
         return _lastStatus;
     }
 }

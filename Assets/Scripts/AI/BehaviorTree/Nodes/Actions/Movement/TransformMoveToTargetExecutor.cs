@@ -2,7 +2,7 @@
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using UnityEngine;
 
-namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement
+namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
     /// <summary>
     /// Handles runtime movement via transform logic.
@@ -13,7 +13,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement
     public class TransformMoveToTargetExecutor : IMovementExecutor, ITickableExecutor
     {
         private const string ScriptName = nameof(TransformMoveToTargetExecutor);
-        public MovementNodeType Type => MovementNodeType.Transform;
+        public MoveToTargetNodeType Type => MoveToTargetNodeType.Transform;
         
         private readonly Transform _transform;
         private MovementData _currentSettings;
@@ -31,10 +31,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement
         /// Issues a new movement command. Only call when intent changes.
         /// Do not call every frame.
         /// </summary>
-        public bool TryMoveTo(Vector3 destination)
+        public bool AcceptMoveIntent(Vector3 destination, MovementData data)
         {
-            Debug.Log($"[TransformExecutor] TryMoveTo: called, target={destination}, isMoving={_isMoving}");
-            
             if (!_transform)
             {
                 Debug.LogError($"[{ScriptName}] Transform is null.");
@@ -44,6 +42,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement
             // Always accept new move intent (idempotent).
             _targetDestination = destination;
             _lastSetDestination = destination;
+            _currentSettings = data;
             _isMoving = true;
             return true;
         }
@@ -124,7 +123,18 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement
             if (!_transform) return false;
             return !_isMoving || Vector3.Distance(_transform.position, _targetDestination) <= _arriveThreshold;
         }
-        
+
+        public bool IsCurrentMove(Vector3 destination, MovementData data)
+        {
+            // 1. Are we already moving to a "close enough" destination?
+            var destinationMatch = Vector3.Distance(_lastSetDestination, destination) < data.UpdateThreshold;
+            // 2. Are the movement settings the same?
+            var settingsMatch = _currentSettings != null && _currentSettings.Equals(data);
+            // 3. Are we actively moving (optional, but often makes sense for intent)
+            var isMoving = _isMoving;
+            return destinationMatch && settingsMatch && isMoving;
+        }
+
         // Converts the intended movement direction based on MovementData.Direction
         private Vector3 ResolveDirection(Vector3 baseDir, Direction moveDir, Vector3 upAxis)
         {

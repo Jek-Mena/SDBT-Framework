@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using AI.BehaviorTree.Nodes.Abstractions;
-using AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh;
-using AI.BehaviorTree.Nodes.Actions.Movement.Components.TransformMovement;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
@@ -11,42 +9,40 @@ using UnityEngine;
 using UnityEngine.AI;
 using Utils.Component;
 
-namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
+namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
-    public class MovementOrchestrator
+    public class MovementIntentRouter: IUsesStatusEffectManager
     {
-        private const string ScriptName = nameof(MovementOrchestrator);
-        private readonly Dictionary<MovementNodeType, IMovementExecutor> _executors;
+        private const string ScriptName = nameof(MovementIntentRouter);
+        private readonly Dictionary<MoveToTargetNodeType, IMovementExecutor> _executors;
         private readonly StatusEffectManager _statusEffectManager;
         private IMovementExecutor _currentExecutor;
-        private MovementData _lastMoveData;
-        private MovementNodeType _currentExecutorType;
-        private Vector3 _lastDestination = Vector3.positiveInfinity;
+        private MoveToTargetNodeType _currentExecutorType;
         private int _activeExecutorId = -1;
         private bool _hasLastMove;
 
-        public MovementOrchestrator(BtContext context)
+        public MovementIntentRouter(BtContext context)
         {
             var navMeshAgent = context.Agent.RequireComponent<NavMeshAgent>();
             
-            _executors = new Dictionary<MovementNodeType, IMovementExecutor>
+            _executors = new Dictionary<MoveToTargetNodeType, IMovementExecutor>
             {
-                { MovementNodeType.NavMesh, new NavMeshMoveToTargetExecutor(navMeshAgent) },
-                { MovementNodeType.Transform, new TransformMoveToTargetExecutor(context.Agent.transform)}
+                { MoveToTargetNodeType.NavMesh, new NavMeshMoveToTargetExecutor(navMeshAgent) },
+                { MoveToTargetNodeType.Transform, new TransformMoveToTargetExecutor(context.Agent.transform)}
             };
 
-            _currentExecutorType = MovementNodeType.NavMesh;
+            _currentExecutorType = MoveToTargetNodeType.NavMesh;
             _currentExecutor = _executors[_currentExecutorType];
             
-            Dispose(); // Unsubscribe from the previous status effect manager
+            Dispose();
             _statusEffectManager = context.Blackboard.StatusEffectManager;;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
             
-            Debug.Log($"[{ScriptName}] {nameof(MovementOrchestrator)} initialized for {context.Agent.name}");
+            Debug.Log($"[{ScriptName}] {nameof(MovementIntentRouter)} initialized for {context.Agent.name}");
         }
         
-        public void SetCurrentType(MovementNodeType type)
+        public void SetCurrentType(MoveToTargetNodeType type)
         {
             if(_currentExecutorType == type) return;
             
@@ -54,7 +50,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
             if (_currentExecutor != null)
             {
                 _currentExecutor.CancelMovement();
-                Debug.Log($"[{ScriptName}] Cancelled previous executor: {_currentExecutor.Type}");
+                Debug.Log($"[{ScriptName}] Cancelled previous movement executor: {_currentExecutor.Type}");
             }
 
             if (_executors.TryGetValue(type, out var executor))
@@ -69,17 +65,10 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
             }
         }
         
-        public bool IsCurrentMove(Vector3 destination, MovementData data)
-        {
-            return _hasLastMove
-                   && Vector3.Distance(_lastDestination, destination) < data.UpdateThreshold
-                   && data.Equals(_lastMoveData);
-        }
-        
         /// <summary>
         /// Called by BTNode <see cref="MoveToTargetNode"/>
         /// </summary>
-        public bool TryMoveTo(Vector3 destination, MovementData data, int executorId)
+        public bool TryIssueMoveIntent(Vector3 destination, MovementData data, int executorId)
         {
             if (_activeExecutorId != executorId)
             {
@@ -91,11 +80,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
                 );
                 return false;
             }
-            
-            SetCurrentType(data.MovementType);
-            
-            _currentExecutor.ApplySettings(data);
-            
+         
             //Debug.Log($"[MovementOrchestrator] TryMoveTo: type={data.MovementType}, target={destination}");
             if (_currentExecutor == null)
             {
@@ -103,23 +88,28 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
                 return false;
             }
             
+            SetCurrentType(data.MovementType);
+            _currentExecutor.ApplySettings(data);
+            
             // --- Only act if intent changes ---
             if (!IsCurrentMove(destination, data))
             {
-                Debug.Log($"[MovementOrchestrator] New movement intent. Cancelling previous and moving to {destination} ({data.MovementType})");
+                Debug.Log($"[MovementOrchestrator] New movement intent. " +
+                          $"Cancelling previous and moving to {destination} ({data.MovementType})");
                 _currentExecutor.CancelMovement();
-                var result = _currentExecutor.TryMoveTo(destination);
-                _currentExecutor.StartMovement(); // Explicitly "go"
+                _currentExecutor.StartMovement();
+                _currentExecutor.AcceptMoveIntent(destination, data);
 
-                _lastDestination = destination;
-                _lastMoveData = data;
-                _hasLastMove = true;
-
-                return result;
+                return true;
             }
 
             // Already moving to this target with these params
             return true;
+        }
+        
+        public bool IsCurrentMove(Vector3 destination, MovementData data)
+        {
+            return _currentExecutor?.IsCurrentMove(destination, data) ?? false;
         }
         
         public void Tick(float deltaTime)
@@ -136,15 +126,15 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components
             _activeExecutorId = newOwnerId;
             Debug.Log($"[{ScriptName}] Movement intent owner switched to {newOwnerId}");
         }
-        
-        private void OnDomainBlocked(string domain)
+
+        public void OnDomainBlocked(string domain)
         {
             if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
-            Debug.Log($"[{ScriptName}] Movement domain blocked, stopping executor.");
+            Debug.Log($"[{ScriptName}] Movement/Rotation domain blocked, stopping executor.");
             _currentExecutor.PauseMovement();
         }
 
-        private void OnDomainUnblocked(string domain)
+        public void OnDomainUnblocked(string domain)
         {
             if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
             Debug.Log("[Orchestrator] Movement domain unblocked, resuming executor.");

@@ -14,7 +14,7 @@ namespace AI.BehaviorTree.Runtime.Context
 
         public BtValidator MovementOrchestrator()
         {
-            if (_context.Blackboard.MovementOrchestrator == null)
+            if (_context.Blackboard.MovementIntentRouter == null)
                 _errors.Add($"[{ScriptName}] Movement logic missing.");
             return this;
         }

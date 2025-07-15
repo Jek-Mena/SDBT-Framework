@@ -44,7 +44,7 @@
       },
       "DefaultTransformMovement": {
         "movementType": "Transform",
-        "speed": 1.5,
+        "speed": 6,
         "acceleration" : 1.5,
         "stoppingDistance": 0.5,
         "angularSpeed": 150.0,
@@ -68,7 +68,8 @@
       "DefaultRotation": {
         "speed": 120.0,
         "angleThreshold": 3.0,
-        "updateThreshold": 0.05
+        "updateThreshold": 0.05,
+        "SqrTargetReachedThreshold": 0.05
       }
     },
     "TimingProfiles": {

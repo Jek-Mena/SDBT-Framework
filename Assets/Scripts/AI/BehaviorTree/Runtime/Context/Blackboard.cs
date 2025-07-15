@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
-using AI.BehaviorTree.Nodes.Actions.Movement.Components;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
 using AI.BehaviorTree.Nodes.TemporalControl.Component;
 using AI.BehaviorTree.Switching;
@@ -39,10 +38,12 @@ namespace AI.BehaviorTree.Runtime.Context
         public TimeExecutionManager TimeExecutionManager { get; set; }
         public UpdatePhaseExecutor UpdatePhaseExecutor { get; set; }
         public StatusEffectManager StatusEffectManager { get; set; }
-        public MovementOrchestrator MovementOrchestrator { get; set; }
+        public MovementIntentRouter MovementIntentRouter { get; set; }
+        public RotationIntentRouter RotationIntentRouter { get; set; }
         public List<IPerceptionModule> PerceptionModules { get; set; }
         public PersonaBehaviorTreeSwitcher PersonaBehaviorTreeSwitcher { get; set; }
         public int BtSessionId { get; set; }
+
         // ───────────────
         // Dynamic Key-Value Context Store
         // Only for non-core, optional extensions; never use for primary context fields.

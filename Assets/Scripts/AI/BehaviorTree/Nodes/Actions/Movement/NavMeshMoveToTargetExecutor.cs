@@ -3,17 +3,19 @@ using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh
+namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
     public class NavMeshMoveToTargetExecutor : IMovementExecutor
     {
         private const string ScriptName = nameof(NavMeshMoveToTargetExecutor);
-        public MovementNodeType Type => MovementNodeType.NavMesh;
+        public MoveToTargetNodeType Type => MoveToTargetNodeType.NavMesh;
         
         private readonly NavMeshAgent _agent;
         private MovementData _currentSettings;
         private Vector3 _lastSetDestination;
 
+        private const float DefaultUpdateThreshold = 1.0f;
+        
         public NavMeshMoveToTargetExecutor(NavMeshAgent agent)
         {
             if (agent)
@@ -22,7 +24,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh
                 throw new System.ArgumentNullException(nameof(agent));
         }
         
-        public bool TryMoveTo(Vector3 destination)
+        public bool AcceptMoveIntent(Vector3 destination, MovementData data)
         {
             // Check if the agent is valid
             if (!IsAgentValid())
@@ -86,7 +88,22 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement.Components.NavMesh
             return !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance
                                        && (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f);
         }
-        
+
+        public bool IsCurrentMove(Vector3 destination, MovementData data)
+        {
+            // 1. Check if destination is close enough to the last intent (STICKY!)
+            var stickyThreshold = data?.UpdateThreshold > 0 ? data.UpdateThreshold : DefaultUpdateThreshold;
+            var destinationMatch = Vector3.Distance(_lastSetDestination, destination) < stickyThreshold;
+
+            // 2. Only match mode/type, not deep settings (unless you really care about speed/etc per move)
+            var movementTypeMatch = _currentSettings?.MovementType == data?.MovementType;
+
+            // 3. Agent must still be valid
+            var agentValid = IsAgentValid();
+
+            return destinationMatch && movementTypeMatch && agentValid;
+        }
+
         private bool IsAgentValid()
         {
             if (!_agent)
