@@ -92,19 +92,17 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _currentExecutor.ApplySettings(data);
             
             // --- Only act if intent changes ---
-            if (!IsCurrentMove(destination, data))
-            {
-                Debug.Log($"[MovementOrchestrator] New movement intent. " +
-                          $"Cancelling previous and moving to {destination} ({data.MovementType})");
-                _currentExecutor.CancelMovement();
-                _currentExecutor.StartMovement();
-                _currentExecutor.AcceptMoveIntent(destination, data);
+            if (IsCurrentMove(destination, data)) return true;
+            
+            //Debug.Log($"[MovementOrchestrator] New movement intent. " +
+            //          $"Cancelling previous and moving to {destination} ({data.MovementType})");
+            _currentExecutor.CancelMovement();
+            _currentExecutor.StartMovement();
+            _currentExecutor.AcceptMoveIntent(destination, data);
 
-                return true;
-            }
+            return true;
 
             // Already moving to this target with these params
-            return true;
         }
         
         public bool IsCurrentMove(Vector3 destination, MovementData data)

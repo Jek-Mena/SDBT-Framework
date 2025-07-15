@@ -17,6 +17,7 @@
         "DecayDuration": 5.0,
         "MaxDuration": 30.0,
         "Threshold": 2.0,
+        "FleeDistance": 5.0,
         "CurveType": "Linear"
       }
     },
@@ -44,7 +45,7 @@
       },
       "DefaultTransformMovement": {
         "movementType": "Transform",
-        "speed": 6,
+        "speed": 4,
         "acceleration" : 1.5,
         "stoppingDistance": 0.5,
         "angularSpeed": 150.0,
@@ -62,14 +63,21 @@
         "minRange": 2,
         "fallOffRange": 120,
         "searchRange": 200
+      },
+      "FearFleePoint": {
+        "blackboardKey": "FearFleePoint"
+      },
+        "FearSource": {
+        "blackboardKey": "FearSource"
       }
     },
     "RotationProfiles": {
       "DefaultRotation": {
+        "RotationType": "QuaternionLookAt",
         "speed": 120.0,
         "angleThreshold": 3.0,
-        "updateThreshold": 0.05,
-        "SqrTargetReachedThreshold": 0.05
+        "angleRotationUpdateThreshold": 0.05,
+        "sqrTargetReachedThreshold": 0.05
       }
     },
     "TimingProfiles": {
@@ -79,7 +87,7 @@
       },
       "FleeTimeLimit": {
         "label": "FleeTimeLimit",
-        "duration": 5.0
+        "duration": 3.0
       },
       "Pause": {
         "label": "PauseForX",

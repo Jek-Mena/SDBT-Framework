@@ -12,8 +12,9 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         private readonly Transform _transform;
         private RotationData _currentSettings;
         private Vector3 _targetPosition;
+        private Vector3 _lastSetTargetPosition;
         private bool _isRotating;
-        
+
         private const float DefaultSqrArrivalDistanceThreshold = 0.05f;
         private const float DefaultAngleThreshold = 5f;
         private const float DefaultRotationSpeed = 120f;
@@ -25,7 +26,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         
         public void ApplySettings(RotationData data)
         {
-            if (_currentSettings == null) throw new System.ArgumentNullException(nameof(data));
             if (_currentSettings != null && _currentSettings == data) return;
             _currentSettings = data;
         }
@@ -34,14 +34,17 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         /// Issues a new rotation command. Only call when intent changes.
         /// Do not call every frame.
         /// </summary>
-        public bool TryRotateTo(Vector3 targetPosition)
+        public bool AcceptRotateIntent(Vector3 targetPosition, RotationData data)
         {
             if (!_transform)
             {
                 Debug.LogError($"[{ScriptName}] Transform is null.");
                 return false;
             }
+            
             _targetPosition = targetPosition;
+            _lastSetTargetPosition = targetPosition;
+            _currentSettings = data;
             _isRotating = true;
             return true;
         }
@@ -68,8 +71,17 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             
             // Rotate toward the target at a configured speed
             var targetRotation = Quaternion.LookRotation(direction.normalized);
-            var step = (_currentSettings?.Speed ?? DefaultRotationSpeed) * deltaTime;
-            _transform.rotation = Quaternion.RotateTowards(_transform.rotation, targetRotation, step);
+            
+            var angle = Quaternion.Angle(_transform.rotation, targetRotation);
+            if (angle < (_currentSettings?.AngleRotationUpdateThreshold ?? DefaultAngleThreshold))
+            {
+                // Angle is too small to bother updating
+                _isRotating = false; // or just return, depending on your logic
+                return;
+            }
+            
+            var rotateStep = (_currentSettings?.Speed ?? DefaultRotationSpeed) * deltaTime;
+            _transform.rotation = Quaternion.RotateTowards(_transform.rotation, targetRotation, rotateStep);
 
             // Stop if we're facing the target within an angle threshold
             if (IsFacingTarget(_targetPosition))
@@ -124,7 +136,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             if (_targetPosition == Vector3.zero) return false;
             
             // 1. Position check: are we already rotating to (or at) the requested target?
-            var sqrDist = (_targetPosition - target).sqrMagnitude;
+            var sqrDist = (_lastSetTargetPosition - target).sqrMagnitude;
             if (sqrDist >= (data?.SqrArrivalDistanceThreshold ?? DefaultSqrArrivalDistanceThreshold))
                 return false;
             
@@ -143,5 +155,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             // var angle = Vector3.Angle(_transform.forward, toTarget.normalized);
             // if (angle >= (data.AngleUpdateThreshold ?? 2f)) return false;
         }
+        
     }
 }

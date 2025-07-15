@@ -66,7 +66,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         /// <summary>
         /// Only allows the active owner to command rotation.
         /// </summary>
-        public bool TryRotateTo(Vector3 target, RotationData data, int executorId)
+        public bool TryIssueRotateIntent(Vector3 target, RotationData data, int executorId)
         {
             if (_activeExecutorId != executorId)
             {
@@ -93,7 +93,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             {
                 Debug.Log($"[{ScriptName}] New rotation intent. Cancelling previous and rotating to {target} ({data.RotationType})");
                 _currentExecutor.CancelRotation();
-                var result = _currentExecutor.TryRotateTo(target);
+                var result = _currentExecutor.AcceptRotateIntent(target, data);
                 _currentExecutor.StartRotation();
 
                 _lastTarget = target;

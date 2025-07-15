@@ -46,6 +46,7 @@
             public const string Strength = "FearStrength";
             public const string Radius = "FearRadius";
             public const string Source = "FearSource";
+            public const string FleePoint = "FearFleePoint";
         }
     }
 }

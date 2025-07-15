@@ -30,9 +30,6 @@ namespace AI.BehaviorTree.Runtime.Context
         /// <summary>Impulse-based movement logic (e.g., knockbacks, pushes)</summary>
         public IImpulseNode ImpulseLogic { get; set; }
 
-        /// <summary>Rotation controller</summary>
-        public IRotationNode RotationLogic { get; set; }
-
         public AgentRuntimeData RuntimeData { get; set; }
         /// <summary>Timed execution logic for decorators or cooldown systems</summary>
         public TimeExecutionManager TimeExecutionManager { get; set; }

@@ -9,18 +9,14 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
     public class MoveToTargetNode : IBehaviorNode
     {
         private const string ScriptName = nameof(MoveToTargetNode);
-
+        public string DisplayName => BtNodeDisplayName.Movement.MoveToTarget;
         public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
 
-        public string DisplayName => BtNodeDisplayName.Movement.MoveToTarget;
         public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
         private readonly string _movementProfileKey;
         private readonly string _targetProfileKey;
-
-        private MovementData _lastMovementData;
-        private TargetingData _lastTargetingData;
-
+        
         public MoveToTargetNode(string movementProfileKey, string targetProfileKey)
         {
             _movementProfileKey = movementProfileKey;

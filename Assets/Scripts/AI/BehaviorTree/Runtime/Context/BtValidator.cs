@@ -21,7 +21,7 @@ namespace AI.BehaviorTree.Runtime.Context
 
         public BtValidator Rotation()
         {
-            if (_context.Blackboard.RotationLogic == null)
+            if (_context.Blackboard.RotationIntentRouter == null)
                 _errors.Add($"[{ScriptName}] Rotation logic missing.");
             return this;
         }

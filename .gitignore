@@ -89,3 +89,4 @@ sysinfo.txt
 Packages/packages-lock.json
 Packages/packages-lock.json
 changes.txt
+*.meta

@@ -6,27 +6,25 @@ using AI.BehaviorTree.Runtime.Context;
 public class RotateToTargetNode : IBehaviorNode
 {
     private const string ScriptName = nameof(RotateToTargetNode);
-
-    private BtStatus _lastStatus = BtStatus.Idle;
-    public BtStatus LastStatus => _lastStatus;
     public string DisplayName => BtNodeDisplayName.Rotation.RotateToTarget;
-    
-    public void Reset(BtContext context)
-    {
-        throw new System.NotImplementedException();
-    }
-
+    public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
     private readonly string _rotationProfileKey;
     private readonly string _targetProfileKey;
-
+    
     public RotateToTargetNode(string rotationProfileKey, string targetProfileKey)
     {
         _rotationProfileKey = rotationProfileKey;
         _targetProfileKey = targetProfileKey;
     }
-
+    
+    public void Reset(BtContext context)
+    {
+        context.Blackboard.RotationIntentRouter.CancelRotation();
+        LastStatus = BtStatus.Idle;       
+    }
+    
     public BtStatus Tick(BtContext context)
     {
         if (!BtValidator.Require(context)
@@ -36,37 +34,40 @@ public class RotateToTargetNode : IBehaviorNode
            )
         {
             Debug.Log(error);
-            _lastStatus = BtStatus.Failure;
-            return _lastStatus;
+            LastStatus = BtStatus.Failure;
+            return LastStatus;
         }
 
         // Resolve data from blackboard profile dictionaries
         var rotationData = context.AgentProfiles.GetRotationProfile(_rotationProfileKey);
         var targetingData = context.AgentProfiles.GetTargetingProfile(_targetProfileKey);
 
+        Debug.Log($"[{ScriptName}]🔁Loaded rotationProfile: {_rotationProfileKey}, data: {JsonUtility.ToJson(rotationData)}");
+        Debug.Log($"[{ScriptName}]🎯Loaded targetingProfile: {_targetProfileKey}, data: {JsonUtility.ToJson(targetingData)}");
+        
         var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
         if (resolver == null)
         {
             Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
-            _lastStatus = BtStatus.Failure;
-            return _lastStatus;
+            LastStatus = BtStatus.Failure;
+            return LastStatus;
         }
 
         var target = resolver.ResolveTarget(context.Agent, targetingData);
         if (!target)
         {
             Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
-            _lastStatus = BtStatus.Failure;
-            return _lastStatus;
+            LastStatus = BtStatus.Failure;
+            return LastStatus;
         }
+        
+        var canRotate = context.Blackboard.RotationIntentRouter.TryIssueRotateIntent(target.position, rotationData, context.Blackboard.BtSessionId);
+        Debug.Log($"[{ScriptName}]🔁Can rotate: {canRotate}" );
 
-        context.Blackboard.RotationLogic.ApplySettings(rotationData);
-        var canRotate = context.Blackboard.RotationIntentRouter.TryRotateTo(target.position, rotationData, context.Blackboard.BtSessionId);
-
-        _lastStatus = canRotate
-            ? context.Blackboard.RotationLogic.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running
+        LastStatus = canRotate
+            ? context.Blackboard.RotationIntentRouter.IsFacingTarget(target.position) ? BtStatus.Success : BtStatus.Running
             : BtStatus.Failure;
         
-        return _lastStatus;
+        return LastStatus;
     }
 }

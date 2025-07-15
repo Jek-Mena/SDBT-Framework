@@ -2,9 +2,10 @@
 using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.FearPerception;
 using UnityEngine;
 
-namespace Systems.FearPerception.Component
+namespace AI.BehaviorTree.Nodes.Perception.Fear
 {
     /// <summary>
     /// Always-sensing fear perception. Queries the manager, processes fear, and writes to the blackboard.
@@ -38,7 +39,7 @@ namespace Systems.FearPerception.Component
                 foreach (var stim in stimuli)
                 {
                     var distance = Vector3.Distance(position, stim.Position);
-                    Debug.Log($"[{ScriptName}] - Stimulus at {stim.Position}, radius: {stim.Radius}, strength: {stim.Strength}, distance: {distance}");
+                    //Debug.Log($"[{ScriptName}] - Stimulus at {stim.Position}, radius: {stim.Radius}, strength: {stim.Strength}, distance: {distance}");
 
                     if (distance < stim.Radius)
                     {
@@ -70,18 +71,35 @@ namespace Systems.FearPerception.Component
             var maxExpectedFear = 2.0f; // <-- Adjust as needed
             var normalizedFear = Mathf.Clamp01(totalFear / maxExpectedFear);
             
-            Debug.Log($"[{ScriptName}]🟠Writing FearStimulusLevel={normalizedFear}");
+            //Debug.Log($"[{ScriptName}]🟠Writing FearStimulusLevel={normalizedFear}");
             Context.Blackboard.Set(BlackboardKeys.Fear.StimulusLevel, normalizedFear);
 
             if (mainThreat.HasValue)
             {
-                Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
+                //Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
                 Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value);
+                
+                // Agent runs away from the main threat (source) at a fixed distance.
+                var agentPos = Context.Agent.transform.position;
+                var threatPos = mainThreat.Value.Position;
+                
+                // Defensive: If agent and threat are at the same spot, use some fallback
+                var fleeDir = (agentPos - threatPos);
+                if (fleeDir.sqrMagnitude < 0.01f)
+                    fleeDir = Vector3.forward; // fallback direction
+                
+                fleeDir.Normalize();
+                
+                var fleeDistance = Profile.FleeDistance;
+                var fleePoint = agentPos + fleeDir * fleeDistance;
+
+                Context.Blackboard.Set(BlackboardKeys.Fear.FleePoint, fleePoint);
             }
             else
             {
                 Debug.Log($"[{ScriptName}] No main threat found.");
                 Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
+                Context.Blackboard.Remove(BlackboardKeys.Fear.FleePoint);
             }
         }
     

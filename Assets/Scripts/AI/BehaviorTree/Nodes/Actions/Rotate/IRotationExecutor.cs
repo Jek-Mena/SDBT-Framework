@@ -7,7 +7,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
     {
         RotateToTargetNodeType Type { get; }
         void ApplySettings(RotationData data);
-        bool TryRotateTo(Vector3 targetPosition);
+        bool AcceptRotateIntent(Vector3 targetPosition, RotationData data);
         void StartRotation();
         void PauseRotation();
         void CancelRotation();

@@ -71,7 +71,12 @@ namespace AI.BehaviorTree.Runtime.Context
                 string.Join("\n- ", _modules.ConvertAll(m => m.GetType().Name).Prepend(""))
             );
         
-            // 3. Build “complex” builder modules for real logic, data parsing, or order-dependent multi-step construction. 
+            // 3. After constructing the context, set the agent's systems because in the module.Build "context.Agent.GetComponent" is used".
+            // Constructor injection for simple, self-contained systems.
+            blackboard.StatusEffectManager = new StatusEffectManager();
+            blackboard.TimeExecutionManager = new TimeExecutionManager();
+            
+            // 4. Build “complex” builder modules for real logic, data parsing, or order-dependent multi-step construction. 
             foreach (var module in _modules)
             {
                 try
@@ -83,11 +88,8 @@ namespace AI.BehaviorTree.Runtime.Context
                     Debug.LogError($"[{nameof(BtContextBuilder)}] Failed to build context for {agent.name}: 🔴 {ex.Message}");
                 }
             }
-        
-            // 4. After constructing the context, set the agent's systems because in the module.Build "context.Agent.GetComponent" is used".
-            // Constructor injection for simple, self-contained systems.
-            blackboard.StatusEffectManager = new StatusEffectManager();
-            blackboard.TimeExecutionManager = new TimeExecutionManager();
+            
+            // 5. Set the remaining routers and switchers
             blackboard.MovementIntentRouter = new MovementIntentRouter(context); // <<-- Depends on StatusEffectManager
             blackboard.RotationIntentRouter = new RotationIntentRouter(context);
             blackboard.PersonaBehaviorTreeSwitcher = new PersonaBehaviorTreeSwitcher(context); // <<-- Depends on ProfileContextBuilderModule (built on step 3)

@@ -27,11 +27,6 @@ public class DebugOverlay : MonoBehaviour
         _context = context;
         _statusEffectManager = context.Blackboard.StatusEffectManager;
     }
-
-    public void SetStatusEffectManager(StatusEffectManager manager)
-    {
-        _statusEffectManager = manager;
-    }
     
     void OnGUI()
     {

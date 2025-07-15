@@ -22,6 +22,11 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         private float _arriveThreshold;
         private bool _isMoving;
 
+        private const float DefaultMoveSpeed = 1f;
+        private const float DefaultStoppingDistance = 0.1f;
+        private const float DefaultUpdateThreshold = 0.1f;
+        public Direction DefaultDirection => Direction.Forward;
+        
         public TransformMoveToTargetExecutor(Transform transform)
         {
             _transform = transform;
@@ -62,7 +67,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             var finalDirection = ResolveDirection(targetDirection, _currentSettings.Direction, Vector3.up);
 
             // Move by speed and deltaTime
-            var moveStep = _currentSettings.Speed * Time.deltaTime;
+            var moveStep = (_currentSettings?.Speed ?? DefaultMoveSpeed)  * deltaTime;
             var newPosition = currentPosition + finalDirection * moveStep;
             
             // Clamp to not overshoot
@@ -70,6 +75,9 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 newPosition = _targetDestination;
             
             _transform.position = newPosition;
+            // TODO Check or decide if we should handle the prevention here the
+            // IsAtDestination should handle but will be called here.
+            // Similar concern to IsFaceTarget of QuaternionLookAtTarget
         }
         
         public void ApplySettings(MovementData data)
@@ -80,7 +88,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             if (data.StoppingDistance > 0f)
                 _arriveThreshold = data.StoppingDistance;
             else
-                _arriveThreshold = 0.1f; // fallback default
+                _arriveThreshold = DefaultStoppingDistance; // fallback default
         }
 
         /// <summary>
