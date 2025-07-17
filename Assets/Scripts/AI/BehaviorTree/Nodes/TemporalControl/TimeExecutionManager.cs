@@ -68,7 +68,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
                 _timers.Remove(key);
         }
 
-        public void CleanupSystem(BtContext context)
+        public void ReleaseSystem(BtContext context)
         {
             _timers.Clear();
             Debug.Log($"[{ScriptName}] CleanupSystem called, all timers cleared.");

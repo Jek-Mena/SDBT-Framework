@@ -2,7 +2,7 @@
 using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
-public class HealthComponent : MonoBehaviour, IUsesStatusEffectManager
+public class HealthComponent : MonoBehaviour//, IUsesStatusEffectManager
 {
     private const string ScriptName = nameof(HealthComponent);
     public float CurrentHealth { get; private set; }
@@ -29,10 +29,10 @@ public class HealthComponent : MonoBehaviour, IUsesStatusEffectManager
         // Optionally update blackboard here or fire event
     }
 
-    public void SetStatusEffectManager(StatusEffectManager manager)
-    {
-        Debug.Log($"[{ScriptName}] Setting up StatusEffectManager...");
-    }
+    // public void SetStatusEffectManager(StatusEffectManager manager)
+    // {
+    //     Debug.Log($"[{ScriptName}] Setting up StatusEffectManager...");
+    // }
 
     public void OnDomainBlocked(string domain)
     {

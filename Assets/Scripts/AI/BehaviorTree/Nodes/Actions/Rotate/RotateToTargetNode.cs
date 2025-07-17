@@ -82,7 +82,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             // }
 
             var canRotate = context.Blackboard.RotationIntentRouter.TryIssueRotateIntent(target, rotationData, context.Blackboard.BtSessionId);
-            Debug.Log($"[{ScriptName}]🔁Can rotate: {canRotate}" );
+            //Debug.Log($"[{ScriptName}]🔁Can rotate: {canRotate}" );
         
             if (!canRotate)
                 LastStatus = BtStatus.Failure;
@@ -91,10 +91,10 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             else
                 LastStatus = BtStatus.Running;
         
-            Debug.Log($"[RotateToTargetNode]💯🚀🎯Rotating to: {target} | " +
-                      $"DomainBlocked: {context.Blackboard.StatusEffectManager.IsBlocked(DomainKeys.Rotation)} | " +
-                      $"CurrentSettings: {context.Blackboard.RotationIntentRouter.GetCurrentSettings()}");
-        
+            // Debug.Log($"[RotateToTargetNode]💯🚀🎯Rotating to: {target} | " +
+            //           $"DomainBlocked: {context.Blackboard.StatusEffectManager.IsBlocked(DomainKeys.Rotation)} | " +
+            //           $"CurrentSettings: {context.Blackboard.RotationIntentRouter.GetCurrentSettings()}");
+            //
             return LastStatus;
         }
     }

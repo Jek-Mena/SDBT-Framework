@@ -43,7 +43,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
                     Domains = _domains
                 };
                 _pauseEffect.SetCustomName(BtNodeDisplayName.TimedExecution.Pause);
-
+                
                 context.Blackboard.StatusEffectManager.ApplyEffect(_pauseEffect);
                 _applied = true;
             }

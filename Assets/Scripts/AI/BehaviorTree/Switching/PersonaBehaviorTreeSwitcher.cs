@@ -70,7 +70,7 @@ namespace AI.BehaviorTree.Switching
         }
 
         public void Reset() => _defaultTreeKey = null;
-        public void CleanupSystem(BtContext context)
+        public void ReleaseSystem(BtContext context)
         {
             // Remove all persona rules, default keys, events, etc.
             _rules?.Clear();

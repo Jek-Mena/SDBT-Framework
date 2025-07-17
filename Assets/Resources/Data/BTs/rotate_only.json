@@ -1,0 +1,14 @@
+﻿{
+  "root": {
+    "type": "Bt/Repeater",
+    "children": [
+      {
+        "type": "Bt/RotateToTarget",
+        "config": {
+          "targetId": "DefaultTarget",
+          "rotationId": "DefaultRotation"
+        }
+      }
+    ]
+  }
+}

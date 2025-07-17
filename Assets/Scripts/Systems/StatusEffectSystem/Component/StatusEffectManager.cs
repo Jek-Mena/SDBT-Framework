@@ -16,6 +16,12 @@ namespace Systems.StatusEffectSystem.Component
     /// </remarks>
     public class StatusEffectManager : IBlocker, ISystemCleanable
     {
+        // TODO: [2025-07-17]
+        // Rework DomainBlocked/DomainUnblocked event system.
+        // Use a lifecycle-safe, robust event mechanism instead of ?.Invoke.
+        // Detect and log/assert when invoking with no listeners to avoid silent state desync.
+        // Ensure all listeners are unsubscribed properly during system cleanup to prevent memory leaks or null calls.
+
         private const string ScriptName = nameof(StatusEffectManager);
         // Called when a new domain block is applied
         public event Action<string> DomainBlocked;
@@ -46,11 +52,16 @@ namespace Systems.StatusEffectSystem.Component
         // This adds the effect to the active list and triggers any relevant domain block events.
         public void ApplyEffect(StatusEffect effect)
         {
+            Debug.Log($"[StatusEffectManager] Applying effect: {effect}, Domains: {effect.Domains}, DomainBlocked: {DomainBlocked}");
             _activeEffects.Add(effect);
             foreach (var domain in effect.Domains)
             {
+                Debug.Log($"[StatusEffectManager] Processing domain: {domain}");
                 if(IsFirstBlock(domain))
-                    DomainBlocked.Invoke(domain);
+                {
+                    Debug.Log($"[StatusEffectManager] First block for domain: {domain}, invoking DomainBlocked");
+                    DomainBlocked?.Invoke(domain); // use ?. for safety!
+                }
             }
             // TODO: Handle stacking, priority, expiry, etc. (reuse ModifierMeta/Stack pattern)
         }
@@ -62,7 +73,7 @@ namespace Systems.StatusEffectSystem.Component
             foreach (var domain in effect.Domains)
             {
                 if (!IsBlocked(domain))
-                    DomainUnblocked.Invoke(domain);
+                    DomainUnblocked?.Invoke(domain);
             }
 
         }
@@ -106,7 +117,7 @@ namespace Systems.StatusEffectSystem.Component
             OnStatusEffectChanged?.Invoke();
         }
 
-        public void CleanupSystem(BtContext context)
+        public void ReleaseSystem(BtContext context)
         {
             // Remove all effects immediately
             _activeEffects.Clear();

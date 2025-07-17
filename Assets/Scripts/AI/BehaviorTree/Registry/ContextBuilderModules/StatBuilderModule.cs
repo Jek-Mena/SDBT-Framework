@@ -33,8 +33,8 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             blackboard.Set(BlackboardKeys.Multipliers.Attack, modifiers.Attack);
             blackboard.Set(BlackboardKeys.Multipliers.Armor, modifiers.Armor);
 
-            statSynchronizer.Initialize(context);
-            statSynchronizer.SetStatusEffectManager(statusManager);
+            //statSynchronizer.Initialize(context);
+            //statSynchronizer.SetStatusEffectManager(statusManager);
         
             // Optional: loop custom stats if you use them
             if (modifiers.Custom.Count <= 0) return;

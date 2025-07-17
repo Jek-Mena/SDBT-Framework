@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Nodes.Abstractions;
 
 namespace AI.BehaviorTree.Registry
 {

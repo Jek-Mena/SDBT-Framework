@@ -17,13 +17,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
         private const float DefaultSqrArrivalDistanceThreshold = 0.05f;
         private const float DefaultAngleThreshold = 5f;
-        private const float DefaultRotationSpeed = 120f;
+        private const float DefaultRotationSpeed = 180f;
         
         private bool _isPaused;
-        public QuaternionLookAtTarget(Transform agentTransform, RotationData data)
+        public QuaternionLookAtTarget(Transform agentTransform)
         {
             _agentTransform = agentTransform;
-            _currentSettings = data;
             Debug.Log($"[{ScriptName}] Created.");
         }
         
@@ -46,7 +45,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             }
             _isPaused = false;
             _targetTransform = target;
-            _targetPosition = !_agentTransform ? Vector3.zero : _agentTransform.position;
+            _targetPosition = target.position;
             Debug.Log($"[QuaternionLookAtTarget] Accepted intent: target={target.name}, settings={data}");
             return true;
         }
@@ -56,37 +55,39 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         /// </summary>
         public void Tick(float deltaTime)
         {
-            Debug.Log("BEFORE: QuaternionLookAtTarget.Tick CALLED");
-            // Only rotate if everything is valid and not paused
-            if (_isPaused)
-            {
-                Debug.Log("[QuaternionLookAtTarget] Skipped (paused)");
+            if (_isPaused || !_agentTransform || !_targetTransform)
                 return;
-            }
-            if (!_agentTransform)
-            {
-                Debug.LogError("_agentTransform is null; cannot proceed.");
-                return;
-            }
 
             var agentPos = _agentTransform.position;
-            var targetPos = _targetPosition - agentPos;
-            targetPos.y = 0; // Only rotate on XZ
+            var targetPos = _targetTransform.position;
 
-            var direction = (targetPos - agentPos);
-            if (direction.sqrMagnitude < (_currentSettings?.SqrArrivalDistanceThreshold ?? DefaultSqrArrivalDistanceThreshold))
-                return; // Already at the position, or target is invalid.
-            
+            var direction = targetPos - agentPos;
+            direction.y = 0;
+
+            // Distance threshold from settings
+            var sqrThreshold = _currentSettings?.SqrArrivalDistanceThreshold ?? DefaultSqrArrivalDistanceThreshold;
+            if (direction.sqrMagnitude < sqrThreshold)
+                return;
+
             var desired = Quaternion.LookRotation(direction.normalized);
             var angle = Quaternion.Angle(_agentTransform.rotation, desired);
 
-            if (!(angle > (_currentSettings?.AngleThreshold ?? DefaultAngleThreshold))) return;
-            
-            var rotateStep = (_currentSettings?.Speed ?? DefaultRotationSpeed) * deltaTime;
+            // Angle threshold from settings
+            var angleThreshold = _currentSettings?.AngleThreshold ?? DefaultAngleThreshold;
+            if (angle <= angleThreshold)
+            {
+                // Optional snap when close enough
+                _agentTransform.rotation = desired;
+                return;
+            }
+
+            var rotateSpeed = _currentSettings?.Speed ?? DefaultRotationSpeed;
+            var rotateStep = rotateSpeed * deltaTime;
+
             _agentTransform.rotation = Quaternion.RotateTowards(_agentTransform.rotation, desired, rotateStep);
-            
-            Debug.Log("AFTER: QuaternionLookAtTarget.Tick CALLED");
+            Debug.DrawRay(_agentTransform.position, _agentTransform.forward * 2f, Color.red, 0.1f);
         }
+
         
         public RotationData GetSettings()
         {

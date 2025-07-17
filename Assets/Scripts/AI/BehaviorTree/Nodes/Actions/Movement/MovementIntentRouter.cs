@@ -18,15 +18,14 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         private readonly StatusEffectManager _statusEffectManager;
         private IMovementExecutor _currentExecutor;
         private MoveToTargetNodeType _currentExecutorType;
-        private int _activeExecutorId = -1;
+        private string _activeExecutorId; // GUID session
+        private string _lastOwnerId; // For debug overlay
 
         public MovementIntentRouter(BtContext context)
         {
-            var navMeshAgent = context.Agent.RequireComponent<NavMeshAgent>();
-            
             _executors = new Dictionary<MoveToTargetNodeType, IMovementExecutor>
             {
-                { MoveToTargetNodeType.NavMesh, new NavMeshMoveToTargetExecutor(navMeshAgent) },
+                { MoveToTargetNodeType.NavMesh, new NavMeshMoveToTargetExecutor(context.Agent.RequireComponent<NavMeshAgent>()) },
                 { MoveToTargetNodeType.Transform, new TransformMoveToTargetExecutor(context.Agent.transform)}
             };
 
@@ -39,6 +38,54 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
             
             Debug.Log($"[{ScriptName}] {nameof(MovementIntentRouter)} initialized for {context.Agent.name}");
+        }
+        
+        public void TakeOwnership(string newOwnerId)
+        {
+            if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
+                Debug.LogWarning($"[Domain][CLAIM][WARN] Movement was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
+            Debug.Log($"[{ScriptName}][Domain][CLAIM] Movement claimed by Session={newOwnerId} (was={_activeExecutorId})");
+            
+            _currentExecutor.CancelMovement();
+            _lastOwnerId = _activeExecutorId;
+            _activeExecutorId = newOwnerId;
+        }
+        
+        public void ReleaseOwnership(string sessionId)
+        {
+            if (_activeExecutorId == sessionId)
+            {
+                Debug.Log($"[Domain][RELEASE] Movement released by Session={sessionId} (current={_activeExecutorId})");
+                _activeExecutorId = null;
+            }
+            else
+                Debug.LogError($"[Domain][RELEASE][WARN] Session={sessionId} tried to release, but owner is {_activeExecutorId}.");
+        }
+        
+        public string GetActiveOwnerId() => _activeExecutorId;
+        public string GetLastOwnerId() => _lastOwnerId;
+
+        [System.Obsolete]
+        public void ForceCancelAndReleaseOwnership()
+        {
+            CancelMovement();
+            _lastOwnerId = _activeExecutorId;
+            _activeExecutorId = null;
+        }
+        
+        public void ReleaseSystem(BtContext context)
+        {
+            Debug.Log($"[{ScriptName}] CleanupSystem called.");
+            _currentExecutor?.CancelMovement();
+            _lastOwnerId = _activeExecutorId;
+            _activeExecutorId = null; // Reset executor ID so no orphan BT can claim it
+            Dispose(); // Unsubscribe from status manager
+            
+            // "Full Nuke": Clear all  executors 
+            foreach (var executor in _executors.Values)
+                executor.CancelMovement();
+
+            Debug.Log($"[{ScriptName}] Cleanup complete.");
         }
         
         public void SetCurrentType(MoveToTargetNodeType type)
@@ -67,7 +114,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         /// <summary>
         /// Called by BTNode <see cref="MoveToTargetNode"/>
         /// </summary>
-        public bool TryIssueMoveIntent(Vector3 destination, MovementData data, int executorId)
+        public bool TryIssueMoveIntent(Vector3 destination, MovementData data, string executorId)
         {
             if (_activeExecutorId != executorId)
             {
@@ -116,15 +163,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 executor.Tick(deltaTime);
         }
         
-        public void TakeOwnership(int newOwnerId)
-        {
-            if (_activeExecutorId == newOwnerId) return;
-            
-            _currentExecutor.CancelMovement();
-            _activeExecutorId = newOwnerId;
-            Debug.Log($"[{ScriptName}] Movement intent owner switched to {newOwnerId}");
-        }
-
         public void OnDomainBlocked(string domain)
         {
             if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
@@ -151,26 +189,5 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         public void PauseMovement() => _currentExecutor.PauseMovement();
         public void StartMovement() => _currentExecutor.StartMovement();
         public bool IsAtDestination() => _currentExecutor.IsAtDestination();
-        public int GetActiveOwnerId() => _activeExecutorId;
-
-        public void ForceCancelAndReleaseOwnership()
-        {
-            CancelMovement();
-            _activeExecutorId = -1;
-        }
-
-        public void CleanupSystem(BtContext context)
-        {
-            Debug.Log($"[{ScriptName}] CleanupSystem called.");
-            _currentExecutor?.CancelMovement();
-            _activeExecutorId = -1; // Reset executor ID so no orphan BT can claim it
-            Dispose(); // Unsubscribe from status manager
-            
-            // Optionally, clear all movement executors if you want "full nuke"
-            foreach (var executor in _executors.Values)
-                executor.CancelMovement();
-
-            Debug.Log($"[{ScriptName}] Cleanup complete.");
-        }
     }
 }

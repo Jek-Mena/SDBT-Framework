@@ -10,7 +10,8 @@ namespace Entity.Core
     public class EntitySpawner : MonoBehaviour
     {
         [Tooltip("If set, this spawner always spawns this entity type. Otherwise, call SpawnEntity manually.")]
-        [SerializeField] private string defaultEntityId = "enemy_test_agent";
+        //[SerializeField] private string defaultEntityId = "enemy_test_agent";
+        private string defaultEntityId = "enemy_test_agent";
         [SerializeField] private Transform spawnPoint;
     
         private const string ScriptName = nameof(EntitySpawner);

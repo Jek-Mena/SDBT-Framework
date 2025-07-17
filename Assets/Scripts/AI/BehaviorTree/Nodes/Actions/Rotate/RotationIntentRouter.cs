@@ -9,26 +9,22 @@ using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Rotate
 {
-    public class RotationIntentRouter: IUsesStatusEffectManager, ISystemCleanable
+    public class RotationIntentRouter : IUsesStatusEffectManager, ISystemCleanable
     {
         private const string ScriptName = nameof(RotationIntentRouter);
         private readonly Dictionary<RotateToTargetNodeType, IRotationExecutor> _executors;
         private readonly StatusEffectManager _statusEffectManager;
         private IRotationExecutor _currentExecutor;
         private RotateToTargetNodeType _currentExecutorType;
-        private int _activeExecutorId = -1;
+
+        private string _activeExecutorId; // GUID session
+        private string _lastOwnerId; // For debug overlay
 
         public RotationIntentRouter(BtContext context)
         {
-            _statusEffectManager = context.Blackboard.StatusEffectManager;;
-            
-            // Temporary data. Will be overriden by ApplySettings
-            var tempRotationData = new RotationData();
-            
-            // Example: add all available executors for this agent
             _executors = new Dictionary<RotateToTargetNodeType, IRotationExecutor>
             {
-                { RotateToTargetNodeType.QuaternionLookAt, new QuaternionLookAtTarget(context.Agent.transform, tempRotationData) }
+                { RotateToTargetNodeType.QuaternionLookAt, new QuaternionLookAtTarget(context.Agent.transform) }
                 // Add more executors as needed here
             };
 
@@ -36,12 +32,61 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             _currentExecutor = _executors[_currentExecutorType];
 
             Dispose();
+            _statusEffectManager = context.Blackboard.StatusEffectManager;
+            ;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
-            
+
             Debug.Log($"[{ScriptName}] {nameof(RotationIntentRouter)} initialized for {context.Agent.name}");
         }
 
+        public void TakeOwnership(string newOwnerId)
+        {
+            Debug.Log($"[Domain][CLAIM] Rotation claimed by Session={newOwnerId} (was={_activeExecutorId})");
+            if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
+                Debug.LogWarning(
+                    $"[Domain][CLAIM][WARN] Rotation was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
+            _currentExecutor.CancelRotation();
+            _lastOwnerId = _activeExecutorId;
+            _activeExecutorId = newOwnerId;
+        }
+
+        public void ReleaseOwnership(string sessionId)
+        {
+            Debug.Log($"[Domain][RELEASE] Rotation released by Session={sessionId} (current={_activeExecutorId})");
+            if (_activeExecutorId == sessionId)
+                _activeExecutorId = null;
+            else
+                Debug.LogWarning(
+                    $"[Domain][RELEASE][WARN] Session={sessionId} tried to release, but owner is {_activeExecutorId}.");
+        }
+
+        public string GetActiveOwnerId() => _activeExecutorId;
+        public string GetLastOwnerId() => _lastOwnerId;
+        
+        [System.Obsolete]
+        public void ForceCancelAndReleaseOwnership()
+        {
+            CancelRotation();
+            _lastOwnerId = _activeExecutorId;
+            _activeExecutorId = null;
+        }
+        
+        public void ReleaseSystem(BtContext context)
+        {
+            Debug.Log($"[{ScriptName}] CleanupSystem called.");
+            _currentExecutor?.CancelRotation();
+            _lastOwnerId = _activeExecutorId;
+            _activeExecutorId = null; // Reset executor ID so no orphan BT can claim it
+            Dispose(); // Unsubscribe from status manager
+
+            // "Full Nuke": Clear all  executors 
+            foreach (var executor in _executors.Values)
+                executor.CancelRotation();
+
+            Debug.Log($"[{ScriptName}] Cleanup complete.");
+        }
+        
         public void SetCurrentType(RotateToTargetNodeType type)
         {
             if (_currentExecutorType == type) return;
@@ -61,17 +106,16 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             }
             else
             {
-                Debug.LogError($"[{ScriptName}] Executor not found for {type}");
+                Debug.LogError($"[{ScriptName}] Failed to switched executor. Executor not found for {type}");
+                throw new Exception($"[{ScriptName}] Failed to switched executor. Executor not found for {type}");
             }
         }
 
         /// <summary>
         /// Only allows the active owner to command rotation.
         /// </summary>
-        public bool TryIssueRotateIntent(Transform target, RotationData data, int executorId)
+        public bool TryIssueRotateIntent(Transform target, RotationData data, string executorId)
         {
-            Debug.Log($"[RotationIntentRouter] Received intent: rotate to {target.name} at {target.position}");
-
             if (_activeExecutorId != executorId)
             {
                 Debug.LogError(
@@ -82,31 +126,26 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
                 );
                 return false;
             }
-            
+
             SetCurrentType(data.RotationType);
-            
-            if (_currentExecutor == null)
-            {
-                Debug.LogError($"[{ScriptName}] Executor NOT FOUND for {data.RotationType}");
-                return false;
-            }
 
             // --- Only act if intent changes ---
             if (IsCurrentRotation(target, data)) return true;
-            
-            Debug.Log($"[{ScriptName}] New rotation intent. Cancelling previous and rotating to {target} ({data.RotationType})");
+
+            Debug.Log(
+                $"[{ScriptName}] New rotation intent. Cancelling previous and rotating to {target} ({data.RotationType})");
             _currentExecutor.CancelRotation();
             _currentExecutor.ApplySettings(data);
             _currentExecutor.StartRotation();
-            
+
             // Only return true if the executor successfully accepted the move intent.
             // If false, something is broken (unreachable, agent gone, etc) and the BT node will fail.
             return _currentExecutor.AcceptRotateIntent(target, data);
             // TODO see task below [07-16-2025]
-            
+
             // Already rotating to this target with these params
         }
-        
+
         public bool IsCurrentRotation(Transform target, RotationData data)
         {
             return _currentExecutor?.IsCurrentRotation(target, data) ?? false;
@@ -116,15 +155,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         {
             if (_currentExecutor is ITickableExecutor executor)
                 executor.Tick(deltaTime);
-        }
-        
-        public void TakeOwnership(int newOwnerId)
-        {
-            if (_activeExecutorId == newOwnerId) return;
-
-            _currentExecutor.CancelRotation();
-            _activeExecutorId = newOwnerId;
-            Debug.Log($"[{ScriptName}] Rotation intent owner switched to {newOwnerId}");
         }
 
         public void OnDomainBlocked(string domain)
@@ -143,36 +173,16 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
         public void Dispose()
         {
-            if(_statusEffectManager == null) return;
+            if (_statusEffectManager == null) return;
             _statusEffectManager.DomainBlocked -= OnDomainBlocked;
             _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
         }
-        
+
         public void CancelRotation() => _currentExecutor.CancelRotation();
         public void PauseRotation() => _currentExecutor.PauseRotation();
         public void StartRotation() => _currentExecutor.StartRotation();
         public bool IsFacingTarget(Transform target) => _currentExecutor.IsFacingTarget(target);
-        public int GetActiveOwnerId() => _activeExecutorId;
         public RotationData GetCurrentSettings() => _currentExecutor.GetSettings();
-        public void ForceCancelAndReleaseOwnership()
-        {
-            CancelRotation();
-            _activeExecutorId = -1;
-        }
-
-        public void CleanupSystem(BtContext context)
-        {
-            Debug.Log($"[{ScriptName}] CleanupSystem called.");
-            _currentExecutor?.CancelRotation();
-            _activeExecutorId = -1; // Reset executor ID so no orphan BT can claim it
-            Dispose(); // Unsubscribe from status manager
-
-            // Optionally, clear all rotation executors if you want "full nuke"
-            foreach (var executor in _executors.Values)
-                executor.CancelRotation();
-
-            Debug.Log($"[{ScriptName}] Cleanup complete.");
-        }
     }
 }
 /*

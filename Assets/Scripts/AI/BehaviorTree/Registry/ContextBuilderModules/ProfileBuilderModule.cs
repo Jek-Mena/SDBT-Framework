@@ -42,11 +42,11 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
                 agentProfiles.PersonaProfiles = ParseProfileBlockList<PersonaSwitchRule>
                     (rawAgentProfiles, BtAgentJsonFields.AgentProfiles.PersonaProfiles);
             
-                Debug.Log($"[{ScriptName}]🟣HealthProfiles:   {agentProfiles.HealthProfiles.Count}");
-                Debug.Log($"[{ScriptName}]🟣FearProfiles:     {agentProfiles.FearProfiles.Count}");
-                Debug.Log($"[{ScriptName}]🟣CurveProfiles:    {agentProfiles.CurveProfiles.Count}");
-                Debug.Log($"[{ScriptName}]🟣PersonaProfiles:  {agentProfiles.PersonaProfiles.Count}");
-                Debug.Log($"[{ScriptName}]Finished parsing agent-global profiles...");
+                // Debug.Log($"[{ScriptName}]🟣HealthProfiles:   {agentProfiles.HealthProfiles.Count}");
+                // Debug.Log($"[{ScriptName}]🟣FearProfiles:     {agentProfiles.FearProfiles.Count}");
+                // Debug.Log($"[{ScriptName}]🟣CurveProfiles:    {agentProfiles.CurveProfiles.Count}");
+                // Debug.Log($"[{ScriptName}]🟣PersonaProfiles:  {agentProfiles.PersonaProfiles.Count}");
+                // Debug.Log($"[{ScriptName}]Finished parsing agent-global profiles...");
             }
             else
             {
@@ -60,8 +60,8 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
 
                 agentProfiles.CurrentPersonaProfileKey =
                     context.AgentDefinition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
-                Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");
-                Debug.Log($"🟡 [{ScriptName}] PersonaProfiles loaded. Keys: [{string.Join(", ", agentProfiles.PersonaProfiles.Keys)}]");
+                // Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");
+                // Debug.Log($"🟡 [{ScriptName}] PersonaProfiles loaded. Keys: [{string.Join(", ", agentProfiles.PersonaProfiles.Keys)}]");
                 // Add Health and Fear
             }
         
@@ -69,7 +69,7 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             // Only used for BT node config: movement, timing, targeting, etc.
             if (rawBehaviorProfiles != null)
             {
-                Debug.Log($"[{ScriptName}] Parsing behavior profiles...");
+                //Debug.Log($"[{ScriptName}] Parsing behavior profiles...");
                 agentProfiles.TargetingProfiles = ParseProfileBlock<TargetingData>
                     (rawBehaviorProfiles,BtAgentJsonFields.BehaviorProfiles.TargetingProfiles);
                 agentProfiles.MovementProfiles  = ParseProfileBlock<MovementData>
@@ -78,7 +78,7 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
                     (rawBehaviorProfiles,BtAgentJsonFields.BehaviorProfiles.RotationProfiles);
                 agentProfiles.TimingProfiles = ParseProfileBlock<TimedExecutionData>
                     (rawBehaviorProfiles,BtAgentJsonFields.BehaviorProfiles.TimingProfiles);
-                Debug.Log($"[{ScriptName}] Finished parsing behavior profiles...");
+                //Debug.Log($"[{ScriptName}] Finished parsing behavior profiles...");
             }
             else
             {

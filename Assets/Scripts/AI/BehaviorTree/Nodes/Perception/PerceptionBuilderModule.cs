@@ -3,7 +3,7 @@ using System.Linq;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-namespace AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction
+namespace AI.BehaviorTree.Nodes.Perception
 {
     public class PerceptionBuilderModule : IContextBuilderModule
     {
@@ -25,10 +25,10 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction
                 throw new Exception($"No PerceptionModules found on {agent.name}");
             }
         
-            Debug.Log(
-                $"[{scriptName}] Injecting {perceptionModules.Count} PerceptionModules for '{agent.name}':\n" +
-                string.Join("- ", perceptionModules.ConvertAll(m => m.GetType().Name).Prepend("")) // shows type names
-            );
+            // Debug.Log(
+            //     $"[{scriptName}] Injecting {perceptionModules.Count} PerceptionModules for '{agent.name}':\n" +
+            //     string.Join("- ", perceptionModules.ConvertAll(m => m.GetType().Name).Prepend("")) // shows type names
+            // );
         
             foreach (var module in perceptionModules)
             {

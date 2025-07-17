@@ -16,5 +16,6 @@ public enum ParallelExitCondition : byte
     FirstSuccess = 0,
     FirstFailure = 1,
     AllSuccess = 2,
-    AllFailure = 3
+    AllFailure = 3,
+    AlwaysRunning = 4
 }

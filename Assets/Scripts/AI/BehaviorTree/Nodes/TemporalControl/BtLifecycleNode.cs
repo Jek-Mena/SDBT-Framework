@@ -13,13 +13,11 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
     public class BtLifecycleNode : IBehaviorNode
     {
         private readonly IBehaviorNode _inner;
-        private readonly ISystemCleanable _systemCleanable;
         private BtStatus _lastStatus = BtStatus.Running;
 
         public BtLifecycleNode(IBehaviorNode inner)
         {
             _inner = inner;
-            _systemCleanable = inner as ISystemCleanable;
         }
 
         public BtStatus LastStatus => _lastStatus;
@@ -35,9 +33,6 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
             // Propagate to the wrapped/child node
             _inner.OnExitNode(context);
 
-            // If you wrapped a system cleanable, do that too
-            _systemCleanable?.CleanupSystem(context);
-
             // Reset this node's own state if needed
             _lastStatus = BtStatus.Idle;
         }
@@ -47,12 +42,6 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
         public BtStatus Tick(BtContext context)
         {
             var status = _inner.Tick(context);
-
-            if (status != BtStatus.Running && _lastStatus == BtStatus.Running)
-            {
-                _systemCleanable?.CleanupSystem(context);
-            }
-
             _lastStatus = status;
             return _lastStatus;
         }

@@ -6,7 +6,7 @@ namespace Systems.StatusEffectSystem.Component
 {
     public class StatSynchronizer : MonoBehaviour
     {
-        private StatusEffectManager _statusEffectManager;
+        /*private StatusEffectManager _statusEffectManager;
         private BtContext _context;
     
         public void Initialize(BtContext context) => _context = context;
@@ -39,6 +39,6 @@ namespace Systems.StatusEffectSystem.Component
         {
             if (_statusEffectManager != null)
                 _statusEffectManager.OnStatusEffectChanged -= SyncToBlackboard;
-        }
+        }*/
     }
 }

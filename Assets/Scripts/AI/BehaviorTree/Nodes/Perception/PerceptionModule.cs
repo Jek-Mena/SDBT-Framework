@@ -2,7 +2,7 @@
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-namespace AI.BehaviorTree.Registry.ContextBuilderModules.Abstraction
+namespace AI.BehaviorTree.Nodes.Perception
 {
     /// <summary>
     /// [2025-07-04]

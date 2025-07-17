@@ -1,0 +1,24 @@
+{
+  "root": {
+    "type": "Bt/Parallel",
+    "config": { 
+      "exitCondition": "FirstSuccess" 
+    },
+    "children": [
+      {
+        "type": "Bt/MoveToTarget",
+        "config": { 
+          "targetId": "DefaultTarget",
+          "movementId": "DefaultTransformMovement"
+        }
+      },
+      {
+        "type": "Bt/RotateToTarget",
+        "config": { 
+          "targetId" : "FearSource",
+          "rotationId": "DefaultRotation"
+        }
+      }
+    ]
+  }
+}

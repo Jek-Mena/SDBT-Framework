@@ -39,7 +39,7 @@ namespace AI.BehaviorTree.Runtime.Context
         public RotationIntentRouter RotationIntentRouter { get; set; }
         public List<IPerceptionModule> PerceptionModules { get; set; }
         public PersonaBehaviorTreeSwitcher PersonaBehaviorTreeSwitcher { get; set; }
-        public int BtSessionId { get; set; }
+        public string BtSessionId { get; set; }
 
         // ───────────────
         // Dynamic Key-Value Context Store

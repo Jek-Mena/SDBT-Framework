@@ -19,6 +19,6 @@ namespace AI.BehaviorTree.Nodes.Abstractions
     /// </summary>
     public interface ISystemCleanable
     {
-        void CleanupSystem(BtContext context);
+        void ReleaseSystem(BtContext context);
     }
 }

@@ -19,11 +19,11 @@ namespace AI.BehaviorTree.Runtime
         public BtContext Context;
         public IBehaviorNode RootNode { get; private set; }
         
-        private List<ISystemCleanable> _allExitables = new();
+        private readonly List<ISystemCleanable> _allExitables = new();
         private IBtPersonaSwitcher _personaSwitcher;
         private string _activePersonaTreeKey;
 
-        private int _btSessionId = 0;
+        private string _btSessionId;
         
         // Switches to a new tree by key; this is the only tree assignment API.
         public void SwitchPersonaTree(string treeKey, string reason)
@@ -35,43 +35,43 @@ namespace AI.BehaviorTree.Runtime
                 Debug.LogError($"[{ScriptName}] treeKey is null or empty!");
                 return;
             }
+            
+            // Release/Cleanup previous domains before switching
+            Context.Blackboard.MovementIntentRouter.ReleaseOwnership(_btSessionId);
+            Context.Blackboard.RotationIntentRouter.ReleaseOwnership(_btSessionId);
+            ReleaseSystem();
+            RootNode?.OnExitNode(Context);
+            Debug.Log($"[{ScriptName}] Released ownership of BT '{_activePersonaTreeKey}'");
+            
             _activePersonaTreeKey = treeKey;
-
             Debug.Log($"[{ScriptName}] Switching tree: {_activePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
-
+            
             // Retrieve template (unresolved) from registry
             var btJsonTemplate = BtConfigRegistry.GetTemplate(treeKey);
-            Debug.Log($"[{ScriptName}] Requested BT '{treeKey}' - Registry has: [{string.Join(", ", BtConfigRegistry.GetAllKeys())}]");
             if (btJsonTemplate == null)
             {
                 Debug.LogError($"[{ScriptName}] Failed to switch—tree key '{treeKey}' not found in registry.");
                 return;
             }
-        
-            // Deep clone for isolation
-            var agentBtJson = btJsonTemplate.DeepClone() as JObject;
-        
-            // Use current agent's context (must be up to date)
-            var rootNode = BtTreeBuilder.LoadTreeFromToken(agentBtJson, Context);
+            var agentBtJson = btJsonTemplate.DeepClone() as JObject; // Deep clone for isolation
+            var rootNode = BtTreeBuilder.LoadTreeFromToken(agentBtJson, Context); // Use current agent's context (must be up to date)
 
             // Bump the session
-            _btSessionId++;
+            _btSessionId = Guid.NewGuid().ToString();
             Context.Blackboard.BtSessionId = _btSessionId;
             
-            Context.Blackboard.MovementIntentRouter.TakeOwnership(Context.Blackboard.BtSessionId);
-            Context.Blackboard.RotationIntentRouter.TakeOwnership(Context.Blackboard.BtSessionId);
+            // Take ownership for new session
+            Context.Blackboard.MovementIntentRouter.TakeOwnership(_btSessionId);
+            Context.Blackboard.RotationIntentRouter.TakeOwnership(_btSessionId);
             
-            // --- KILL ZOMBIE STATUS EFFECTS BEFORE SWITCHING ---
-            if (RootNode != null && Context != null)
-            {
-                Debug.Log($"[BtController] Resetting old BT before switch (was: {_activePersonaTreeKey})");
-                ExitSystem();
-                RootNode.OnExitNode(Context);
-            }       
-            
-            // Assign to controller
             SetTree(rootNode);
-            Debug.Log($"[BtController] Successfully switched to BT '{treeKey}'");
+            Debug.Log($"[{ScriptName}] Successfully switched to BT '{treeKey}'");
+            
+            // Assert ownership matches new GUID
+            Debug.Assert(Context.Blackboard.MovementIntentRouter.GetActiveOwnerId() == Context.Blackboard.BtSessionId,
+                $"[{ScriptName}][ASSERT] Movement domain not owned by current session! Owner={Context.Blackboard.MovementIntentRouter.GetActiveOwnerId()}, Expected={Context.Blackboard.BtSessionId}");
+            Debug.Assert(Context.Blackboard.RotationIntentRouter.GetActiveOwnerId() == Context.Blackboard.BtSessionId,
+                $"[{ScriptName}][ASSERT] Rotation domain not owned by current session! Owner={Context.Blackboard.RotationIntentRouter.GetActiveOwnerId()}, Expected={Context.Blackboard.BtSessionId}");
         }
     
         public void Initialize(BtContext context)
@@ -103,13 +103,13 @@ namespace AI.BehaviorTree.Runtime
                 _allExitables.Add(systemCleanable);
         }
         
-        public void ExitSystem()
+        public void ReleaseSystem()
         {
             foreach (var exitable in _allExitables)
             {
                 try
                 {
-                    exitable.CleanupSystem(Context);
+                    exitable.ReleaseSystem(Context);
                     Debug.Log($"[{ScriptName}] Exited: {exitable.GetType().Name}");
                 }
                 catch (Exception ex)

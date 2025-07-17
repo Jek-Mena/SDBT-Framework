@@ -76,7 +76,7 @@ namespace AI.BehaviorTree.Runtime.Context
             var statusEffectManager = new StatusEffectManager(); 
             blackboard.StatusEffectManager = statusEffectManager;
             context.Controller.RegisterExitable(statusEffectManager);
-            
+
             var timeExecutionManager = new TimeExecutionManager();
             blackboard.TimeExecutionManager = timeExecutionManager;
             context.Controller.RegisterExitable(timeExecutionManager);
