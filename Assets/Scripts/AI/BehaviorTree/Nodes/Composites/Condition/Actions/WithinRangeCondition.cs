@@ -1,46 +1,48 @@
 ﻿using AI.BehaviorTree.Core.Data;
-using AI.BehaviorTree.Nodes.Composites.Condition;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 // NOTE: This node is not currently in use. 
 // Upgraded for consistency and overlay/debugging.
 
-public class WithinRangeCondition : BtConditionNode
+namespace AI.BehaviorTree.Nodes.Composites.Condition.Actions
 {
-    private readonly string _targetKey;
-    private readonly float _maxDistance;
-
-    public WithinRangeCondition(string targetKey, float maxDistance)
+    public class WithinRangeCondition : BtConditionNode
     {
-        _targetKey = targetKey;
-        _maxDistance = maxDistance;
-    }
+        private readonly string _targetKey;
+        private readonly float _maxDistance;
 
-    public override BtStatus Tick(BtContext context)
-    {
-        if (!BtValidator.Require(context)
-                .Blackboard()
-                .KeyExists<GameObject>(_targetKey)
-                .Check(out var error))
+        public WithinRangeCondition(string targetKey, float maxDistance)
         {
-            Debug.LogError(error);
-            _lastStatus = BtStatus.Failure;
-            return _lastStatus;
+            _targetKey = targetKey;
+            _maxDistance = maxDistance;
         }
 
-        var target = context.Blackboard.Get<GameObject>(_targetKey);
-        var distance = Vector3.Distance(context.Agent.transform.position, target.transform.position);
-        var inRange = distance <= _maxDistance;
-
-        if (!inRange)
+        public override BtStatus Tick(BtContext context)
         {
-            _lastStatus = BtStatus.Failure;
+            if (!BtValidator.Require(context)
+                    .Blackboard()
+                    .KeyExists<GameObject>(_targetKey)
+                    .Check(out var error))
+            {
+                Debug.LogError(error);
+                _lastStatus = BtStatus.Failure;
+                return _lastStatus;
+            }
+
+            var target = context.Blackboard.Get<GameObject>(_targetKey);
+            var distance = Vector3.Distance(context.Agent.transform.position, target.transform.position);
+            var inRange = distance <= _maxDistance;
+
+            if (!inRange)
+            {
+                _lastStatus = BtStatus.Failure;
+                return _lastStatus;
+            }
+
+            // Tick child if present, otherwise return Success (condition met)
+            _lastStatus = _child?.Tick(context) ?? BtStatus.Success;
             return _lastStatus;
         }
-
-        // Tick child if present, otherwise return Success (condition met)
-        _lastStatus = _child?.Tick(context) ?? BtStatus.Success;
-        return _lastStatus;
     }
 }

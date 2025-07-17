@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Switching
 {
-    public class PersonaBehaviorTreeSwitcher : IBtPersonaSwitcher
+    public class PersonaBehaviorTreeSwitcher : IBtPersonaSwitcher, ISystemCleanable
     {
         private const string ScriptName = nameof(PersonaBehaviorTreeSwitcher);
         public event Action<string, string, string> OnSwitchRequested;
@@ -69,5 +70,13 @@ namespace AI.BehaviorTree.Switching
         }
 
         public void Reset() => _defaultTreeKey = null;
+        public void CleanupSystem(BtContext context)
+        {
+            // Remove all persona rules, default keys, events, etc.
+            _rules?.Clear();
+            _defaultTreeKey = null;
+            OnSwitchRequested = null;
+            Debug.Log($"[{ScriptName}] CleanupSystem called, rules/events cleared.");
+        }
     }
 }

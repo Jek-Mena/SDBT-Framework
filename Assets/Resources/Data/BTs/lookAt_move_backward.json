@@ -2,20 +2,19 @@
   "root": {
     "type": "Bt/Parallel",
     "config": { 
-      "exitCondition": "FirstSuccess" 
+      "exitCondition": "AllSuccess" 
     },
     "children": [
       {
         "type": "Bt/Timer",
         "config": {
-          "timingId": "FleeTimeLimit",
-          "domains": ["Domain/Movement"]
+          "timingId": "FleeTimeLimit"
         }
       },
       {
         "type": "Bt/MoveToTarget",
         "config": { 
-          "targetId": "DefaultTarget",
+          "targetId": "FearFleePoint",
           "movementId": "DefaultTransformMovement"
         }
       },

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -30,6 +31,14 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
             // If you have any additional local state, reset here.
         }
 
+        public void OnExitNode(BtContext context)
+        {
+            foreach (var child in _children)
+                child.OnExitNode(context);
+
+            _lastStatus = BtStatus.Idle;
+        }
+
         public IEnumerable<IBehaviorNode> GetChildren => _children;
 
         private readonly List<IBehaviorNode> _children;
@@ -45,7 +54,7 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
         {
             if (_children == null || _children.Count == 0)
             {
-                Debug.LogError($"[{ScriptName}] No children found.");
+                //Debug.LogError($"[{ScriptName}] No children found.");
                 _lastStatus = BtStatus.Failure;
                 return _lastStatus;
             }
@@ -66,9 +75,9 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
             var allSuccess = true;
             var allFailure = true;
 
-            for (int i = 0; i < _children.Count; i++)
+            for (var i = 0; i < _children.Count; i++)
             {
-                Debug.Log($"[{ScriptName}] Ticking child {i}");
+                //Debug.Log($"[{ScriptName}] Ticking child {i}");
                 var status = _children[i].Tick(context);
 
                 switch (status)

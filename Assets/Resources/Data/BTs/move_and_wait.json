@@ -15,7 +15,7 @@
                 "type": "Bt/Timer",
                 "config": {
                   "timingId": "ChaseTimeLimit",
-                  "domains": ["Domain/Movement"]
+                  "domains": ["Domain/Movement", "Domain/Rotation"]
                 }
               },
               {
@@ -31,7 +31,7 @@
             "type": "Bt/Pause",
             "config": {
               "timingId": "Pause",
-              "domains": ["Domain/Movement"]
+              "domains": ["Domain/Movement", "Domain/Rotation"]
             }
           }
         ]

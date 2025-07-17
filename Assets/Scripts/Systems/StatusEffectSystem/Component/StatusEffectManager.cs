@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AI.BehaviorTree.Nodes.Abstractions;
+using AI.BehaviorTree.Runtime.Context;
+using UnityEngine;
 
 namespace Systems.StatusEffectSystem.Component
 {
@@ -11,8 +14,9 @@ namespace Systems.StatusEffectSystem.Component
     /// This class is responsible for maintaining a list of active status effects and ensuring their proper application and removal.
     /// It also provides mechanisms to notify other systems when domains are blocked or unblocked due to status effects.
     /// </remarks>
-    public class StatusEffectManager : IBlocker
+    public class StatusEffectManager : IBlocker, ISystemCleanable
     {
+        private const string ScriptName = nameof(StatusEffectManager);
         // Called when a new domain block is applied
         public event Action<string> DomainBlocked;
         // Called when a domain in unblocked (effect removed)
@@ -62,7 +66,7 @@ namespace Systems.StatusEffectSystem.Component
             }
 
         }
-    
+        
         // Checks if this is the first time the given domain is being blocked.
         // Returns true if no other active effects are already blocking the domain; otherwise, returns false.
         private bool IsFirstBlock(string domain)
@@ -100,6 +104,23 @@ namespace Systems.StatusEffectSystem.Component
             foreach (var effect in _activeEffects)
                 agentModifiers.Stats.MultiplyWith(effect.Multipliers.Stats);
             OnStatusEffectChanged?.Invoke();
+        }
+
+        public void CleanupSystem(BtContext context)
+        {
+            // Remove all effects immediately
+            _activeEffects.Clear();
+
+            // Reset all modifiers
+            agentModifiers.Stats.Reset(); // Not yet properly implemented
+
+            // Make sure no one is blocked
+            OnStatusEffectChanged?.Invoke();
+
+            // Optionally, notify all domains unblocked if your system needs it
+            // (Rare, usually effects handle unblocking individually)
+
+            Debug.Log($"[{ScriptName}] CleanupSystem called, all effects cleared.");
         }
     }
 }

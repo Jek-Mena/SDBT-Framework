@@ -1,4 +1,5 @@
 ﻿using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.TemporalControl.Base;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -61,16 +62,32 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         
         public override void Reset(BtContext context)
         {
-            base.Reset(context);  // Resets _lastStatus and TimerStarted
-
             // Remove pause effect if it's still active
             if (_applied && _pauseEffect != null)
             {
                 // Defensive: If context needed, ensure you can access it, or pass in if required
-                // context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect); // (if you have context)
+                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect); // (if you have context)
                 _applied = false;
+                _pauseEffect = null;
+                Debug.Log($"[BtPauseNode] Removing pause effect for {Label} on reset/exit.");
             }
-            _pauseEffect = null;
+            base.Reset(context);  // Resets _lastStatus and TimerStarted
+        }
+        
+        public override void OnExitNode(BtContext context)
+        {
+            // Remove pause effect if still active
+            if (_applied && _pauseEffect != null)
+            {
+                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
+                _applied = false;
+                _pauseEffect = null;
+                Debug.Log($"[BtPauseNode] Removing pause effect for {Label} on exit.");
+            }
+            // Also interrupt the timer
+            Timer?.Interrupt(Label);
+            TimerStarted = false;
+            _lastStatus = BtStatus.Idle;
         }
     }
 }

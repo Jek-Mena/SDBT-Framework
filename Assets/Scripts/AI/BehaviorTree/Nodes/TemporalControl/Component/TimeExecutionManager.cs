@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Nodes.Abstractions;
+using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.TemporalControl.Component
@@ -7,7 +9,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
     /// <summary>
     /// [2025-06-13] Refactored for TimerExecutionMono to TimerExecutionManager
     /// </summary>
-    public class TimeExecutionManager : ITimedExecutionNode
+    public class TimeExecutionManager : ITimedExecutionNode, ISystemCleanable
     {
         private class TimerData
         {
@@ -17,6 +19,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
             public TimerData(float duration) => _endTime = Time.time + duration;
         }
 
+        private const string ScriptName = nameof(TimeExecutionManager);
         private readonly Dictionary<string, TimerData> _timers = new();
 
         public void StartTime(string key, float duration)
@@ -63,6 +66,12 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
 
             foreach (var key in expiredTimers)
                 _timers.Remove(key);
+        }
+
+        public void CleanupSystem(BtContext context)
+        {
+            _timers.Clear();
+            Debug.Log($"[{ScriptName}] CleanupSystem called, all timers cleared.");
         }
     }
 }

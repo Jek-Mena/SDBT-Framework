@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 
 public class ImpulseMoverNode : IBehaviorNode
@@ -11,6 +12,11 @@ public class ImpulseMoverNode : IBehaviorNode
     public BtStatus LastStatus => _lastStatus;
     public string DisplayName => BtNodeDisplayName.Movement.ImpulseMover;
     public void Reset(BtContext context)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnExitNode(BtContext context)
     {
         throw new System.NotImplementedException();
     }

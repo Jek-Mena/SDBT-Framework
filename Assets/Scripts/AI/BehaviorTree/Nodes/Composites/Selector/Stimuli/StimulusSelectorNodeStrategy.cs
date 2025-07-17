@@ -26,13 +26,13 @@ namespace AI.BehaviorTree.Nodes.Composites.Selector.Stimuli
             for (var i = 0; i < _stimulusCurves.Count && i < children.Count; i++)
             {
                 var probability = _stimulusCurves[i].Evaluate(stimulus);
-                Debug.Log($"[StimulusSelector] Curve: {_stimulusCurves[i]}, Value: {probability:F2}, Stimulus: {stimulus:F2}");
+                //Debug.Log($"[StimulusSelector] Curve: {_stimulusCurves[i]}, Value: {probability:F2}, Stimulus: {stimulus:F2}");
                 if (!(probability > maxProbability)) continue;
                 
                 maxIndex = i;
                 maxProbability = probability;
             }
-            Debug.Log($"[StimulusSelector] PICKED INDEX: {maxIndex} (curve: {_stimulusCurves[maxIndex]})");
+            //Debug.Log($"[StimulusSelector] PICKED INDEX: {maxIndex} (curve: {_stimulusCurves[maxIndex]})");
             return maxIndex;
         }
     }

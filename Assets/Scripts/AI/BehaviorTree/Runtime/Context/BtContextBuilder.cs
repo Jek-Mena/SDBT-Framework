@@ -73,8 +73,13 @@ namespace AI.BehaviorTree.Runtime.Context
         
             // 3. After constructing the context, set the agent's systems because in the module.Build "context.Agent.GetComponent" is used".
             // Constructor injection for simple, self-contained systems.
-            blackboard.StatusEffectManager = new StatusEffectManager();
-            blackboard.TimeExecutionManager = new TimeExecutionManager();
+            var statusEffectManager = new StatusEffectManager(); 
+            blackboard.StatusEffectManager = statusEffectManager;
+            context.Controller.RegisterExitable(statusEffectManager);
+            
+            var timeExecutionManager = new TimeExecutionManager();
+            blackboard.TimeExecutionManager = timeExecutionManager;
+            context.Controller.RegisterExitable(timeExecutionManager);
             
             // 4. Build “complex” builder modules for real logic, data parsing, or order-dependent multi-step construction. 
             foreach (var module in _modules)
@@ -90,9 +95,17 @@ namespace AI.BehaviorTree.Runtime.Context
             }
             
             // 5. Set the remaining routers and switchers
-            blackboard.MovementIntentRouter = new MovementIntentRouter(context); // <<-- Depends on StatusEffectManager
-            blackboard.RotationIntentRouter = new RotationIntentRouter(context);
-            blackboard.PersonaBehaviorTreeSwitcher = new PersonaBehaviorTreeSwitcher(context); // <<-- Depends on ProfileContextBuilderModule (built on step 3)
+            var movementIntentRouter = new MovementIntentRouter(context);
+            context.Blackboard.MovementIntentRouter = movementIntentRouter; // <<-- Depends on StatusEffectManager
+            context.Controller.RegisterExitable(movementIntentRouter);
+            
+            var rotationIntentRouter = new RotationIntentRouter(context);
+            context.Blackboard.RotationIntentRouter = rotationIntentRouter;
+            context.Controller.RegisterExitable(rotationIntentRouter);
+            
+            var personaBtSwitcher = new PersonaBehaviorTreeSwitcher(context);
+            context.Blackboard.PersonaBehaviorTreeSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)
+            context.Controller.RegisterExitable(personaBtSwitcher);
             
             Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +
                       $"Profile Dump:\n{profiles.DumpContents()}");

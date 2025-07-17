@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.TemporalControl.Component;
 
 /// <summary>

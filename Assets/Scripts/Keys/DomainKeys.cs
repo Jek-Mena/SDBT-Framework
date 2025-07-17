@@ -11,6 +11,7 @@ namespace Keys
     public static class DomainKeys
     {
         public const string Movement = "Domain/Movement";
+        public const string Rotation = "Domain/Rotation";
         public const string Targeting = "Domain/Targeting";
         public const string Combat = "Domain/Combat";
         public const string AI = "Domain/AI";

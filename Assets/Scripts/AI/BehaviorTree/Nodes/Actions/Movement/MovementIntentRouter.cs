@@ -11,7 +11,7 @@ using Utils.Component;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement
 {
-    public class MovementIntentRouter: IUsesStatusEffectManager
+    public class MovementIntentRouter: IUsesStatusEffectManager, ISystemCleanable
     {
         private const string ScriptName = nameof(MovementIntentRouter);
         private readonly Dictionary<MoveToTargetNodeType, IMovementExecutor> _executors;
@@ -19,7 +19,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         private IMovementExecutor _currentExecutor;
         private MoveToTargetNodeType _currentExecutorType;
         private int _activeExecutorId = -1;
-        private bool _hasLastMove;
 
         public MovementIntentRouter(BtContext context)
         {
@@ -98,9 +97,10 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             //          $"Cancelling previous and moving to {destination} ({data.MovementType})");
             _currentExecutor.CancelMovement();
             _currentExecutor.StartMovement();
-            _currentExecutor.AcceptMoveIntent(destination, data);
-
-            return true;
+            
+            // Only return true if the executor successfully accepted the move intent.
+            // If false, something is broken (unreachable, agent gone, etc) and the BT node will fail.
+            return _currentExecutor.AcceptMoveIntent(destination, data);;
 
             // Already moving to this target with these params
         }
@@ -112,8 +112,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         
         public void Tick(float deltaTime)
         {
-            if (_currentExecutor is ITickableExecutor tickable)
-                tickable.Tick(deltaTime);
+            if (_currentExecutor is ITickableExecutor executor)
+                executor.Tick(deltaTime);
         }
         
         public void TakeOwnership(int newOwnerId)
@@ -157,6 +157,20 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         {
             CancelMovement();
             _activeExecutorId = -1;
+        }
+
+        public void CleanupSystem(BtContext context)
+        {
+            Debug.Log($"[{ScriptName}] CleanupSystem called.");
+            _currentExecutor?.CancelMovement();
+            _activeExecutorId = -1; // Reset executor ID so no orphan BT can claim it
+            Dispose(); // Unsubscribe from status manager
+            
+            // Optionally, clear all movement executors if you want "full nuke"
+            foreach (var executor in _executors.Values)
+                executor.CancelMovement();
+
+            Debug.Log($"[{ScriptName}] Cleanup complete.");
         }
     }
 }

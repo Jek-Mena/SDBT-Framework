@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime;
 using AI.BehaviorTree.Runtime.Context;
 
@@ -24,6 +25,11 @@ namespace AI.BehaviorTree.Nodes.Composites.Condition
         public virtual string DisplayName => GetType().Name;
 
         public void Reset(BtContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnExitNode(BtContext context)
         {
             throw new NotImplementedException();
         }

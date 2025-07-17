@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.Actions.Rotate.Data;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
@@ -8,24 +9,26 @@ using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Rotate
 {
-    public class RotationIntentRouter: IUsesStatusEffectManager
+    public class RotationIntentRouter: IUsesStatusEffectManager, ISystemCleanable
     {
         private const string ScriptName = nameof(RotationIntentRouter);
         private readonly Dictionary<RotateToTargetNodeType, IRotationExecutor> _executors;
         private readonly StatusEffectManager _statusEffectManager;
         private IRotationExecutor _currentExecutor;
-        private RotationData _lastRotationData;
         private RotateToTargetNodeType _currentExecutorType;
-        private Vector3 _lastTarget;
         private int _activeExecutorId = -1;
-        private bool _hasLastRotation;
 
         public RotationIntentRouter(BtContext context)
         {
+            _statusEffectManager = context.Blackboard.StatusEffectManager;;
+            
+            // Temporary data. Will be overriden by ApplySettings
+            var tempRotationData = new RotationData();
+            
             // Example: add all available executors for this agent
             _executors = new Dictionary<RotateToTargetNodeType, IRotationExecutor>
             {
-                { RotateToTargetNodeType.QuaternionLookAt, new QuaternionLookAtTarget(context.Agent.transform) }
+                { RotateToTargetNodeType.QuaternionLookAt, new QuaternionLookAtTarget(context.Agent.transform, tempRotationData) }
                 // Add more executors as needed here
             };
 
@@ -33,7 +36,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             _currentExecutor = _executors[_currentExecutorType];
 
             Dispose();
-            _statusEffectManager = context.Blackboard.StatusEffectManager;;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
             
@@ -66,8 +68,10 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         /// <summary>
         /// Only allows the active owner to command rotation.
         /// </summary>
-        public bool TryIssueRotateIntent(Vector3 target, RotationData data, int executorId)
+        public bool TryIssueRotateIntent(Transform target, RotationData data, int executorId)
         {
+            Debug.Log($"[RotationIntentRouter] Received intent: rotate to {target.name} at {target.position}");
+
             if (_activeExecutorId != executorId)
             {
                 Debug.LogError(
@@ -80,7 +84,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             }
             
             SetCurrentType(data.RotationType);
-            _currentExecutor.ApplySettings(data);
             
             if (_currentExecutor == null)
             {
@@ -89,27 +92,30 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             }
 
             // --- Only act if intent changes ---
-            if (!IsCurrentRotation(target, data))
-            {
-                Debug.Log($"[{ScriptName}] New rotation intent. Cancelling previous and rotating to {target} ({data.RotationType})");
-                _currentExecutor.CancelRotation();
-                var result = _currentExecutor.AcceptRotateIntent(target, data);
-                _currentExecutor.StartRotation();
-
-                _lastTarget = target;
-                _lastRotationData = data;
-                _hasLastRotation = true;
-
-                return result;
-            }
-
+            if (IsCurrentRotation(target, data)) return true;
+            
+            Debug.Log($"[{ScriptName}] New rotation intent. Cancelling previous and rotating to {target} ({data.RotationType})");
+            _currentExecutor.CancelRotation();
+            _currentExecutor.ApplySettings(data);
+            _currentExecutor.StartRotation();
+            
+            // Only return true if the executor successfully accepted the move intent.
+            // If false, something is broken (unreachable, agent gone, etc) and the BT node will fail.
+            return _currentExecutor.AcceptRotateIntent(target, data);
+            // TODO see task below [07-16-2025]
+            
             // Already rotating to this target with these params
-            return true;
         }
         
-        public bool IsCurrentRotation(Vector3 target, RotationData data)
+        public bool IsCurrentRotation(Transform target, RotationData data)
         {
             return _currentExecutor?.IsCurrentRotation(target, data) ?? false;
+        }
+
+        public void Tick(float deltaTime)
+        {
+            if (_currentExecutor is ITickableExecutor executor)
+                executor.Tick(deltaTime);
         }
         
         public void TakeOwnership(int newOwnerId)
@@ -123,14 +129,14 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
         public void OnDomainBlocked(string domain)
         {
-            if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
+            if (!string.Equals(domain, DomainKeys.Rotation, StringComparison.OrdinalIgnoreCase)) return;
             Debug.Log($"[{ScriptName}] Movement/Rotation domain blocked, stopping executor.");
             _currentExecutor.PauseRotation();
         }
 
         public void OnDomainUnblocked(string domain)
         {
-            if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
+            if (!string.Equals(domain, DomainKeys.Rotation, StringComparison.OrdinalIgnoreCase)) return;
             Debug.Log($"[{ScriptName}] Movement/Rotation domain blocked, stopping executor.");
             _currentExecutor.StartRotation();
         }
@@ -145,13 +151,75 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         public void CancelRotation() => _currentExecutor.CancelRotation();
         public void PauseRotation() => _currentExecutor.PauseRotation();
         public void StartRotation() => _currentExecutor.StartRotation();
-        public bool IsFacingTarget(Vector3 target) => _currentExecutor.IsFacingTarget(target);
+        public bool IsFacingTarget(Transform target) => _currentExecutor.IsFacingTarget(target);
         public int GetActiveOwnerId() => _activeExecutorId;
-        
+        public RotationData GetCurrentSettings() => _currentExecutor.GetSettings();
         public void ForceCancelAndReleaseOwnership()
         {
             CancelRotation();
             _activeExecutorId = -1;
         }
+
+        public void CleanupSystem(BtContext context)
+        {
+            Debug.Log($"[{ScriptName}] CleanupSystem called.");
+            _currentExecutor?.CancelRotation();
+            _activeExecutorId = -1; // Reset executor ID so no orphan BT can claim it
+            Dispose(); // Unsubscribe from status manager
+
+            // Optionally, clear all rotation executors if you want "full nuke"
+            foreach (var executor in _executors.Values)
+                executor.CancelRotation();
+
+            Debug.Log($"[{ScriptName}] Cleanup complete.");
+        }
     }
 }
+/*
+# TODO: Upgrade Move/Rotate Intent API to Return Rich Result Object
+
+**Goal:**  
+Replace simple `bool` return values from movement and rotation intent routers (and executors) with a detailed result object, to provide richer error reporting and better system observability.
+
+        ---
+
+## Why?
+
+    - **Clarity:** Distinguish *why* an intent failed (e.g., unreachable destination, missing agent, unauthorized call).
+- **Debugging:** Expose precise failure reasons for overlays, logs, and QA.
+- **Fallbacks:** Enable smarter AI behavior on specific failures (e.g., retry, fallback, skip turn).
+- **Telemetry:** Collect actionable analytics on movement/rotation issues.
+
+        ---
+
+## Benefits
+
+    - Fewer “silent failures” in agents and behavior trees.
+- Easier to diagnose and fix edge cases (especially pathfinding or agent lifetime bugs).
+- Better support for designers and testers via debug overlays.
+
+        ---
+
+## Migration Plan
+
+    - [ ] Define a `MoveIntentResult` / `RotateIntentResult` class with fields:
+- `Success` (bool)
+    - `ErrorCode` (enum: e.g., AgentMissing, Unreachable, Unauthorized, etc.)
+- `ErrorMessage` (string)
+    - [ ] Update all relevant routers and executors to return the result object.
+- [ ] Update BT nodes (`MoveToTargetNode`, `RotateToTargetNode`, etc.) to check result and react/log accordingly.
+- [ ] Update any debug overlays, analytics, or logs to display failure details.
+- [ ] Review/document common error scenarios for future maintainers.
+
+        ---
+
+## Sample API (for discussion)
+
+    ```csharp
+public class MoveIntentResult
+{
+    public bool Success;
+    public MoveIntentErrorCode ErrorCode;
+    public string ErrorMessage;
+}
+*/

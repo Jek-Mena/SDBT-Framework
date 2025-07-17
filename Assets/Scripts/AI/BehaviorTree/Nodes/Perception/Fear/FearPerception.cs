@@ -24,7 +24,7 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             else
                 Debug.Log($"[{ScriptName}] Profile type: {Profile.GetType()}\nProfile JSON: {JsonUtility.ToJson(Profile)}");
         }
-
+        
         protected override void ProcessStimuli(List<FearStimulus> stimuli)
         {
             var position = transform.position;
@@ -46,7 +46,7 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
                         // Simple weighted: linear falloff
                         var contribution = stim.Strength * (1f - distance / stim.Radius);
                         totalFear += contribution;
-                        Debug.Log($"[{ScriptName}] -- INSIDE range! Contribution: {contribution}");
+                        // Debug.Log($"[{ScriptName}] -- INSIDE range! Contribution: {contribution}");
 
                         if (!(contribution > maxContribution)) continue;
                         
@@ -55,13 +55,13 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
                     }
                     else
                     {
-                        Debug.Log($"[{ScriptName}] -- OUTSIDE range.");
+                        //Debug.Log($"[{ScriptName}] -- OUTSIDE range.");
                     }
                 }
             }
             else
             {
-                Debug.Log($"[{ScriptName}] Agent '{name}' detected NO fear stimuli this tick.");
+                //Debug.Log($"[{ScriptName}] Agent '{name}' detected NO fear stimuli this tick.");
             }
 
             // Normalize TotalFear
@@ -77,7 +77,14 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             if (mainThreat.HasValue)
             {
                 //Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
-                Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value);
+                Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value.Source);
+                
+                var value = Context.Blackboard.Get<object>(BlackboardKeys.Fear.Source);
+                // Debug.Log($"[FearPerception] Set FearSource: Type={value?.GetType().Name}, Value={value}");
+                // if (value is GameObject go) Debug.Log($"[FearPerception] FearSource GameObject Name: {go.name}");
+                // if (value is Transform tf) Debug.Log($"[FearPerception] FearSource Transform: {tf.position}");
+                // if (value is Vector3 v3) Debug.Log($"[FearPerception] FearSource Vector3: {v3}");
+                
                 
                 // Agent runs away from the main threat (source) at a fixed distance.
                 var agentPos = Context.Agent.transform.position;
@@ -97,7 +104,7 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             }
             else
             {
-                Debug.Log($"[{ScriptName}] No main threat found.");
+                //Debug.Log($"[{ScriptName}] No main threat found.");
                 Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
                 Context.Blackboard.Remove(BlackboardKeys.Fear.FleePoint);
             }

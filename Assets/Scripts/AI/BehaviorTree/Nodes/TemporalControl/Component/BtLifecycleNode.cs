@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 
 namespace AI.BehaviorTree.Nodes.TemporalControl.Component
@@ -12,13 +13,13 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
     public class BtLifecycleNode : IBehaviorNode
     {
         private readonly IBehaviorNode _inner;
-        private readonly IExitableBehavior _exitable;
+        private readonly ISystemCleanable _systemCleanable;
         private BtStatus _lastStatus = BtStatus.Running;
 
         public BtLifecycleNode(IBehaviorNode inner)
         {
             _inner = inner;
-            _exitable = inner as IExitableBehavior;
+            _systemCleanable = inner as ISystemCleanable;
         }
 
         public BtStatus LastStatus => _lastStatus;
@@ -26,6 +27,18 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
         public void Reset(BtContext context)
         {
             _inner.Reset(context);
+            _lastStatus = BtStatus.Idle;
+        }
+
+        public void OnExitNode(BtContext context)
+        {
+            // Propagate to the wrapped/child node
+            _inner.OnExitNode(context);
+
+            // If you wrapped a system cleanable, do that too
+            _systemCleanable?.CleanupSystem(context);
+
+            // Reset this node's own state if needed
             _lastStatus = BtStatus.Idle;
         }
 
@@ -37,7 +50,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
 
             if (status != BtStatus.Running && _lastStatus == BtStatus.Running)
             {
-                _exitable?.OnExit();
+                _systemCleanable?.CleanupSystem(context);
             }
 
             _lastStatus = status;

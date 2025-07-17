@@ -13,11 +13,16 @@ public class FearEmitter : MonoBehaviour
     public float strength = 1f;
     public float radius = 5f;
     public float effectDuration = 3f;
-    [Tooltip("Who/what caused this fear stimulus? (Optional)")]
+    [SerializeField, Tooltip("Who/what caused this fear stimulus? If left blank, will default to this GameObject.")]
     public GameObject Source; // Can be attacker, environment, player, etc.
 
     private void Awake()
     {
+        if (!Source)
+        {
+            Debug.LogWarning($"[FearEmitter] No explicit Source set on {name}. Will default to self. (Set Source in inspector for explicit intent.)");
+            Source = gameObject;
+        }
         // Notify manager that we've been created (for runtime registration)
         OnEmitterCreated?.Invoke(this);       
     }

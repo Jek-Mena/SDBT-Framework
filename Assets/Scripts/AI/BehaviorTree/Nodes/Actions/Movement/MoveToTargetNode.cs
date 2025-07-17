@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         private const string ScriptName = nameof(MoveToTargetNode);
         public string DisplayName => BtNodeDisplayName.Movement.MoveToTarget;
         public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
-
+        
         public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
         private readonly string _movementProfileKey;
@@ -26,6 +27,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         public void Reset(BtContext context)
         {
             // Only called when node is interrupted or parent resets (e.g. after pause)
+            context.Blackboard.MovementIntentRouter.CancelMovement();
+            LastStatus = BtStatus.Idle;
+        }
+        
+        public void OnExitNode(BtContext context)
+        {
             context.Blackboard.MovementIntentRouter.CancelMovement();
             LastStatus = BtStatus.Idle;
         }
@@ -63,7 +70,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             }
             
             var canMove = context.Blackboard.MovementIntentRouter.TryIssueMoveIntent(target.position, movementData, context.Blackboard.BtSessionId);
-            Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
+            //Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
             
             LastStatus = canMove
                 ? context.Blackboard.MovementIntentRouter.IsAtDestination() ? BtStatus.Success : BtStatus.Running

@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Loader;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Switching;
@@ -16,6 +19,7 @@ namespace AI.BehaviorTree.Runtime
         public BtContext Context;
         public IBehaviorNode RootNode { get; private set; }
         
+        private List<ISystemCleanable> _allExitables = new();
         private IBtPersonaSwitcher _personaSwitcher;
         private string _activePersonaTreeKey;
 
@@ -28,19 +32,19 @@ namespace AI.BehaviorTree.Runtime
         
             if (string.IsNullOrEmpty(treeKey))
             {
-                Debug.LogError("[BtController] treeKey is null or empty!");
+                Debug.LogError($"[{ScriptName}] treeKey is null or empty!");
                 return;
             }
             _activePersonaTreeKey = treeKey;
 
-            Debug.Log($"[BtController] Switching tree: {_activePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
+            Debug.Log($"[{ScriptName}] Switching tree: {_activePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
 
             // Retrieve template (unresolved) from registry
             var btJsonTemplate = BtConfigRegistry.GetTemplate(treeKey);
-            Debug.Log($"[DEBUG] Requested BT '{treeKey}' - Registry has: [{string.Join(", ", BtConfigRegistry.GetAllKeys())}]");
+            Debug.Log($"[{ScriptName}] Requested BT '{treeKey}' - Registry has: [{string.Join(", ", BtConfigRegistry.GetAllKeys())}]");
             if (btJsonTemplate == null)
             {
-                Debug.LogError($"[BtController] Failed to switch—tree key '{treeKey}' not found in registry.");
+                Debug.LogError($"[{ScriptName}] Failed to switch—tree key '{treeKey}' not found in registry.");
                 return;
             }
         
@@ -56,6 +60,14 @@ namespace AI.BehaviorTree.Runtime
             
             Context.Blackboard.MovementIntentRouter.TakeOwnership(Context.Blackboard.BtSessionId);
             Context.Blackboard.RotationIntentRouter.TakeOwnership(Context.Blackboard.BtSessionId);
+            
+            // --- KILL ZOMBIE STATUS EFFECTS BEFORE SWITCHING ---
+            if (RootNode != null && Context != null)
+            {
+                Debug.Log($"[BtController] Resetting old BT before switch (was: {_activePersonaTreeKey})");
+                ExitSystem();
+                RootNode.OnExitNode(Context);
+            }       
             
             // Assign to controller
             SetTree(rootNode);
@@ -85,6 +97,28 @@ namespace AI.BehaviorTree.Runtime
             }
         }
 
+        public void RegisterExitable(ISystemCleanable systemCleanable)
+        {
+            if(!_allExitables.Contains(systemCleanable))
+                _allExitables.Add(systemCleanable);
+        }
+        
+        public void ExitSystem()
+        {
+            foreach (var exitable in _allExitables)
+            {
+                try
+                {
+                    exitable.CleanupSystem(Context);
+                    Debug.Log($"[{ScriptName}] Exited: {exitable.GetType().Name}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[{ScriptName}] Failed to exit {exitable.GetType().Name}: {ex}");
+                }
+            }
+        }
+        
         private void OnSwitchRequested(string fromKey, string toKey, string reason)
         {
             if (toKey != _activePersonaTreeKey)
@@ -117,7 +151,8 @@ namespace AI.BehaviorTree.Runtime
                 var result = RootNode.Tick(Context);
                 Context.DeltaTime = deltaTime;
                 Context.Blackboard.MovementIntentRouter.Tick(deltaTime);
-                Debug.Log($"[BT Tick] Status: {result}");
+                Context.Blackboard.RotationIntentRouter.Tick(deltaTime);
+                //Debug.Log($"[BT Tick] Status: {result}");
             }
         }
         

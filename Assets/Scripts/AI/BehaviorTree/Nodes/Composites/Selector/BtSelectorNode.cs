@@ -24,6 +24,11 @@ namespace AI.BehaviorTree.Nodes.Composites.Selector
             // (Not needed for stateless strategies, but add a Reset() call if they support it)
         }
 
+        public void OnExitNode(BtContext context)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public IEnumerable<IBehaviorNode> GetChildren => _children; // Expose children for debug tools, visualization, etc.
 
         public BtSelectorNode(

@@ -124,7 +124,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 return false;
             }
         
-            Debug.Log($"{ScriptName}🤖{_agent.name} is valid");
+            //Debug.Log($"{ScriptName}🤖{_agent.name} is valid");
             return true;
         }
         

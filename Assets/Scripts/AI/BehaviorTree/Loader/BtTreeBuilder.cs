@@ -1,4 +1,5 @@
 ﻿using System;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.TemporalControl.Component;
 using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
@@ -82,7 +83,7 @@ namespace AI.BehaviorTree.Loader
             var node = factory.CreateNode(nodeData, context, recurse);
 
             // Wrap with lifecycle if needed
-            if (node is IExitableBehavior)
+            if (node is ISystemCleanable)
                 node = new BtLifecycleNode(node);
 
             return node;
