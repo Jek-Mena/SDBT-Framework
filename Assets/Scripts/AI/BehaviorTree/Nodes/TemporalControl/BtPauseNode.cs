@@ -1,44 +1,45 @@
-﻿using AI.BehaviorTree.Core.Data;
-using AI.BehaviorTree.Nodes.TemporalControl.Base;
+﻿using System;
+using System.Collections.Generic;
+using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Nodes.Abstractions;
+using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.StatusEffectSystem;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.TemporalControl
 {
-    public class BtPauseNode : TimedExecutionNode
+    public class BtPauseNode : IBehaviorNode
     {
-        private StatusEffect _pauseEffect;
-        private bool _applied;
+        private readonly TimedExecutionComponent _timed;
         private readonly string[] _domains;
-        public override string DisplayName => string.IsNullOrEmpty(Label) ? $"{BtNodeDisplayName.TimedExecution.Pause}" : $"{BtNodeDisplayName.TimedExecution.Pause} ({Label})";
+        private bool _applied;
+        private StatusEffect _pauseEffect;
+        
+        public string DisplayName => string.IsNullOrEmpty(_timed.Data.Label) ? $"{BtNodeDisplayName.TimedExecution.Pause}" : $"{BtNodeDisplayName.TimedExecution.Pause} ({_timed.Data.Label})";
+        public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
 
-        public BtPauseNode(TimedExecutionData timeData, string[] domains = null) : base(timeData)
+        public BtPauseNode(TimedExecutionData timeData, string[] domains = null)
         {
+            _timed = new TimedExecutionComponent(timeData);
             _domains = domains ?? new[] { BlockedDomain.Movement };
         }
-
-        public override BtStatus Tick(BtContext context)
+        
+        public void Initialize(BtContext context)
         {
-            if (!BtValidator.Require(context)
-                    .TimeExecutionManager()
-                    .Effects()
-                    .Check(out var error)
-               )
-            {
-                Debug.Log(error);
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
-            }
+            _timed.Initialize(context);
+            _applied = false;
+            _pauseEffect = null;
+        }
 
-            EnsureTimerStarted();
-
+        public BtStatus Tick(BtContext context)
+        {
             if (!_applied)
             {
-                // Apply pause effect via orchestrator for movement block
                 _pauseEffect = new StatusEffect
                 {
                     Source = nameof(BtPauseNode),
-                    Duration = TimeData.Duration, // Use timer config
+                    Duration = _timed.Data.Duration,
                     TimeApplied = Time.time,
                     Domains = _domains
                 };
@@ -46,48 +47,47 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
                 
                 context.Blackboard.StatusEffectManager.ApplyEffect(_pauseEffect);
                 _applied = true;
+                Debug.Log($"Creating pause effect for domains: {string.Join(",", _domains ?? Array.Empty<string>())}");
             }
-
-            var status = CheckTimerStatus();
-
-            if (status != BtStatus.Running && _applied)
+            
+            _timed.StartTimerIfNeeded();
+            var timerStatus = _timed.GetTimerStatus();
+            
+            if ((timerStatus == BtStatus.Success || timerStatus == BtStatus.Failure) && _applied && _pauseEffect != null)
             {
                 context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
                 _applied = false;
-            }
-
-            _lastStatus = status;
-            return _lastStatus;
-        }
-        
-        public override void Reset(BtContext context)
-        {
-            // Remove pause effect if it's still active
-            if (_applied && _pauseEffect != null)
-            {
-                // Defensive: If context needed, ensure you can access it, or pass in if required
-                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect); // (if you have context)
-                _applied = false;
                 _pauseEffect = null;
-                Debug.Log($"[BtPauseNode] Removing pause effect for {Label} on reset/exit.");
             }
-            base.Reset(context);  // Resets _lastStatus and TimerStarted
+            
+            LastStatus = timerStatus;
+            return timerStatus;
         }
-        
-        public override void OnExitNode(BtContext context)
+
+        public void Reset(BtContext context)
         {
-            // Remove pause effect if still active
             if (_applied && _pauseEffect != null)
             {
                 context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
                 _applied = false;
                 _pauseEffect = null;
-                Debug.Log($"[BtPauseNode] Removing pause effect for {Label} on exit.");
             }
-            // Also interrupt the timer
-            Timer?.Interrupt(Label);
-            TimerStarted = false;
-            _lastStatus = BtStatus.Idle;
+            _timed.InterruptTimer();
+            LastStatus = BtStatus.Idle;
         }
+
+        public void OnExitNode(BtContext context)
+        {
+            if (_applied && _pauseEffect != null)
+            {
+                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
+                _applied = false;
+                _pauseEffect = null;
+            }
+            _timed.InterruptTimer();
+            LastStatus = BtStatus.Idle;
+        }
+        
+        public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
     }
 }

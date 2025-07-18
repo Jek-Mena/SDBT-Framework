@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Nodes.Actions.Rotate.Data;
+using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
 using AI.BehaviorTree.Switching;

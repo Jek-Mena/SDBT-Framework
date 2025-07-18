@@ -4,6 +4,7 @@ using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Composites.Selector;
 using AI.BehaviorTree.Nodes.Composites.Selector.Stimuli;
 using AI.BehaviorTree.Nodes.TemporalControl;
+using AI.BehaviorTree.Nodes.TemporalControl.Factory;
 using AI.BehaviorTree.Registry;
 using UnityEngine;
 
@@ -43,10 +44,13 @@ public static class BtNodeRegistrationList
             // --- Timed Execution
             MakeTimedExecutionEntry<BtPauseNode>(BtNodeTypes.TimedExecution.Pause, hasChild: false, acceptsDomains: true),
             MakeTimedExecutionEntry<TimerNode>(BtNodeTypes.TimedExecution.Timer, hasChild: false, acceptsDomains: false),
+            //MakeTimedExecutionEntry<BtPauseNode>(BtNodeTypes.TimedExecution.Pause, hasChild: false, acceptsDomains: true),
+            //MakeTimedExecutionEntry<TimerNode>(BtNodeTypes.TimedExecution.Timer, hasChild: false, acceptsDomains: false),
             // --- End Timed Execution ---
             
             // --- Decorators ---
             MakeTimedExecutionEntry<TimeoutNode>(BtNodeTypes.Decorators.Timeout, hasChild: true, acceptsDomains: true),
+            //MakeTimedExecutionEntry<TimeoutNode>(BtNodeTypes.Decorators.Timeout, hasChild: true, acceptsDomains: true),
             MakeEntry<BtRepeaterNodeFactory>(BtNodeTypes.Decorators.Repeater),
             // --- End Decorators ---
             

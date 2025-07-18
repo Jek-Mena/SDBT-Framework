@@ -24,18 +24,23 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             _targetProfileKey = targetProfileKey;
         }
     
+        public void Initialize(BtContext context)
+        {
+            LastStatus = BtStatus.Initialized;      
+        }
+        
         public void Reset(BtContext context)
         {
             context.Blackboard.RotationIntentRouter.CancelRotation();
-            LastStatus = BtStatus.Idle;       
+            LastStatus = BtStatus.Exit;       
         }
     
         public void OnExitNode(BtContext context)
         {
             context.Blackboard.RotationIntentRouter.CancelRotation();
-            LastStatus = BtStatus.Idle;
+            LastStatus = BtStatus.Exit;
         }
-        
+
         public BtStatus Tick(BtContext context)
         {
             if (!BtValidator.Require(context)

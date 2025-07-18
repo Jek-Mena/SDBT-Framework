@@ -19,25 +19,8 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
     public class BtParallelNode : IBehaviorNode
     {
         private const string ScriptName = nameof(BtParallelNode);
-
-        private BtStatus _lastStatus = BtStatus.Idle;
-        public BtStatus LastStatus => _lastStatus;
+        public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
         public string DisplayName => BtNodeDisplayName.Composite.Parallel;
-        public void Reset(BtContext context)
-        {
-            foreach (var child in _children)
-                child.Reset(context);
-            _lastStatus = BtStatus.Idle;
-            // If you have any additional local state, reset here.
-        }
-
-        public void OnExitNode(BtContext context)
-        {
-            foreach (var child in _children)
-                child.OnExitNode(context);
-
-            _lastStatus = BtStatus.Idle;
-        }
 
         public IEnumerable<IBehaviorNode> GetChildren => _children;
 
@@ -50,13 +33,20 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
             _exitCondition = exitCondition;
         }
 
+        public void Initialize(BtContext context)
+        {
+            foreach (var child in _children)
+                child.Initialize(context);
+            LastStatus = BtStatus.Initialized;
+        }   
+
         public BtStatus Tick(BtContext context)
         {
             if (_children == null || _children.Count == 0)
             {
                 //Debug.LogError($"[{ScriptName}] No children found.");
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
 
             if (!BtValidator.Require(context)
@@ -65,8 +55,8 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
                )
             {
                 Debug.LogError(error);
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
 
             var anyRunning = false;
@@ -101,25 +91,25 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
             switch (_exitCondition)
             {
                 case ParallelExitCondition.FirstSuccess:
-                    _lastStatus = anySuccess ? BtStatus.Success
+                    LastStatus = anySuccess ? BtStatus.Success
                         : anyRunning ? BtStatus.Running
                         : BtStatus.Failure;
                     break;
 
                 case ParallelExitCondition.FirstFailure:
-                    _lastStatus = anyFailure ? BtStatus.Failure
+                    LastStatus = anyFailure ? BtStatus.Failure
                         : anyRunning ? BtStatus.Running
                         : BtStatus.Success;
                     break;
 
                 case ParallelExitCondition.AllSuccess:
-                    _lastStatus = allSuccess ? BtStatus.Success
+                    LastStatus = allSuccess ? BtStatus.Success
                         : anyRunning ? BtStatus.Running
                         : BtStatus.Failure;
                     break;
 
                 case ParallelExitCondition.AllFailure:
-                    _lastStatus = allFailure ? BtStatus.Failure
+                    LastStatus = allFailure ? BtStatus.Failure
                         : anyRunning ? BtStatus.Running
                         : BtStatus.Success;
                     break;
@@ -129,7 +119,22 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
                         $"[{ScriptName}] Unknown or unsupported exit condition.");
             }
 
-            return _lastStatus;
+            return LastStatus;
+        }
+        
+        public void Reset(BtContext context)
+        {
+            foreach (var child in _children)
+                child.Reset(context);
+            LastStatus = BtStatus.Reset;
+            // If you have any additional local state, reset here.
+        }
+
+        public void OnExitNode(BtContext context)
+        {
+            foreach (var child in _children)
+                child.OnExitNode(context);
+            LastStatus = BtStatus.Exit;
         }
     }
 }

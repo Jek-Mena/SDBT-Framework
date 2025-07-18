@@ -24,19 +24,24 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _targetProfileKey = targetProfileKey;
         }
 
+        public void Initialize(BtContext context)
+        {
+            LastStatus = BtStatus.Initialized;       
+        }
+        
         public void Reset(BtContext context)
         {
             // Only called when node is interrupted or parent resets (e.g. after pause)
             context.Blackboard.MovementIntentRouter.CancelMovement();
-            LastStatus = BtStatus.Idle;
+            LastStatus = BtStatus.Reset;
         }
         
         public void OnExitNode(BtContext context)
         {
             context.Blackboard.MovementIntentRouter.CancelMovement();
-            LastStatus = BtStatus.Idle;
+            LastStatus = BtStatus.Exit;
         }
-        
+
         public BtStatus Tick(BtContext context)
         {
             if (!BtValidator.Require(context)

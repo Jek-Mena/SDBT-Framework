@@ -8,21 +8,25 @@ namespace AI.BehaviorTree.Nodes.Composites.Sequence
 {
     public class BtSequenceNode : IBehaviorNode
     {
-        private BtStatus _lastStatus = BtStatus.Idle;
-        public BtStatus LastStatus => _lastStatus;
-        public string DisplayName => BtNodeDisplayName.Composite.Sequence;
-
         private readonly List<IBehaviorNode> _children;
-
-        public IEnumerable<IBehaviorNode> GetChildren => _children;
-    
         private int _currentIndex;
-        private const string ScriptName = nameof(BtSequenceNode);
 
+        public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
+        public string DisplayName => BtNodeDisplayName.Composite.Sequence;
+        public IEnumerable<IBehaviorNode> GetChildren => _children;
+        
         public BtSequenceNode(List<IBehaviorNode> children)
         {
             _children = children;
             _currentIndex = 0;
+        }
+
+        public void Initialize(BtContext context)
+        {
+            foreach (var child in _children)
+                child.Initialize(context);
+            _currentIndex = 0;
+            LastStatus = BtStatus.Initialized;       
         }
 
         public void Reset(BtContext context)
@@ -30,12 +34,15 @@ namespace AI.BehaviorTree.Nodes.Composites.Sequence
             foreach (var child in _children)
                 child.Reset(context);
             _currentIndex = 0;
-            _lastStatus = BtStatus.Idle;
+            LastStatus = BtStatus.Reset;
         }
     
         public void OnExitNode(BtContext context)
         {
-            throw new System.NotImplementedException();
+            foreach (var child in _children)
+                child.OnExitNode(context);
+            _currentIndex = 0;
+            LastStatus = BtStatus.Idle;
         }
     
         public BtStatus Tick(BtContext context)
@@ -46,8 +53,8 @@ namespace AI.BehaviorTree.Nodes.Composites.Sequence
               )
             {
                 Debug.Log(error);
-                _lastStatus = BtStatus.Failure;
-                return _lastStatus;
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
             }
         
             while (_currentIndex < _children.Count)
@@ -55,25 +62,25 @@ namespace AI.BehaviorTree.Nodes.Composites.Sequence
                 //Debug.Log($"[{ScriptName}] Ticking child {_currentIndex}");
                 var status = _children[_currentIndex].Tick(context);
 
-                switch (status)
+                if (status == BtStatus.Running)
                 {
-                    case BtStatus.Running:
-                        _lastStatus = BtStatus.Running;
-                        return _lastStatus;
-                    case BtStatus.Failure:
-                        _lastStatus = BtStatus.Failure;
-                        _currentIndex = 0;
-                        return _lastStatus;
-                    case BtStatus.Success:
-                    default:
-                        _currentIndex++;
-                        break;
+                    LastStatus = BtStatus.Running;
+                    return LastStatus;
                 }
+
+                if (status == BtStatus.Failure)
+                {
+                    LastStatus = BtStatus.Failure;
+                    _currentIndex = 0;
+                    return LastStatus;
+                }
+
+                _currentIndex++;
             }
 
             _currentIndex = 0;
-            _lastStatus = BtStatus.Success;
-            return _lastStatus;
+            LastStatus = BtStatus.Success;
+            return LastStatus;
         }
     }
 }

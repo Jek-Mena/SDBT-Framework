@@ -102,8 +102,14 @@ namespace AI.BehaviorTree.Keys
 
             public static class TimingProfile
             {
-                public const string Label = Common.Label;
-                public const string Duration = Common.Duration;
+                public const string Label = "label";                    // Logical or label (e.g., "PauseAfterMove")
+                public const string TimerId = "timerId";                // Affected domains (e.g., "Domain/Movement")
+                public const string Duration = "duration";              // Duration of effect or wait
+                public const string StartDelay = "startDelay";          // Delay before behavior starts
+                public const string Interruptible = "interruptible";    // Can the behavior be interrupted early
+                public const string FailOnInterrupt = "failOnInterrupt";// Should it return failure on interruption
+                public const string ResetOnExit = "resetOnExit";        // Reset timer or state on early exit
+                public const string Mode = "mode";                      // Determines how the timer or state should reset upon early exit
             }
         
             private static class Common

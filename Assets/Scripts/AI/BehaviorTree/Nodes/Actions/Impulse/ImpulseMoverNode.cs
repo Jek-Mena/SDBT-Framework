@@ -23,6 +23,11 @@ public class ImpulseMoverNode : IBehaviorNode
 
     public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
 
+    public void Initialize(BtContext context)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public BtStatus Tick(BtContext context)
     {
         var blackBoard = context.Blackboard;

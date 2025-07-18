@@ -1,6 +1,6 @@
 ﻿using System;
 using AI.BehaviorTree.Nodes.Abstractions;
-using AI.BehaviorTree.Nodes.TemporalControl.Component;
+using AI.BehaviorTree.Nodes.TemporalControl;
 using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;

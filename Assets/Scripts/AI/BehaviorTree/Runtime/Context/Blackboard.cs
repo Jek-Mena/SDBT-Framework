@@ -2,7 +2,7 @@
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
-using AI.BehaviorTree.Nodes.TemporalControl.Component;
+using AI.BehaviorTree.Nodes.TemporalControl;
 using AI.BehaviorTree.Switching;
 using Systems.StatusEffectSystem.Component;
 using UnityEngine;

@@ -940,7 +940,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2131c80a51f0274c92e96c108886f6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultEntityId: enemy_test_agent
   spawnPoint: {fileID: 1125068007}
 --- !u!114 &1125068009
 MonoBehaviour:

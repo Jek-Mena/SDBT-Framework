@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Nodes.Abstractions;
-using AI.BehaviorTree.Nodes.TemporalControl.Component;
+using AI.BehaviorTree.Nodes.TemporalControl;
 
 /// <summary>
 /// [2025-06-26]
@@ -58,6 +58,17 @@ public class BtDebugTools
         var indent = new string(' ', depth * 2);
         var isActive = activePath.Contains(node);
 
+        var symbol = node.LastStatus switch
+        {
+            BtStatus.Running => "➡️",
+            BtStatus.Success => "✔️",
+            BtStatus.Failure => "❌",
+            BtStatus.Idle    => "💤",
+            BtStatus.Warning => "⚠️",
+            BtStatus.Initialized => "🔨",
+            _ => "❓"
+        };
+        
         var openColor = isActive
             ? node.LastStatus switch
             {
@@ -71,7 +82,8 @@ public class BtDebugTools
             : "<color=black>";
         var closeColor = "</color>";
         
-        stringBuilder.AppendLine($"{indent}{openColor}{node.DisplayName}-[{node.LastStatus}]{closeColor}");
+        var cleanName = System.Text.RegularExpressions.Regex.Replace(node.DisplayName, @"[-a-fA-F0-9]{8}\b(-[-a-fA-F0-9]{4}){3}-[-a-fA-F0-9]{12}\b", "").TrimEnd('-');
+        stringBuilder.AppendLine($"{indent}{openColor}{symbol}{cleanName}-[{node.LastStatus}]{closeColor}");
 
         foreach (var child in node.GetChildren ?? Enumerable.Empty<IBehaviorNode>())
             DumpTreeActivePaths(child, stringBuilder, depth + 1, activePath);

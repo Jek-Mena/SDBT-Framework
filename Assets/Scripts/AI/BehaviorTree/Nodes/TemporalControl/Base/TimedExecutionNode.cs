@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Nodes.Abstractions;
+using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Base
     /// actions within a defined time frame.
     /// It integrates with the behavior tree system and utilizes timed execution data to control its behavior.
     /// </summary>
+    [System.Obsolete]
     public abstract class TimedExecutionNode : IBehaviorNode
     {
         protected readonly TimedExecutionData TimeData;

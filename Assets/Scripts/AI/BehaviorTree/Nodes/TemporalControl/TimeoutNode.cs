@@ -1,54 +1,63 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Nodes.Abstractions;
-using AI.BehaviorTree.Nodes.TemporalControl.Base;
+using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
-using UnityEngine;
 
-public class TimeoutNode : TimedExecutionNode
+namespace AI.BehaviorTree.Nodes.TemporalControl
 {
-    private readonly IBehaviorNode _child;
-    private readonly string[] _domains;
-    public override string DisplayName => string.IsNullOrEmpty(Label) ? $"{BtNodeDisplayName.TemporalCondition.Timeout}" : $"{BtNodeDisplayName.TemporalCondition.Timeout} ({Label})";
-
-    public TimeoutNode(IBehaviorNode child, TimedExecutionData data, string[] domains = null)
-        : base(data)
+    public class TimeoutNode : IBehaviorNode
     {
-        _child = child;
-        _domains = domains ?? Array.Empty<string>();
-    }
-
-    public override IEnumerable<IBehaviorNode> GetChildren => _child != null ? new[] { _child } : Array.Empty<IBehaviorNode>();
-
-    public override BtStatus Tick(BtContext context)
-    {
-        if (!BtValidator.Require(context)
-                .TimeExecutionManager()
-                .Check(out var error)
-           )
+        private readonly IBehaviorNode _child;
+        private readonly TimedExecutionComponent _timed;
+        public BtStatus LastStatus { get; private set; }
+        public string DisplayName { get; private set; }
+        public IEnumerable<IBehaviorNode> GetChildren => _child != null ? new[] { _child } : System.Linq.Enumerable.Empty<IBehaviorNode>();
+        
+        public TimeoutNode(IBehaviorNode child, TimedExecutionData data)
         {
-            Debug.Log(error);
-            _lastStatus = BtStatus.Failure;
-            return _lastStatus;           
+            _child = child;
+            _timed = new TimedExecutionComponent(data);
+        }
+        
+        public void Initialize(BtContext context)
+        {
+            _timed.Initialize(context);
+            _child?.Initialize(context);
+            LastStatus = BtStatus.Idle;
+        }
+        
+        public BtStatus Tick(BtContext context)
+        {
+            _timed.StartTimerIfNeeded();
+            var timerStatus = _timed.GetTimerStatus();
+            if (_child == null)
+            {
+                LastStatus = timerStatus;
+                return timerStatus;
+            }
+
+            if (timerStatus == BtStatus.Running)
+            {
+                var childStatus = _child.Tick(context);
+                LastStatus = childStatus == BtStatus.Success ? BtStatus.Success : BtStatus.Running;
+                return LastStatus;
+            }
+
+            LastStatus = timerStatus;
+            return timerStatus;
         }
 
-        EnsureTimerStarted();
-
-        var timerStatus = CheckTimerStatus();
-
-        // If no child, behave purely as a timer node.
-        if (_child == null)
+        public void Reset(BtContext context)
         {
-            _lastStatus = timerStatus;
-            return _lastStatus;
+            _timed.InterruptTimer();
+            _child?.Reset(context);
+            LastStatus = BtStatus.Idle;
         }
 
-        var childStatus = _child.Tick(context);
-
-        _lastStatus = childStatus == BtStatus.Success || timerStatus == BtStatus.Success
-            ? BtStatus.Success
-            : BtStatus.Running;
-        return _lastStatus;
+        public void OnExitNode(BtContext context)
+        {
+            Reset(context); // If you need special logic, add it here instead
+        }
     }
 }

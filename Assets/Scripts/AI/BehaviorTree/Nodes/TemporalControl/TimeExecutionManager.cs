@@ -4,7 +4,7 @@ using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-namespace AI.BehaviorTree.Nodes.TemporalControl.Component
+namespace AI.BehaviorTree.Nodes.TemporalControl
 {
     /// <summary>
     /// [2025-06-13] Refactored for TimerExecutionMono to TimerExecutionManager
@@ -25,10 +25,10 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Component
         public void StartTime(string key, float duration)
         {
             if (string.IsNullOrWhiteSpace(key))
-                throw new Exception("[TimerExecutionMono] Tried to start timer with empty/null key.");
+                throw new Exception($"[{ScriptName}] Tried to start timer with empty/null key.");
         
             if (_timers.ContainsKey(key))
-                throw new Exception($"[TimerExecutionMono] Timer key '{key}' already exists. Overwriting existing timer.");
+                throw new Exception($"[{ScriptName}] Timer key '{key}' already exists. Overwriting existing timer.");
         
             _timers[key] = new TimerData(duration);
         }

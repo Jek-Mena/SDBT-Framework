@@ -10,38 +10,51 @@ namespace AI.BehaviorTree.Nodes.Composites.Selector
     {
         private readonly List<IBehaviorNode> _children;
         private readonly IChildSelectorStrategy _selectorStrategy;
+        
         public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
         public string DisplayName { get; set; }
-        public void Reset(BtContext context)
-        {
-            // Reset all children so their internal state is fresh
-            foreach (var child in _children)
-                child.Reset(context);
-
-            // Reset own status or any internal state
-            LastStatus = BtStatus.Idle;
-            // If your selector strategy holds internal state, reset it here as well
-            // (Not needed for stateless strategies, but add a Reset() call if they support it)
-        }
-
-        public void OnExitNode(BtContext context)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IEnumerable<IBehaviorNode> GetChildren => _children; // Expose children for debug tools, visualization, etc.
-
+        public IEnumerable<IBehaviorNode> GetChildren => _children;
+        
         public BtSelectorNode(
             List<IBehaviorNode> children, 
             IChildSelectorStrategy selectorStrategy,
             string displayName = nameof(BtSelectorNode))
         {
-            _children = children;
-            _selectorStrategy = selectorStrategy;
+            _children = children ?? throw new System.ArgumentNullException(nameof(children));
+            _selectorStrategy = selectorStrategy ?? throw new System.ArgumentNullException(nameof(selectorStrategy));
+            DisplayName = displayName;
         }
 
+        public void Initialize(BtContext context)
+        {
+            foreach (var child in _children)
+                child.Initialize(context);
+            LastStatus = BtStatus.Initialized;
+        }
+        
+        public void Reset(BtContext context)
+        {
+            foreach (var child in _children)
+                child.Reset(context);
+            LastStatus = BtStatus.Reset;
+        }
+
+        public void OnExitNode(BtContext context)
+        {
+            foreach (var child in _children)
+                child.OnExitNode(context);
+            LastStatus = BtStatus.Exit;
+        }
+        
         public BtStatus Tick(BtContext context)
         {
+            if (_children == null || _children.Count == 0)
+            {
+                Debug.LogWarning($"[{DisplayName}] No children found.");
+                LastStatus = BtStatus.Failure;
+                return LastStatus;
+            }
+            
             var index = _selectorStrategy.SelectChildIndex(_children, context);
             if (index < 0 || index >= _children.Count)
             {
