@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace AI.BehaviorTree.Nodes.Perception
     /// Abstract base for all perception modules. TStimulus: type of stimulus (e.g., FearStimulus).
     /// TProfile: domain-specific config/profile (e.g., FearPerceptionData).
     /// </summary>
-    public abstract class PerceptionModule<TStimulus, TProfile>: MonoBehaviour, IPerceptionModule
+    public abstract class PerceptionModule<TStimulus, TProfile>: MonoBehaviour, IPerceptionModule, ISystemCleanable
     {
         [Header("Perception Config (Injected from JSON/Profile)")]
         public TProfile Profile; // Set via context pipeline or inspector (for now)
@@ -50,5 +51,7 @@ namespace AI.BehaviorTree.Nodes.Perception
         /// Implement: Query stimuli from the relevant manager/system for this domain.
         /// </summary>
         protected abstract List<TStimulus> QueryStimuli();
+
+        public abstract void ReleaseSystem(BtContext context);
     }
 }

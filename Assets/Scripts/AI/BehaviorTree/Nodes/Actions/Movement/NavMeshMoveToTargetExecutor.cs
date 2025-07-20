@@ -22,6 +22,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 _agent = agent;
             else
                 throw new System.ArgumentNullException(nameof(agent));
+            
+            _agent.updateRotation = false;
         }
         
         public bool AcceptMoveIntent(Vector3 destination, MovementData data)

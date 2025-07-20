@@ -1,8 +1,10 @@
+using AI.BehaviorTree.Runtime.Context;
+using Systems.TargetingSystem;
 using UnityEngine;
 
 public class ClosestTargetResolver : ITargetResolver
 {
-    public Transform ResolveTarget(GameObject self, TargetingData data)
+    public Transform ResolveTarget(GameObject self, TargetingData data, BtContext context)
     {
         var candidates = GameObject.FindGameObjectsWithTag(data.TargetTag);
         Transform closest = null;

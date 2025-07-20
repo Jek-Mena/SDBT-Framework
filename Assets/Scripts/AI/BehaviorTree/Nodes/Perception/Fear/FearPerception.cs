@@ -12,7 +12,8 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
     public class FearPerception : PerceptionModule<FearStimulus, FearPerceptionData>
     {
         private const string ScriptName = nameof(FearPerception);
-    
+        private float _lastThreatTime = -999f;
+        private GameObject _lastThreatSource;
         public override void Initialize(BtContext context)
         {
             base.Initialize(context);
@@ -89,15 +90,17 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
 
             if (mainThreat.HasValue)
             {
+                _lastThreatTime = Time.time;
+                _lastThreatSource = mainThreat.Value.Source;
+                
                 //Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
                 Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value.Source);
                 
-                var value = Context.Blackboard.Get<object>(BlackboardKeys.Fear.Source);
+                // var value = Context.Blackboard.Get<object>(BlackboardKeys.Fear.Source);
                 // Debug.Log($"[FearPerception] Set FearSource: Type={value?.GetType().Name}, Value={value}");
                 // if (value is GameObject go) Debug.Log($"[FearPerception] FearSource GameObject Name: {go.name}");
                 // if (value is Transform tf) Debug.Log($"[FearPerception] FearSource Transform: {tf.position}");
                 // if (value is Vector3 v3) Debug.Log($"[FearPerception] FearSource Vector3: {v3}");
-                
                 
                 // Agent runs away from the main threat (source) at a fixed distance.
                 var agentPos = Context.Agent.transform.position;
@@ -117,9 +120,18 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             }
             else
             {
-                //Debug.Log($"[{ScriptName}] No main threat found.");
-                Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
-                Context.Blackboard.Remove(BlackboardKeys.Fear.FleePoint);
+                // Only remove if grace period has passed
+                if (Time.time - _lastThreatTime > Profile.ThreatCooldown)
+                {
+                    //Debug.Log($"[{ScriptName}] No main threat found.");
+                    Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
+                    Context.Blackboard.Remove(BlackboardKeys.Fear.FleePoint);
+                    _lastThreatSource = null;
+                }
+                else if (_lastThreatSource)
+                {
+                    Context.Blackboard.Set(BlackboardKeys.Fear.Source, _lastThreatSource);
+                }
             }
         }
     
@@ -134,7 +146,12 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             return FearEmitterManager.Instance?.Query(transform.position, Profile.DetectionRange) 
                    ?? new List<FearStimulus>();
         }
-    
+
+        public override void ReleaseSystem(BtContext context)
+        {
+
+        }
+
         protected override void WriteStimuliToBlackboard(List<FearStimulus> stimuli)
         {
             Context.Blackboard.Set(BlackboardKeys.Fear.StimuliNearby, stimuli);

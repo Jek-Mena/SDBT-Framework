@@ -1,40 +1,44 @@
+using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-public class SingleTagTargetResolver : ITargetResolver
+namespace Systems.TargetingSystem.TargetResolver
 {
-    private Transform _cachedPlayer;
-    
-    private const string ScriptName = nameof(SingleTagTargetResolver);
-    public Transform ResolveTarget(GameObject self, TargetingData data)
+    public class SingleTagTargetResolver : ITargetResolver
     {
-        if (string.IsNullOrEmpty(data.TargetTag))
+        private Transform _cachedPlayer;
+    
+        private const string ScriptName = nameof(SingleTagTargetResolver);
+        public Transform ResolveTarget(GameObject self, TargetingData data, BtContext context)
         {
-            Debug.LogError($"[{ScriptName}] TargetTag is null or empty!", self);
-            return null;
-        }
-
-        if (!_cachedPlayer || !_cachedPlayer.gameObject.activeInHierarchy)
-        {
-            var go = GameObject.FindGameObjectWithTag(data.TargetTag);
-            if (!go)
+            if (string.IsNullOrEmpty(data.TargetTag))
             {
-                Debug.LogError($"[{ScriptName}] No GameObject found with tag '{data.TargetTag}'!", self);
+                Debug.LogError($"[{ScriptName}] TargetTag is null or empty!", self);
                 return null;
             }
-            if (go == self)
+
+            if (!_cachedPlayer || !_cachedPlayer.gameObject.activeInHierarchy)
             {
-                Debug.LogError($"[{ScriptName}] Found self as target! Tag: '{data.TargetTag}'", self);
+                var go = GameObject.FindGameObjectWithTag(data.TargetTag);
+                if (!go)
+                {
+                    Debug.LogError($"[{ScriptName}] No GameObject found with tag '{data.TargetTag}'!", self);
+                    return null;
+                }
+                if (go == self)
+                {
+                    Debug.LogError($"[{ScriptName}] Found self as target! Tag: '{data.TargetTag}'", self);
+                    return null;
+                }
+                _cachedPlayer = go.transform;
+            }
+
+            if (!_cachedPlayer || !_cachedPlayer.gameObject.activeInHierarchy)
+            {
+                Debug.LogError($"[{ScriptName}] Cached target is invalid or inactive!", self);
                 return null;
             }
-            _cachedPlayer = go.transform;
-        }
 
-        if (!_cachedPlayer || !_cachedPlayer.gameObject.activeInHierarchy)
-        {
-            Debug.LogError($"[{ScriptName}] Cached target is invalid or inactive!", self);
-            return null;
+            return _cachedPlayer;
         }
-
-        return _cachedPlayer;
     }
 }

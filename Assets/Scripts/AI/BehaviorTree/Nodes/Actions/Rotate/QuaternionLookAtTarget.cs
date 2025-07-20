@@ -88,7 +88,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             _agentTransform.rotation = Quaternion.RotateTowards(_agentTransform.rotation, desired, rotateStep);
             Debug.DrawRay(_agentTransform.position, _agentTransform.forward * 2f, Color.red, 0.1f);
         }
-
         
         public RotationData GetSettings()
         {

@@ -18,6 +18,7 @@
         "MaxDuration": 30.0,
         "Threshold": 2.0,
         "FleeDistance": 5.0,
+        "ThreatCooldown": 2.0,
         "CurveType": "Linear"
       }
     },
@@ -67,8 +68,14 @@
       "FearFleePoint": {
         "blackboardKey": "FearFleePoint"
       },
-        "FearSource": {
-        "blackboardKey": "FearSource"
+      "FearSource": {
+        "style": "BlackboardKey",
+        "blackboardKey": "FearSource",
+        "maxRange": 100,
+        "activationRange": 10,
+        "minRange": 2,
+        "fallOffRange": 120,
+        "searchRange": 200
       }
     },
     "RotationProfiles": {

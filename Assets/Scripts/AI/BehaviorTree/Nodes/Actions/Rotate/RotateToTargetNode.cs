@@ -3,6 +3,7 @@ using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
+using Systems.TargetingSystem;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Rotate
@@ -68,10 +69,10 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
                 return LastStatus;
             }
 
-            var target = resolver.ResolveTarget(context.Agent, targetingData);
+            var target = resolver.ResolveTarget(context.Agent, targetingData, context);
             if (!target)
             {
-                Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
+                Debug.LogError($"[{ScriptName}] No target found using {resolver}: {targetingData.Style}'");
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }

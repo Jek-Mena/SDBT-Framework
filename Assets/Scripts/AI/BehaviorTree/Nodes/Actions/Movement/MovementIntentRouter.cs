@@ -146,6 +146,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         
         public void Tick(float deltaTime)
         {
+            if (_statusEffectManager.IsBlocked(DomainKeys.Movement))
+            {
+                Debug.Log($"[{ScriptName}] ❌ Move intent denied: Movement domain is blocked.");
+                return;
+            }
+            
             if (_currentExecutor is ITickableExecutor executor)
                 executor.Tick(deltaTime);
         }

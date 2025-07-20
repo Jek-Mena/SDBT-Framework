@@ -141,6 +141,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
         public void Tick(float deltaTime)
         {
+            if (_statusEffectManager != null && _statusEffectManager.IsBlocked(DomainKeys.Rotation))
+            {
+                Debug.LogWarning("[QuaternionLookAtTarget] Rejecting intent: Rotation domain is blocked.");
+                return;
+            }
+            
             if (_currentExecutor is ITickableExecutor executor)
                 executor.Tick(deltaTime);
         }

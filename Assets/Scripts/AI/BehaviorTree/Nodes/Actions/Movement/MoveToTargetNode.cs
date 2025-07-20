@@ -3,6 +3,7 @@ using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
+using Systems.TargetingSystem;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement
@@ -66,7 +67,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 return LastStatus;
             }
 
-            var target = resolver.ResolveTarget(context.Agent, targetingData);
+            var target = resolver.ResolveTarget(context.Agent, targetingData, context);
             if (!target)
             {
                 Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");

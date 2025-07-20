@@ -8,5 +8,6 @@ public enum TargetingStyle
     Random,
     First,   // e.g., first in line for tower defense
     Last,
+    BlackboardKey,
     // Add more as your needs grow
 }

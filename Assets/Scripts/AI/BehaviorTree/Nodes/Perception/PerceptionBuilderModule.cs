@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
@@ -24,7 +25,13 @@ namespace AI.BehaviorTree.Nodes.Perception
                 Debug.LogError($"[{scriptName}] No PerceptionModules found on {agent.name}");
                 throw new Exception($"No PerceptionModules found on {agent.name}");
             }
-        
+
+            foreach (var module in perceptionModules)
+            {
+                if (module is ISystemCleanable cleanable)
+                    context.Controller.RegisterExitable(cleanable);
+            }
+            
             // Debug.Log(
             //     $"[{scriptName}] Injecting {perceptionModules.Count} PerceptionModules for '{agent.name}':\n" +
             //     string.Join("- ", perceptionModules.ConvertAll(m => m.GetType().Name).Prepend("")) // shows type names

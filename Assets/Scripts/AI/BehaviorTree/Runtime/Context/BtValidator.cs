@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AI.BehaviorTree.Nodes.Abstractions;
+using Systems.TargetingSystem;
 
 namespace AI.BehaviorTree.Runtime.Context
 {

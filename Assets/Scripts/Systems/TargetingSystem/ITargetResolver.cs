@@ -1,6 +1,10 @@
+using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-public interface ITargetResolver
+namespace Systems.TargetingSystem
 {
-    Transform ResolveTarget(GameObject self, TargetingData data);
+    public interface ITargetResolver
+    {
+        Transform ResolveTarget(GameObject self, TargetingData data, BtContext context);
+    }
 }
