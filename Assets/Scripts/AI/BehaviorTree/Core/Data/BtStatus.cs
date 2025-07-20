@@ -9,6 +9,7 @@ namespace AI.BehaviorTree.Core.Data
         Idle,
         Warning,
         Reset,
-        Exit
+        Exit,
+        Blocked
     }
 }

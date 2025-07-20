@@ -5,11 +5,6 @@ using AI.BehaviorTree.Runtime.Context;
 
 namespace AI.BehaviorTree.Nodes.TemporalControl
 {
-    /// <summary>
-    /// A decorator node that wraps any IBehaviorNode and calls OnExit() when it transitions
-    /// from Running to Success or Failure. Used to handle timer cleanup, state resets, etc.
-    /// Now supports overlay/debug with LastStatus, NodeName, GetChildren.
-    /// </summary>
     public class BtLifecycleNode : IBehaviorNode
     {
         private readonly IBehaviorNode _inner;

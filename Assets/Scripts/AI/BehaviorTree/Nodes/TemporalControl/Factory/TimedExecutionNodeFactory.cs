@@ -6,6 +6,8 @@ using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
+using Utils;
 
 namespace AI.BehaviorTree.Nodes.TemporalControl.Factory
 {
@@ -42,8 +44,21 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Factory
         
             // Get the timing profile key
             var timingProfileKey = config[BtJsonFields.Config.Timing]?.ToString();
-            var timeData = agentProfiles.GetTimingProfile(timingProfileKey);
-        
+            var timingProfile = agentProfiles.GetTimingProfile(timingProfileKey);
+            var timeData = new TimedExecutionData
+            {
+                Label = timingProfile.Label,
+                Duration = timingProfile.Duration,
+                TimerId = timingProfile.Label + this.GetGuid(),
+                Interruptible = timingProfile.Interruptible,
+                FailOnInterrupt = timingProfile.FailOnInterrupt,
+                ResetOnExit = timingProfile.ResetOnExit,
+                Mode = timingProfile.Mode
+            };
+            
+            
+            Debug.Log($"SHIT {timingProfileKey}");
+            
             IBehaviorNode child = null;
             if (_hasChild)
             {

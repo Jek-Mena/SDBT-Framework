@@ -2,13 +2,14 @@
   "root": {
     "type": "Bt/Parallel",
     "config": { 
-      "exitCondition": "AllSuccess" 
+      "exitCondition": "FirstSuccess" 
     },
     "children": [
       {
         "type": "Bt/Timer",
         "config": {
-          "timingId": "FleeTimeLimit"
+          "timingId": "FleeTimeLimit",
+          "domains": ["Domain/Movement", "Domain/Rotation"]
         }
       },
       {

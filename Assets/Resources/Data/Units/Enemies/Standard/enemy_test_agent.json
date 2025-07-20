@@ -29,7 +29,7 @@
     },
     "PersonaProfiles": {
       "DefaultPersona": [
-        { "situationKey": "Default", "MainTreeKey": "fear_stimuli" }
+        { "situationKey": "Default", "MainTreeKey": "move_and_wait" }
       ]
     }
   },
@@ -86,7 +86,7 @@
         "duration": 5.0
       },
       "FleeTimeLimit": {
-        "label": "FleeTimeLimit",
+        "label": "FleeForX",
         "duration": 3.0
       },
       "Pause": {

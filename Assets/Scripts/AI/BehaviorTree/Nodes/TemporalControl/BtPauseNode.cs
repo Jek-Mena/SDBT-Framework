@@ -38,10 +38,10 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
             {
                 _pauseEffect = new StatusEffect
                 {
-                    Source = nameof(BtPauseNode),
+                    Domains = _domains,
                     Duration = _timed.Data.Duration,
+                    Source = nameof(BtPauseNode),
                     TimeApplied = Time.time,
-                    Domains = _domains
                 };
                 _pauseEffect.SetCustomName(BtNodeDisplayName.TimedExecution.Pause);
                 

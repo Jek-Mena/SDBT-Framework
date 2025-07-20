@@ -81,10 +81,8 @@ namespace AI.BehaviorTree.Loader
 
             var factory = BtNodeRegistry.GetFactoryByAlias(alias);
             var node = factory.CreateNode(nodeData, context, recurse);
-
-            // Wrap with lifecycle if needed
-            if (node is ISystemCleanable)
-                node = new BtLifecycleNode(node);
+            
+            node = new BtLifecycleNode(node);
 
             return node;
         }

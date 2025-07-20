@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
@@ -36,15 +37,21 @@ namespace Dev
             if (_context == null || _statusEffectManager == null) return;
 
             var sb = new StringBuilder();
+            sb.AppendLine($"Overlay attached to context: {_context}, rootNode: {_context?.Controller?.RootNode}");
+            sb.AppendLine($"Current active tree: {_context?.Controller?.ActivePersonaTreeKey}");
+            
             sb.AppendLine($"<b>{gameObject.name}</b>");
             sb.AppendLine("=== Status Effects ===\n");
 
             // List all relevant domains you care about
             var allDomains = BlockedDomain.AllDomains;
         
+            //Debug.Log("[SANITY]🤪StatusEffectManager activeEffects.Count = " + _statusEffectManager.GetActiveEffects().Count());
             foreach (var domain in allDomains)
             {
                 var isBlocked = _statusEffectManager.IsBlocked(domain);
+                //Debug.Log($"[SANITY]🤪Domain {domain}: BLOCKED={isBlocked}");
+
                 sb.AppendLine($"[{domain}]" + (isBlocked ? "  <color=red>BLOCKED</color>" : "  OK"));
 
                 // Show ALL effects impacting this domain

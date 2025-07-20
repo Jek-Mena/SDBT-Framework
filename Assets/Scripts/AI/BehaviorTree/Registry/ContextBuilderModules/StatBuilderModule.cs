@@ -27,7 +27,7 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             var statusManager = blackboard.StatusEffectManager;
             var statSynchronizer = agent.RequireComponent<StatSynchronizer>(); // <<-- [2025-06-25] Red flag and needs to be abstract??? For checking 
         
-            var modifiers = statusManager.agentModifiers.Stats;
+            var modifiers = statusManager.AgentModifiers.Stats;
         
             blackboard.Set(BlackboardKeys.Multipliers.Movement, modifiers.Movement);
             blackboard.Set(BlackboardKeys.Multipliers.Attack, modifiers.Attack);

@@ -103,8 +103,8 @@ namespace AI.BehaviorTree.Runtime.Context
             context.Blackboard.RotationIntentRouter = rotationIntentRouter;
             context.Controller.RegisterExitable(rotationIntentRouter);
             
-            var personaBtSwitcher = new PersonaBehaviorTreeSwitcher(context);
-            context.Blackboard.PersonaBehaviorTreeSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)
+            var personaBtSwitcher = new PersonaBtSwitcher(context);
+            context.Blackboard.PersonaBtSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)
             context.Controller.RegisterExitable(personaBtSwitcher);
             
             Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +

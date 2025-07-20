@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Loader;
 using AI.BehaviorTree.Nodes.Abstractions;
@@ -21,32 +22,41 @@ namespace AI.BehaviorTree.Runtime
         
         private readonly List<ISystemCleanable> _allExitables = new();
         private IBtPersonaSwitcher _personaSwitcher;
-        private string _activePersonaTreeKey;
+        public string ActivePersonaTreeKey { get; private set; }
 
         private string _btSessionId;
         
         // Switches to a new tree by key; this is the only tree assignment API.
         public void SwitchPersonaTree(string treeKey, string reason)
         {
-            if (_activePersonaTreeKey == treeKey) return;
-        
+            if (ActivePersonaTreeKey == treeKey) return;
             if (string.IsNullOrEmpty(treeKey))
             {
                 Debug.LogError($"[{ScriptName}] treeKey is null or empty!");
                 return;
             }
             
-            // Release/Cleanup previous domains before switching
-            Context.Blackboard.MovementIntentRouter.ReleaseOwnership(_btSessionId);
-            Context.Blackboard.RotationIntentRouter.ReleaseOwnership(_btSessionId);
-            ReleaseSystem();
+            // ---[1. Release/cleanup all possible system state before switching]---
+            ReleaseAllSystem();
+            
+            // ---[2. Call OnExitNode on the old root recursively. This clears ALL status/timers/blocks from BT nodes]---
             RootNode?.OnExitNode(Context);
-            Debug.Log($"[{ScriptName}] Released ownership of BT '{_activePersonaTreeKey}'");
+            RootNode = null; // Defensive: ensures nothing references the dead tree
             
-            _activePersonaTreeKey = treeKey;
-            Debug.Log($"[{ScriptName}] Switching tree: {_activePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
+            // ---[3. Validate no status/effects have leaked before proceeding]---
+            var effects = Context.Blackboard.StatusEffectManager.GetActiveEffects().ToList();
+            if (effects.Count > 0)
+            {
+                Debug.LogError($"[{ScriptName}] After OnExitNode, leaked {effects.Count} effects:");
+                foreach (var effect in effects)
+                    Debug.LogError($"Leaked effect: {effect.Name}, Domains: {string.Join(",", effect.Domains)}");
+                // Optionally, forcibly clear them (catch BT node bugs): Context.Blackboard.StatusEffectManager.ReleaseSystem(Context);
+            }
             
-            // Retrieve template (unresolved) from registry
+            ActivePersonaTreeKey = treeKey;
+            Debug.Log($"[{ScriptName}] Switching tree: {ActivePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
+            
+            // ---[4. Build new tree from registry and assign]---
             var btJsonTemplate = BtConfigRegistry.GetTemplate(treeKey);
             if (btJsonTemplate == null)
             {
@@ -56,29 +66,29 @@ namespace AI.BehaviorTree.Runtime
             var agentBtJson = btJsonTemplate.DeepClone() as JObject; // Deep clone for isolation
             var rootNode = BtTreeBuilder.LoadTreeFromToken(agentBtJson, Context); // Use current agent's context (must be up to date)
 
-            // Bump the session
+            // ---[5. Bump BT session, take ownership, and assign root]---
             _btSessionId = Guid.NewGuid().ToString();
             Context.Blackboard.BtSessionId = _btSessionId;
-            
-            // Take ownership for new session
             Context.Blackboard.MovementIntentRouter.TakeOwnership(_btSessionId);
             Context.Blackboard.RotationIntentRouter.TakeOwnership(_btSessionId);
             
-            SetTree(rootNode);
+            RootNode = rootNode;
+
             Debug.Log($"[{ScriptName}] Successfully switched to BT '{treeKey}'");
             
-            // Assert ownership matches new GUID
             Debug.Assert(Context.Blackboard.MovementIntentRouter.GetActiveOwnerId() == Context.Blackboard.BtSessionId,
                 $"[{ScriptName}][ASSERT] Movement domain not owned by current session! Owner={Context.Blackboard.MovementIntentRouter.GetActiveOwnerId()}, Expected={Context.Blackboard.BtSessionId}");
             Debug.Assert(Context.Blackboard.RotationIntentRouter.GetActiveOwnerId() == Context.Blackboard.BtSessionId,
                 $"[{ScriptName}][ASSERT] Rotation domain not owned by current session! Owner={Context.Blackboard.RotationIntentRouter.GetActiveOwnerId()}, Expected={Context.Blackboard.BtSessionId}");
+            
+            Debug.Assert(effects.Count == 0, $"[BT] State leak: {effects.Count} status effects active after BT/persona switch!");
         }
     
         public void Initialize(BtContext context)
         {
             Context = context;
 
-            _personaSwitcher = context.Blackboard.PersonaBehaviorTreeSwitcher;
+            _personaSwitcher = context.Blackboard.PersonaBtSwitcher;
             if (_personaSwitcher != null)
                 _personaSwitcher.OnSwitchRequested += OnSwitchRequested;
             else
@@ -87,7 +97,7 @@ namespace AI.BehaviorTree.Runtime
             if (_personaSwitcher != null)
             {
                 Debug.Log($"[{ScriptName}] Start() called on {gameObject.name}. Context: {Context != null}. PersonaSwitcher: {_personaSwitcher != null}");
-                var initialPersonaKey = _personaSwitcher.EvaluateSwitch(Context, _activePersonaTreeKey);
+                var initialPersonaKey = _personaSwitcher.EvaluateSwitch(Context, ActivePersonaTreeKey);
                 if (!string.IsNullOrEmpty(initialPersonaKey))
                     SwitchPersonaTree(initialPersonaKey, "Initial switcher based on stimuli.");
             }
@@ -102,8 +112,8 @@ namespace AI.BehaviorTree.Runtime
             if(!_allExitables.Contains(systemCleanable))
                 _allExitables.Add(systemCleanable);
         }
-        
-        public void ReleaseSystem()
+
+        private void ReleaseAllSystem()
         {
             foreach (var exitable in _allExitables)
             {
@@ -121,11 +131,9 @@ namespace AI.BehaviorTree.Runtime
         
         private void OnSwitchRequested(string fromKey, string toKey, string reason)
         {
-            if (toKey != _activePersonaTreeKey)
+            if (toKey != ActivePersonaTreeKey)
                 SwitchPersonaTree(toKey, $"event: {reason}");
         }
-        
-        private void SetTree(IBehaviorNode rootNode) => RootNode = rootNode;
 
         private void Update()
         {
@@ -137,7 +145,7 @@ namespace AI.BehaviorTree.Runtime
             if (_personaSwitcher != null && Context != null)
             {
                 // TODO - add support for polling(not sure?) but deal eventually deal with the Expensive Invocation
-                var newKey = _personaSwitcher.EvaluateSwitch(Context, _activePersonaTreeKey);
+                var newKey = _personaSwitcher.EvaluateSwitch(Context, ActivePersonaTreeKey);
                 if (!string.IsNullOrEmpty(newKey))
                 {
                     SwitchPersonaTree(newKey, "polled switcher");

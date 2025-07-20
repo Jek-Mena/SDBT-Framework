@@ -19,7 +19,6 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
                 Label = data.Label,
                 TimerId = data.TimerId,
                 Duration = data.Duration,
-                StartDelay = data.StartDelay,
                 Interruptible = data.Interruptible,
                 FailOnInterrupt = data.FailOnInterrupt,
                 ResetOnExit = data.ResetOnExit,

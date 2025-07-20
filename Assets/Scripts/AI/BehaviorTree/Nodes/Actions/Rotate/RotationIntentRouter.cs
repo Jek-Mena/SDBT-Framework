@@ -51,26 +51,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             _activeExecutorId = newOwnerId;
         }
 
-        public void ReleaseOwnership(string sessionId)
-        {
-            Debug.Log($"[Domain][RELEASE] Rotation released by Session={sessionId} (current={_activeExecutorId})");
-            if (_activeExecutorId == sessionId)
-                _activeExecutorId = null;
-            else
-                Debug.LogWarning(
-                    $"[Domain][RELEASE][WARN] Session={sessionId} tried to release, but owner is {_activeExecutorId}.");
-        }
-
         public string GetActiveOwnerId() => _activeExecutorId;
         public string GetLastOwnerId() => _lastOwnerId;
-        
-        [System.Obsolete]
-        public void ForceCancelAndReleaseOwnership()
-        {
-            CancelRotation();
-            _lastOwnerId = _activeExecutorId;
-            _activeExecutorId = null;
-        }
         
         public void ReleaseSystem(BtContext context)
         {
@@ -127,6 +109,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
                 return false;
             }
 
+            if (_statusEffectManager.IsBlocked(DomainKeys.Rotation))
+            {
+                Debug.LogWarning($"[{ScriptName}] ❌ Rotate intent denied: Rotation domain is blocked.");
+                return false;
+            }
+            
             SetCurrentType(data.RotationType);
 
             // --- Only act if intent changes ---
@@ -160,14 +148,14 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         public void OnDomainBlocked(string domain)
         {
             if (!string.Equals(domain, DomainKeys.Rotation, StringComparison.OrdinalIgnoreCase)) return;
-            Debug.Log($"[{ScriptName}] Movement/Rotation domain blocked, stopping executor.");
+            Debug.Log($"[{ScriptName}] Rotation domain blocked, stopping executor.");
             _currentExecutor.PauseRotation();
         }
 
         public void OnDomainUnblocked(string domain)
         {
             if (!string.Equals(domain, DomainKeys.Rotation, StringComparison.OrdinalIgnoreCase)) return;
-            Debug.Log($"[{ScriptName}] Movement/Rotation domain blocked, stopping executor.");
+            Debug.Log($"[{ScriptName}] Rotation domain blocked, stopping executor.");
             _currentExecutor.StartRotation();
         }
 

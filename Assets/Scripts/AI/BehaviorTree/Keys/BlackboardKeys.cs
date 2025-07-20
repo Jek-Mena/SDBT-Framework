@@ -41,6 +41,7 @@
         {
             public const string StimuliNearby = "StimuliNearby";
             public const string StimulusLevel = "FearStimulusLevel";
+            public const string CurrentLevel = "CurrentFearLevel";
             public const string Cooldown = "FearCooldown";
             public const string Duration = "FearDuration";
             public const string Strength = "FearStrength";

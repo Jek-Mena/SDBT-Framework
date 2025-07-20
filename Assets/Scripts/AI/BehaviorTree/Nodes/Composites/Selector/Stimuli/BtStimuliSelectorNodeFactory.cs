@@ -30,7 +30,7 @@ namespace AI.BehaviorTree.Nodes.Composites.Selector.Stimuli
             
             foreach (var entry in profileEntries)
             {
-                Debug.Log($"[{ScriptName}]🟣Curve entry: {JsonConvert.SerializeObject(entry, Formatting.Indented)}");
+                Debug.Log($"[{ScriptName}]🟣Curve entry:\n{JsonConvert.SerializeObject(entry, Formatting.Indented)}");
                 IStimulusCurve curve = entry.CurveType switch
                 {
                     // TODO remove magic strings
@@ -44,12 +44,13 @@ namespace AI.BehaviorTree.Nodes.Composites.Selector.Stimuli
                 
                 var btJson = BtConfigRegistry.RequireRootNode(treeKey);
                 
-                Debug.Log($"[{ScriptName}]🟣🟣🟣 About to build tree '{treeKey}':\n{btJson?.ToString(Formatting.Indented) ?? "NULL"}");
+                Debug.Log($"[{ScriptName}]About to build tree '{treeKey}':\n{btJson?.ToString(Formatting.Indented) ?? "NULL"}");
 
                 var treeNodeData = new TreeNodeData(btJson);
                 var childNode = buildChildNodeRecurs(treeNodeData);
                 children.Add(childNode);
             }
+            
             var strategy = new StimulusSelectorNodeStrategy(stimulusKey, stimuliCurves);
             return new BtSelectorNode(children, strategy, nameof(StimulusSelectorNodeStrategy));
         }

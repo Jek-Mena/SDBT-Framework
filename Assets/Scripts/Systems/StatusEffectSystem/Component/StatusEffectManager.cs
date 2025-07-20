@@ -23,115 +23,89 @@ namespace Systems.StatusEffectSystem.Component
         // Ensure all listeners are unsubscribed properly during system cleanup to prevent memory leaks or null calls.
 
         private const string ScriptName = nameof(StatusEffectManager);
-        // Called when a new domain block is applied
-        public event Action<string> DomainBlocked;
-        // Called when a domain in unblocked (effect removed)
-        public event Action<string> DomainUnblocked;
+        public event Action<string> DomainBlocked; // Called when a new domain block is applied
+        public event Action<string> DomainUnblocked; // Called when a domain in unblocked (effect removed)
         public event Action OnStatusEffectChanged;
-    
-        // Tracks all currently active status effects
-        private List<StatusEffect> _activeEffects = new();
-
-        public AgentModifiers agentModifiers { get; private set; } = new();
-    
-        // Retrieves all currently active status effects
+        
+        private readonly List<StatusEffect> _activeEffects = new(); // Tracks all currently active status effects
+        private readonly Dictionary<string, HashSet<string>> _domainToEffectIds = new(); // Track all blocked domains and which effects block them
+        
+        public AgentModifiers AgentModifiers { get; private set; } = new();
         public IEnumerable<StatusEffect> GetActiveEffects() => _activeEffects;
-    
-        // Removes inactive status effects at the end of the frame
-        public void LateTick()
-        {
-            var expired = _activeEffects.Where(e => !e.IsActive()).ToList();
-
-            foreach (var effect in expired)
-            {
-                RemoveEffects(effect);
-            }
-        }
-
+        
         // Applies a new status effect to the manager.
         // This adds the effect to the active list and triggers any relevant domain block events.
         public void ApplyEffect(StatusEffect effect)
         {
-            Debug.Log($"[StatusEffectManager] Applying effect: {effect}, Domains: {effect.Domains}, DomainBlocked: {DomainBlocked}");
-            _activeEffects.Add(effect);
+            Debug.Log($"[StatusEffectManager] Applying effect: {effect.Name}, Domains: {string.Join(",", effect.Domains)}");
+            
+            if(!_activeEffects.Contains(effect))
+                _activeEffects.Add(effect);
+            
             foreach (var domain in effect.Domains)
             {
-                Debug.Log($"[StatusEffectManager] Processing domain: {domain}");
-                if(IsFirstBlock(domain))
-                {
-                    Debug.Log($"[StatusEffectManager] First block for domain: {domain}, invoking DomainBlocked");
-                    DomainBlocked?.Invoke(domain); // use ?. for safety!
-                }
+                if(!_domainToEffectIds.TryGetValue(domain, out var effectIds))
+                    _domainToEffectIds[domain] = effectIds = new HashSet<string>();
+
+                var wasBlocked = effectIds.Count > 0;
+                effectIds.Add(effect.Id);
+
+                if (wasBlocked) continue;
+                DomainBlocked?.Invoke(domain); // use ?. for safety!
+                Debug.Log($"[{ScriptName}] First block for domain: {domain}, invoking DomainBlocked");
             }
+            RecalculateModifiers();
             // TODO: Handle stacking, priority, expiry, etc. (reuse ModifierMeta/Stack pattern)
         }
-    
-        // Removes a specific status effect from the manager
+        
         public void RemoveEffects(StatusEffect effect)
         {
-            _activeEffects.Remove(effect);
+            if (!_activeEffects.Remove(effect)) return;
+            
             foreach (var domain in effect.Domains)
             {
-                if (!IsBlocked(domain))
-                    DomainUnblocked?.Invoke(domain);
+                if (!_domainToEffectIds.TryGetValue(domain, out var effectIds)) continue;
+                effectIds.Remove(effect.Id);
+                
+                if (effectIds.Count > 0) continue;
+                _domainToEffectIds.Remove(domain);
+                DomainUnblocked?.Invoke(domain);
+                Debug.Log($"[{ScriptName}] Last unblock for domain: {domain}, invoking DomainUnblocked");
             }
+            RecalculateModifiers();
+        }
 
-        }
-        
-        // Checks if this is the first time the given domain is being blocked.
-        // Returns true if no other active effects are already blocking the domain; otherwise, returns false.
-        private bool IsFirstBlock(string domain)
-        {
-            var count = 0;
-            foreach (var effect in _activeEffects)
-            {
-                if (effect.IsActive() && effect.AffectsDomain(domain))
-                    count++;
-            
-            }
-            // 0 before add, 1 after (this is first)
-            return count == 1;
-        }
-    
-        // Checks if the specified domain is currently blocked by any active status effect.
-        // Iterates through all active effects to determine if any affect the given domain
-        // and are still active. Returns true if a match is found; otherwise, returns false.
         public bool IsBlocked(string domain)
         {
-            foreach (var effect in _activeEffects)
-            {
-                if (effect.AffectsDomain(domain) && effect.IsActive())
-                    return true;
-            }
-
-            return false;
+            return _domainToEffectIds.TryGetValue(domain, out var effectIds) && effectIds.Count > 0;
         }
-
+        
         private void RecalculateModifiers()
         {
-            // Reset all
-            agentModifiers.Stats.Reset();
-            // Loop over all effects and modify as needed
+            AgentModifiers.Stats.Reset();
             foreach (var effect in _activeEffects)
-                agentModifiers.Stats.MultiplyWith(effect.Multipliers.Stats);
+                AgentModifiers.Stats.MultiplyWith(effect.Multipliers.Stats);
             OnStatusEffectChanged?.Invoke();
         }
 
         public void ReleaseSystem(BtContext context)
         {
-            // Remove all effects immediately
             _activeEffects.Clear();
-
-            // Reset all modifiers
-            agentModifiers.Stats.Reset(); // Not yet properly implemented
-
-            // Make sure no one is blocked
+            _domainToEffectIds.Clear();
+            AgentModifiers.Stats.Reset(); // Not yet properly implemented
             OnStatusEffectChanged?.Invoke();
 
-            // Optionally, notify all domains unblocked if your system needs it
-            // (Rare, usually effects handle unblocking individually)
-
-            Debug.Log($"[{ScriptName}] CleanupSystem called, all effects cleared.");
+            Debug.Log($"[{ScriptName}] After cleanup, activeEffects.Count = {_activeEffects.Count}");
+            foreach (var effect in _activeEffects)
+                Debug.Log($"[{ScriptName}] Leaked effect: {effect}, Domains: {string.Join(",", effect.Domains)}"); 
+        }
+        
+        // Removes inactive status effects at the end of the frame
+        public void LateTick()
+        {
+            var expired = _activeEffects.Where(e => !e.IsActive()).ToList();
+            foreach (var effect in expired)
+                RemoveEffects(effect);
         }
     }
 }

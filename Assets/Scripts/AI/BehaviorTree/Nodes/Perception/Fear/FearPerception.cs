@@ -70,6 +70,20 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             var maxExpectedFear = 2.0f; // <-- Adjust as needed
             var normalizedFear = Mathf.Clamp01(totalFear / maxExpectedFear);
             
+            var lastFear = Context.Blackboard.Get(BlackboardKeys.Fear.CurrentLevel, 0f);
+            var targetFear = normalizedFear;
+            if (targetFear > lastFear)
+            {
+                lastFear = targetFear; // spike instantly when threatened
+            }
+            else
+            {
+                // Decay if threat has reduced/disappeared
+                float decayRate = (Profile.DecayDuration > 0f) ? (Time.deltaTime / Profile.DecayDuration) : 1f;
+                lastFear = Mathf.MoveTowards(lastFear, 0f, decayRate);
+            }
+            Context.Blackboard.Set(BlackboardKeys.Fear.CurrentLevel, lastFear);
+
             //Debug.Log($"[{ScriptName}]🟠Writing FearStimulusLevel={normalizedFear}");
             Context.Blackboard.Set(BlackboardKeys.Fear.StimulusLevel, normalizedFear);
 

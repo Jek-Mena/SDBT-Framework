@@ -51,27 +51,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _activeExecutorId = newOwnerId;
         }
         
-        public void ReleaseOwnership(string sessionId)
-        {
-            if (_activeExecutorId == sessionId)
-            {
-                Debug.Log($"[Domain][RELEASE] Movement released by Session={sessionId} (current={_activeExecutorId})");
-                _activeExecutorId = null;
-            }
-            else
-                Debug.LogError($"[Domain][RELEASE][WARN] Session={sessionId} tried to release, but owner is {_activeExecutorId}.");
-        }
-        
         public string GetActiveOwnerId() => _activeExecutorId;
         public string GetLastOwnerId() => _lastOwnerId;
-
-        [System.Obsolete]
-        public void ForceCancelAndReleaseOwnership()
-        {
-            CancelMovement();
-            _lastOwnerId = _activeExecutorId;
-            _activeExecutorId = null;
-        }
         
         public void ReleaseSystem(BtContext context)
         {
@@ -126,7 +107,13 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 );
                 return false;
             }
-         
+            
+            if (_statusEffectManager.IsBlocked(DomainKeys.Movement))
+            {
+                Debug.Log($"[{ScriptName}] ❌ Move intent denied: Movement domain is blocked.");
+                return false;
+            }
+            
             //Debug.Log($"[MovementOrchestrator] TryMoveTo: type={data.MovementType}, target={destination}");
             if (_currentExecutor == null)
             {
@@ -166,7 +153,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         public void OnDomainBlocked(string domain)
         {
             if (!string.Equals(domain, DomainKeys.Movement, StringComparison.OrdinalIgnoreCase)) return;
-            Debug.Log($"[{ScriptName}] Movement/Rotation domain blocked, stopping executor.");
+            Debug.Log($"[{ScriptName}] Movement domain blocked, stopping executor.");
             _currentExecutor.PauseMovement();
         }
 

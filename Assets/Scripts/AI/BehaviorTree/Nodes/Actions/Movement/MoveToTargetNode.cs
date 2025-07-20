@@ -53,7 +53,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }
-
+            
             // Resolve data from blackboard profile dictionaries
             var movementData = context.AgentProfiles.GetMovementProfile(_movementProfileKey);
             var targetingData = context.AgentProfiles.GetTargetingProfile(_targetProfileKey);

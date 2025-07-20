@@ -38,7 +38,7 @@ namespace AI.BehaviorTree.Runtime.Context
         public MovementIntentRouter MovementIntentRouter { get; set; }
         public RotationIntentRouter RotationIntentRouter { get; set; }
         public List<IPerceptionModule> PerceptionModules { get; set; }
-        public PersonaBehaviorTreeSwitcher PersonaBehaviorTreeSwitcher { get; set; }
+        public PersonaBtSwitcher PersonaBtSwitcher { get; set; }
         public string BtSessionId { get; set; }
 
         // ───────────────
@@ -58,13 +58,13 @@ namespace AI.BehaviorTree.Runtime.Context
         /// Retrieves a previously stored dynamic value.
         /// Logs a warning if the key is missing.
         /// </summary>
-        public T Get<T>(string key)
+        public T Get<T>(string key, T defaultValue = default)
         {
             if (_data.TryGetValue(key, out var value))
                 return (T)value;
 
-            Debug.LogError($"[Blackboard] Missing key '{key}' of type {typeof(T).Name}");
-            return default;
+            Debug.LogWarning($"[Blackboard] Missing key '{key}' of type {typeof(T).Name}, returning default value '{defaultValue}'.");
+            return defaultValue; // Use the user-supplied default!
         }
 
         /// <summary>

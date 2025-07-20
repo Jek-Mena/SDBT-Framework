@@ -1,4 +1,7 @@
-public interface IBlocker
+namespace Systems.StatusEffectSystem
 {
-    bool IsBlocked(string domain);
+    public interface IBlocker
+    {
+        bool IsBlocked(string domain);
+    }
 }

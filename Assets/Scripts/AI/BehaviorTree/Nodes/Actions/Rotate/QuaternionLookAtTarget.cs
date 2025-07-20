@@ -44,6 +44,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
                 return false;
             }
             _isPaused = false;
+            Debug.Log("[QuaternionLookAtTarget] Accepted intent and UNPAUSED rotation.");
             _targetTransform = target;
             _targetPosition = target.position;
             Debug.Log($"[QuaternionLookAtTarget] Accepted intent: target={target.name}, settings={data}");
@@ -95,7 +96,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         }
         
         public void StartRotation() =>_isPaused = false;
-        public void PauseRotation() => _isPaused = true;
+        public void PauseRotation()
+        {
+            _isPaused = true;
+            Debug.Log("[QuaternionLookAtTarget] Paused rotation.");
+        }
+
         public void CancelRotation()
         {
             _isPaused = false;
