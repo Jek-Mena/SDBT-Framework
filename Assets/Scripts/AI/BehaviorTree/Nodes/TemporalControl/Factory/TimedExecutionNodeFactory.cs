@@ -56,9 +56,6 @@ namespace AI.BehaviorTree.Nodes.TemporalControl.Factory
                 Mode = timingProfile.Mode
             };
             
-            
-            Debug.Log($"SHIT {timingProfileKey}");
-            
             IBehaviorNode child = null;
             if (_hasChild)
             {

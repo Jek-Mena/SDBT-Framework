@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace AI.BehaviorTree.Switching
 {
-    public class PersonaBtSwitcher : IBtPersonaSwitcher, ISystemCleanable
+    public class PersonaBtSwitcher : ISystemCleanable
     {
         private const string ScriptName = nameof(PersonaBtSwitcher);
         public event Action<string, string, string> OnSwitchRequested;
@@ -43,14 +43,14 @@ namespace AI.BehaviorTree.Switching
             // Set default as the rule with "Default" situationKey (optional: make configurable)
             _defaultTreeKey = _rules.FirstOrDefault(r => r.SituationKey == BtAgentJsonFields.AgentProfiles.PersonaProfile.DefaultSituation)?.MainTreeKey;
 
-            Debug.Log($"[{ScriptName}]📤🌲Loaded {_rules.Count} rules. Default tree: {_defaultTreeKey}");
-            Debug.Log($"[{ScriptName}]📤🌲Default tree: '{_defaultTreeKey}', All rules: {string.Join(", ", _rules.Select(r => $"{r.SituationKey}->{r.MainTreeKey}"))}");
+            //Debug.Log($"[{ScriptName}]📤🌲Loaded {_rules.Count} rules. Default tree: {_defaultTreeKey}");
+            //Debug.Log($"[{ScriptName}]📤🌲Default tree: '{_defaultTreeKey}', All rules: {string.Join(", ", _rules.Select(r => $"{r.SituationKey}->{r.MainTreeKey}"))}");
             
             foreach (var rule in _rules)
                 Debug.Log($"[{ScriptName}][PersonaRule] situationKey={rule.SituationKey} mainTreeKey={rule.MainTreeKey}");
             
-            Debug.Log($"_activeEffects after BT switch: " 
-                      + string.Join(", ", context.Blackboard.StatusEffectManager.GetActiveEffects().Select(e => e.Name + "->" + string.Join("/", e.Domains))) );
+            //Debug.Log($"_activeEffects after BT switch: " 
+            //          + string.Join(", ", context.Blackboard.StatusEffectManager.GetActiveEffects().Select(e => e.Name + "->" + string.Join("/", e.Domains))) );
             
             // To force the initial switch
             _lastStimulusValue = -999f;

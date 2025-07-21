@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
+using Dev.OverlayDebugView;
 using Systems.StatusEffectSystem.Component;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace Dev
     ///
     /// 
     /// </summary>
+    [System.Obsolete]
     public class DebugOverlay : MonoBehaviour
     {
         // TODO [2025-07-14] [DebugOverlay Refactor]:

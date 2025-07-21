@@ -72,7 +72,9 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             var target = resolver.ResolveTarget(context.Agent, targetingData, context);
             if (!target)
             {
-                Debug.LogError($"[{ScriptName}] No target found using {resolver}: {targetingData.Style}'");
+                // No target: normal in many BT states—no log needed in production
+                // but can be re-enabled for debugging purposes. 
+                //Debug.LogError($"[{ScriptName}] No target found using {resolver}: {targetingData.Style}'");
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }

@@ -120,12 +120,11 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             }
             else
             {
-                // Only remove if grace period has passed
                 if (Time.time - _lastThreatTime > Profile.ThreatCooldown)
                 {
                     //Debug.Log($"[{ScriptName}] No main threat found.");
-                    Context.Blackboard.Remove(BlackboardKeys.Fear.Source);
-                    Context.Blackboard.Remove(BlackboardKeys.Fear.FleePoint);
+                    Context.Blackboard.Set<object>(BlackboardKeys.Fear.Source, null);
+                    Context.Blackboard.Set<object>(BlackboardKeys.Fear.FleePoint, null);
                     _lastThreatSource = null;
                 }
                 else if (_lastThreatSource)

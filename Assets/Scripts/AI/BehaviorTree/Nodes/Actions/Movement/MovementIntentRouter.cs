@@ -44,7 +44,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         {
             if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
                 Debug.LogWarning($"[Domain][CLAIM][WARN] Movement was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
-            Debug.Log($"[{ScriptName}][Domain][CLAIM] Movement claimed by Session={newOwnerId} (was={_activeExecutorId})");
+            //Debug.Log($"[{ScriptName}][Domain][CLAIM] Movement claimed by Session={newOwnerId} (was={_activeExecutorId})");
             
             _currentExecutor.CancelMovement();
             _lastOwnerId = _activeExecutorId;
@@ -56,7 +56,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         
         public void ReleaseSystem(BtContext context)
         {
-            Debug.Log($"[{ScriptName}] CleanupSystem called.");
+            //Debug.Log($"[{ScriptName}] CleanupSystem called.");
             _currentExecutor?.CancelMovement();
             _lastOwnerId = _activeExecutorId;
             _activeExecutorId = null; // Reset executor ID so no orphan BT can claim it
@@ -66,7 +66,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             foreach (var executor in _executors.Values)
                 executor.CancelMovement();
 
-            Debug.Log($"[{ScriptName}] Cleanup complete.");
+            //Debug.Log($"[{ScriptName}] Cleanup complete.");
         }
         
         public void SetCurrentType(MoveToTargetNodeType type)
@@ -148,7 +148,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         {
             if (_statusEffectManager.IsBlocked(DomainKeys.Movement))
             {
-                Debug.Log($"[{ScriptName}] ❌ Move intent denied: Movement domain is blocked.");
+                //Debug.Log($"[{ScriptName}] ❌ Move intent denied: Movement domain is blocked.");
                 return;
             }
             

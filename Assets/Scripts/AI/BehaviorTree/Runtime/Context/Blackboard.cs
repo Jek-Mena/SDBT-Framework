@@ -2,6 +2,7 @@
 using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
+using AI.BehaviorTree.Nodes.Perception;
 using AI.BehaviorTree.Nodes.TemporalControl;
 using AI.BehaviorTree.Switching;
 using Systems.StatusEffectSystem.Component;
@@ -52,7 +53,10 @@ namespace AI.BehaviorTree.Runtime.Context
         /// Dynamically registers a runtime value with the blackboard.
         /// Useful for injecting settings, services, or tools without altering the main schema.
         /// </summary>
-        public void Set<T>(string key, T value) => _data[key] = value;
+        public void Set<T>(string key, T value)
+        {
+            _data[key] = value;
+        }
 
         /// <summary>
         /// Retrieves a previously stored dynamic value.

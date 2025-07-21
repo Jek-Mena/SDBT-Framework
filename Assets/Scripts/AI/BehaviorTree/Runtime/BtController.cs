@@ -21,7 +21,7 @@ namespace AI.BehaviorTree.Runtime
         public IBehaviorNode RootNode { get; private set; }
         
         private readonly List<ISystemCleanable> _allExitables = new();
-        private IBtPersonaSwitcher _personaSwitcher;
+        private PersonaBtSwitcher _personaSwitcher;
         public string ActivePersonaTreeKey { get; private set; }
 
         private string _btSessionId;

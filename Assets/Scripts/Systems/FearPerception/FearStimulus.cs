@@ -9,6 +9,7 @@ namespace Systems.FearPerception
     /// </summary>
     public struct FearStimulus
     {
+        public string Name => "Fear Stimulus";
         /// <summary>
         /// World position of the fear emitter.
         /// </summary>

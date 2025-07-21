@@ -58,21 +58,21 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _agent.angularSpeed = data.AngularSpeed;
             _agent.acceleration = data.Acceleration;
             _agent.stoppingDistance = data.StoppingDistance;
-            Debug.Log($"[{ScriptName}] Settings applied to {_agent.gameObject.name}");
+            //Debug.Log($"[{ScriptName}] Settings applied to {_agent.gameObject.name}");
         }
 
         public void StartMovement()
         {
             if (!IsAgentValid()) return;
             _agent.isStopped = false;
-            Debug.Log($"{ScriptName}🤖▶️{_agent.gameObject.name} Starting the NavMeshAgent.");
+            //Debug.Log($"{ScriptName}🤖▶️{_agent.gameObject.name} Starting the NavMeshAgent.");
         }
 
         public void PauseMovement()
         {
             if (!IsAgentValid()) return;
             _agent.isStopped = true;
-            Debug.Log($"{ScriptName}🤖⏸️{_agent.gameObject.name} Pausing the NavMeshAgent.");
+            //Debug.Log($"{ScriptName}🤖⏸️{_agent.gameObject.name} Pausing the NavMeshAgent.");
         }
         
         public void CancelMovement()
@@ -80,7 +80,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             if (!IsAgentValid()) return;
             _agent.isStopped = true;
             _agent.ResetPath();
-            Debug.Log($"{ScriptName}🤖⛔{_agent.gameObject.name} Cancelling the NavMeshAgent's path.");
+            //Debug.Log($"{ScriptName}🤖⛔{_agent.gameObject.name} Cancelling the NavMeshAgent's path.");
         }
 
         public bool IsAtDestination()

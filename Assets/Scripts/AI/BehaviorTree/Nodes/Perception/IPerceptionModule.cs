@@ -1,7 +1,10 @@
 ﻿using AI.BehaviorTree.Runtime.Context;
 
-public interface IPerceptionModule
+namespace AI.BehaviorTree.Nodes.Perception
 {
-    void Initialize(BtContext context);
-    void UpdatePerception();
+    public interface IPerceptionModule
+    {
+        void Initialize(BtContext context);
+        void UpdatePerception();
+    }
 }

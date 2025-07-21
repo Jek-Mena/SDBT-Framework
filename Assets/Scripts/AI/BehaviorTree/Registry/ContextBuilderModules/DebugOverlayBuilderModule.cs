@@ -1,5 +1,6 @@
 ﻿using AI.BehaviorTree.Runtime.Context;
 using Dev;
+using Dev.OverlayDebugView;
 using Utils.Component;
 
 namespace AI.BehaviorTree.Registry.ContextBuilderModules
@@ -13,8 +14,8 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             var blackboard = context.Blackboard;
         
             // Injects the full config JObject into the blackboard at context build time.
-            var debugOverlay = agent.RequireComponent<DebugOverlay>();
-        
+            var debugOverlay = agent.RequireComponent<DebugOverlayView>();
+            
             debugOverlay.Initialize(context);
         }
     }

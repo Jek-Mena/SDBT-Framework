@@ -33,7 +33,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
             Dispose();
             _statusEffectManager = context.Blackboard.StatusEffectManager;
-            ;
+            
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
 
@@ -42,7 +42,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
         public void TakeOwnership(string newOwnerId)
         {
-            Debug.Log($"[Domain][CLAIM] Rotation claimed by Session={newOwnerId} (was={_activeExecutorId})");
             if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
                 Debug.LogWarning(
                     $"[Domain][CLAIM][WARN] Rotation was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
@@ -143,7 +142,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         {
             if (_statusEffectManager != null && _statusEffectManager.IsBlocked(DomainKeys.Rotation))
             {
-                Debug.LogWarning("[QuaternionLookAtTarget] Rejecting intent: Rotation domain is blocked.");
+                //Debug.LogWarning("[QuaternionLookAtTarget] Rejecting intent: Rotation domain is blocked.");
                 return;
             }
             

@@ -27,7 +27,11 @@ namespace Entity.Core
             // Test spawn
             foreach (var spawner in _spawners)
             {
-                spawner.SpawnEntity(null, Vector3.zero, Quaternion.identity);
+                var numToSpawn = 5;
+                for (var i = 0; i < numToSpawn; i++)
+                {
+                    spawner.SpawnEntity(null, Vector3.zero, Quaternion.identity);
+                }
             }
         }
     
