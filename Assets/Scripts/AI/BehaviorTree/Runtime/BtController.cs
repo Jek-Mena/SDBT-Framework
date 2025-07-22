@@ -39,34 +39,25 @@ namespace AI.BehaviorTree.Runtime
             // ---[1. Release/cleanup all possible system state before switching]---
             ReleaseAllSystem();
             
-            // ---[2. Call OnExitNode on the old root recursively. This clears ALL status/timers/blocks from BT nodes]---
-            RootNode?.OnExitNode(Context);
-            RootNode = null; // Defensive: ensures nothing references the dead tree
-            
-            // ---[3. Validate no status/effects have leaked before proceeding]---
+            // ---[2. Validate no status/effects have leaked before proceeding]---
             var effects = Context.Blackboard.StatusEffectManager.GetActiveEffects().ToList();
             if (effects.Count > 0)
             {
                 Debug.LogError($"[{ScriptName}] After OnExitNode, leaked {effects.Count} effects:");
                 foreach (var effect in effects)
                     Debug.LogError($"Leaked effect: {effect.Name}, Domains: {string.Join(",", effect.Domains)}");
-                // Optionally, forcibly clear them (catch BT node bugs): Context.Blackboard.StatusEffectManager.ReleaseSystem(Context);
             }
             
             ActivePersonaTreeKey = treeKey;
             Debug.Log($"[{ScriptName}] Switching tree: {ActivePersonaTreeKey ?? "(none)"} -> {treeKey} (reason: {reason})");
             
-            // ---[4. Build new tree from registry and assign]---
-            var btJsonTemplate = BtConfigRegistry.GetTemplate(treeKey);
-            if (btJsonTemplate == null)
-            {
-                Debug.LogError($"[{ScriptName}] Failed to switch—tree key '{treeKey}' not found in registry.");
-                return;
-            }
+            // ---[3. Build new tree from registry and assign]---
+            var btJsonTemplate = BtConfigRegistry.RequireTemplate(treeKey);
+
             var agentBtJson = btJsonTemplate.DeepClone() as JObject; // Deep clone for isolation
             var rootNode = BtTreeBuilder.LoadTreeFromToken(agentBtJson, Context); // Use current agent's context (must be up to date)
 
-            // ---[5. Bump BT session, take ownership, and assign root]---
+            // ---[4. Bump BT session, take ownership, and assign root]---
             _btSessionId = Guid.NewGuid().ToString();
             Context.Blackboard.BtSessionId = _btSessionId;
             Context.Blackboard.MovementIntentRouter.TakeOwnership(_btSessionId);
@@ -115,12 +106,17 @@ namespace AI.BehaviorTree.Runtime
 
         private void ReleaseAllSystem()
         {
+            // Call OnExitNode on the old root recursively, clearing ALL status/timers/blocks from BT nodes
+            // This also includes the intent routers 
+            RootNode?.OnExitNode(Context);
+            RootNode = null; // Defensive: ensures nothing references the dead tree
+            
             foreach (var exitable in _allExitables)
             {
                 try
                 {
                     exitable.ReleaseSystem(Context);
-                    Debug.Log($"[{ScriptName}] Exited: {exitable.GetType().Name}");
+                    //Debug.Log($"[{ScriptName}] Exited: {exitable.GetType().Name}");
                 }
                 catch (Exception ex)
                 {
@@ -155,11 +151,8 @@ namespace AI.BehaviorTree.Runtime
             // Behavior tree tick
             if (RootNode != null && Context != null)
             {
-                var deltaTime = Time.deltaTime;
+                Context.DeltaTime = Time.deltaTime;
                 var result = RootNode.Tick(Context);
-                Context.DeltaTime = deltaTime;
-                Context.Blackboard.MovementIntentRouter.Tick(deltaTime);
-                Context.Blackboard.RotationIntentRouter.Tick(deltaTime);
                 //Debug.Log($"[BT Tick] Status: {result}");
             }
         }

@@ -129,7 +129,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         public bool IsAtDestination()
         {
             if (!_transform) return false;
-            return !_isMoving || Vector3.Distance(_transform.position, _targetDestination) <= _arriveThreshold;
+            return Vector3.Distance(_transform.position, _targetDestination) <= _arriveThreshold;
         }
 
         public bool IsCurrentMove(Vector3 destination, MovementData data)

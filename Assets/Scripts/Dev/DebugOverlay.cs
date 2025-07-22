@@ -48,11 +48,9 @@ namespace Dev
             // List all relevant domains you care about
             var allDomains = BlockedDomain.AllDomains;
         
-            //Debug.Log("[SANITY]🤪StatusEffectManager activeEffects.Count = " + _statusEffectManager.GetActiveEffects().Count());
             foreach (var domain in allDomains)
             {
                 var isBlocked = _statusEffectManager.IsBlocked(domain);
-                //Debug.Log($"[SANITY]🤪Domain {domain}: BLOCKED={isBlocked}");
 
                 sb.AppendLine($"[{domain}]" + (isBlocked ? "  <color=red>BLOCKED</color>" : "  OK"));
 
@@ -65,7 +63,7 @@ namespace Dev
                     var remaining = fx.RemainingDuration;
                     sb.AppendLine($"  - {fxName} (x{mult:0.00}) [{remaining:0.0}s]");
                 }
-                sb.AppendLine();
+                //sb.AppendLine();
             }
 
             // After the status overlay, add:

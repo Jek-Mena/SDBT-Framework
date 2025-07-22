@@ -15,6 +15,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         private Vector3 _lastSetDestination;
 
         private const float DefaultUpdateThreshold = 1.0f;
+        private const float DefaultMoveSpeed = 5f;
         
         public NavMeshMoveToTargetExecutor(NavMeshAgent agent)
         {
@@ -25,28 +26,27 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             
             _agent.updateRotation = false;
         }
-        
+
+        public void Tick(float deltaTime)
+        {
+            // NavMesh doesn't need Tick because NavMeshAgent have its own Tick system
+        }
+
         public bool AcceptMoveIntent(Vector3 destination, MovementData data)
         {
             // Check if the agent is valid
             if (!IsAgentValid())
                 return false;
             
-            // If first move or moved far enough, issue move command
-            if (Vector3.Distance(_lastSetDestination, destination) > _currentSettings.UpdateThreshold)
-            {
-                _lastSetDestination = destination;
-                var pathSet = _agent.SetDestination(destination);
+            // Perma chase
+            _lastSetDestination = destination;
+            var pathSet = _agent.SetDestination(destination);
 
-                if (pathSet)
-                    return true;
+            if (pathSet)
+                return true;
 
-                Debug.LogWarning($"[{ScriptName}] {_agent.gameObject.name} failed to SetDestination (may be unreachable or off mesh).");
-                return false;
-            }
-            
-            // No move was issued, but technically (hopefully) the agent is still on its way to the last set destination
-            return true;
+            Debug.LogWarning($"[{ScriptName}] {_agent.gameObject.name} failed to SetDestination (may be unreachable or off mesh).");
+            return false;
         }
 
         public void ApplySettings(MovementData data)
@@ -91,21 +91,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                                        && (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f);
         }
 
-        public bool IsCurrentMove(Vector3 destination, MovementData data)
-        {
-            // 1. Check if destination is close enough to the last intent (STICKY!)
-            var stickyThreshold = data?.UpdateThreshold > 0 ? data.UpdateThreshold : DefaultUpdateThreshold;
-            var destinationMatch = Vector3.Distance(_lastSetDestination, destination) < stickyThreshold;
-
-            // 2. Only match mode/type, not deep settings (unless you really care about speed/etc per move)
-            var movementTypeMatch = _currentSettings?.MovementType == data?.MovementType;
-
-            // 3. Agent must still be valid
-            var agentValid = IsAgentValid();
-
-            return destinationMatch && movementTypeMatch && agentValid;
-        }
-
         private bool IsAgentValid()
         {
             if (!_agent)
@@ -130,6 +115,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             return true;
         }
         
-        // NavMesh doesn't need Tick because NavMeshAgent have its own Tick system
+        
     }
 }

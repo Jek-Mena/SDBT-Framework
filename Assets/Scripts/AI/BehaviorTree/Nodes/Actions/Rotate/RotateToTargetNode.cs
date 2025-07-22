@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
@@ -91,18 +92,28 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
             var canRotate = context.Blackboard.RotationIntentRouter.TryIssueRotateIntent(target, rotationData, context.Blackboard.BtSessionId);
             //Debug.Log($"[{ScriptName}]🔁Can rotate: {canRotate}" );
-        
-            if (!canRotate)
-                LastStatus = BtStatus.Failure;
-            else if (context.Blackboard.RotationIntentRouter.IsFacingTarget(target))
-                LastStatus = BtStatus.Success;
+            
+            if(canRotate)
+                if (context.Blackboard.RotationIntentRouter.IsFacingTarget())
+                    LastStatus = rotationData.SuccessToRunning ? BtStatus.Running : BtStatus.Success;
+                else 
+                    LastStatus = BtStatus.Running;
             else
-                LastStatus = BtStatus.Running;
+                LastStatus = BtStatus.Failure;
+            
+            // if (!canRotate)
+            //     LastStatus = BtStatus.Failure;
+            // else if (context.Blackboard.RotationIntentRouter.IsFacingTarget())
+            //     LastStatus = BtStatus.Success;
+            // else
+            //     LastStatus = BtStatus.Running;
         
             // Debug.Log($"[RotateToTargetNode]💯🚀🎯Rotating to: {target} | " +
             //           $"DomainBlocked: {context.Blackboard.StatusEffectManager.IsBlocked(DomainKeys.Rotation)} | " +
             //           $"CurrentSettings: {context.Blackboard.RotationIntentRouter.GetCurrentSettings()}");
             //
+            context.Blackboard.RotationIntentRouter.Tick(context.DeltaTime);
+            
             return LastStatus;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
@@ -12,6 +13,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         public BtStatus LastStatus { get; private set; } = BtStatus.Idle;
         public IEnumerable<IBehaviorNode> GetChildren => System.Array.Empty<IBehaviorNode>();
         public string DisplayName => string.IsNullOrEmpty(_timed.Data.Label) ? $"{BtNodeDisplayName.TimedExecution.Timer}" : $"{BtNodeDisplayName.TimedExecution.Timer} ({_timed.Data.Label})";
+        
         public TimerNode(TimedExecutionData data)
         {
             _timed = new TimedExecutionComponent(data);

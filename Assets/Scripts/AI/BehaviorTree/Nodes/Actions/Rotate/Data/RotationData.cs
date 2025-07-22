@@ -7,6 +7,8 @@
         /// </summary>
         public RotateToTargetNodeType RotationType;
 
+        public bool SuccessToRunning = true;
+        
         /// <summary>
         /// Rotation speed in degrees per second.
         /// </summary>

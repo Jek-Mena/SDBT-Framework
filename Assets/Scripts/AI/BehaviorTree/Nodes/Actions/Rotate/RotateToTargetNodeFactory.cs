@@ -1,38 +1,40 @@
 ﻿using System;
 using AI.BehaviorTree.Nodes.Abstractions;
-using AI.BehaviorTree.Nodes.Actions.Rotate;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class RotateToTargetNodeFactory : IBtNodeFactory
+namespace AI.BehaviorTree.Nodes.Actions.Rotate
 {
-    public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
+    public class RotateToTargetNodeFactory : IBtNodeFactory
     {
-        var scriptName = nameof(RotateToTargetNodeFactory);
-        var config = nodeData.Settings;
-        if (config == null)
-            throw new Exception($"[{scriptName}] Missing {BtJsonFields.ConfigField} for RotateToTarget node.");
-
-        // Get the rotation and targeting profile key
-        var rotationProfileKey = config[BtJsonFields.Config.Rotation]?.ToString();
-        var targetProfileKey = config[BtJsonFields.Config.Target]?.ToString();
-
-        if (rotationProfileKey == null)
-        {
-            Debug.LogError($"[{scriptName}]🔁❌🔑Missing {BtJsonFields.Config.Rotation} for RotateToTarget node.");
-            throw new Exception($"[{scriptName}]🔁❌🔑Missing {BtJsonFields.Config.Rotation} for RotateToTarget node.");
-        }
-
-        if (targetProfileKey == null)
-        {
-            Debug.LogError($"[{scriptName}]🔁❌🔑Missing {BtJsonFields.Config.Target} for RotateToTarget node.");
-            throw new Exception($"[{scriptName}]🔁❌🔑Missing {BtJsonFields.Config.Target} for RotateToTarget node.");       
-        }
+        private const string ScriptName = nameof(RotateToTargetNodeFactory);
         
-        Debug.Log($"🔁🔑RotationProfileKey: {rotationProfileKey}---🎯🔑TargetProfileKey: {targetProfileKey}");
-        return new RotateToTargetNode(rotationProfileKey, targetProfileKey);
+        public IBehaviorNode CreateNode(TreeNodeData nodeData, BtContext context, Func<TreeNodeData, IBehaviorNode> buildChildNodeRecurs)
+        {
+            var config = nodeData.Settings;
+            if (config == null)
+                throw new Exception($"[{ScriptName}] Missing {BtJsonFields.ConfigField} for RotateToTarget node.");
+
+            // Get the rotation and targeting profile key
+            var rotationProfileKey = config[BtJsonFields.Config.Rotation]?.ToString();
+            var targetProfileKey = config[BtJsonFields.Config.Target]?.ToString();
+
+            if (rotationProfileKey == null)
+            {
+                Debug.LogError($"[{ScriptName}]🔁❌🔑Missing {BtJsonFields.Config.Rotation} for RotateToTarget node.");
+                throw new Exception($"[{ScriptName}]🔁❌🔑Missing {BtJsonFields.Config.Rotation} for RotateToTarget node.");
+            }
+
+            if (targetProfileKey == null)
+            {
+                Debug.LogError($"[{ScriptName}]🔁❌🔑Missing {BtJsonFields.Config.Target} for RotateToTarget node.");
+                throw new Exception($"[{ScriptName}]🔁❌🔑Missing {BtJsonFields.Config.Target} for RotateToTarget node.");       
+            }
+        
+            //Debug.Log($"🔁🔑RotationProfileKey: {rotationProfileKey}---🎯🔑TargetProfileKey: {targetProfileKey}");
+            return new RotateToTargetNode(rotationProfileKey, targetProfileKey);
+        }
     }
 }
 

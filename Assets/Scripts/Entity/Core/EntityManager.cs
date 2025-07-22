@@ -27,7 +27,7 @@ namespace Entity.Core
             // Test spawn
             foreach (var spawner in _spawners)
             {
-                var numToSpawn = 5;
+                var numToSpawn = 20;
                 for (var i = 0; i < numToSpawn; i++)
                 {
                     spawner.SpawnEntity(null, Vector3.zero, Quaternion.identity);

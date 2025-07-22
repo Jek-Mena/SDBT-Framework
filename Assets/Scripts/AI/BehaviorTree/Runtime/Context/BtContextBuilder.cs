@@ -95,13 +95,8 @@ namespace AI.BehaviorTree.Runtime.Context
             }
             
             // 5. Set the remaining routers and switchers
-            var movementIntentRouter = new MovementIntentRouter(context);
-            context.Blackboard.MovementIntentRouter = movementIntentRouter; // <<-- Depends on StatusEffectManager
-            context.Controller.RegisterExitable(movementIntentRouter);
-            
-            var rotationIntentRouter = new RotationIntentRouter(context);
-            context.Blackboard.RotationIntentRouter = rotationIntentRouter;
-            context.Controller.RegisterExitable(rotationIntentRouter);
+            context.Blackboard.MovementIntentRouter = new MovementIntentRouter(context); // <<-- Depends on StatusEffectManager
+            context.Blackboard.RotationIntentRouter = new RotationIntentRouter(context);
             
             var personaBtSwitcher = new PersonaBtSwitcher(context);
             context.Blackboard.PersonaBtSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)

@@ -59,7 +59,7 @@
         "targetTag": "Player",
         "style": "Closest",
         "blackboardKey": "ChaseTarget",
-        "maxRange": 100,
+        "maxRange": 10,
         "activationRange": 10,
         "minRange": 2,
         "fallOffRange": 120,
@@ -71,7 +71,7 @@
       "FearSource": {
         "style": "BlackboardKey",
         "blackboardKey": "FearSource",
-        "maxRange": 100,
+        "maxRange": 10,
         "activationRange": 10,
         "minRange": 2,
         "fallOffRange": 120,
@@ -81,10 +81,11 @@
     "RotationProfiles": {
       "DefaultRotation": {
         "RotationType": "QuaternionLookAt",
+        "SuccessToRunning": true,
         "speed": 120.0,
-        "angleThreshold": 3.0,
+        "angleThreshold": 1,
         "angleRotationUpdateThreshold": 0.05,
-        "sqrTargetReachedThreshold": 0.05
+        "sqrArrivalDistanceThreshold": 0.05
       }
     },
     "TimingProfiles": {

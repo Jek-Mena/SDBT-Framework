@@ -36,7 +36,10 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         public void Interrupt(string key)
         {
             if (_timers.Remove(key))
+            {
+                return;
                 Debug.Log($"[Timer] Interrupted '{key}'");
+            }
         }
 
         public bool IsRunning(string key)
@@ -71,7 +74,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         public void ReleaseSystem(BtContext context)
         {
             _timers.Clear();
-            Debug.Log($"[{ScriptName}] CleanupSystem called, all timers cleared.");
+            //Debug.Log($"[{ScriptName}] CleanupSystem called, all timers cleared.");
         }
     }
 }

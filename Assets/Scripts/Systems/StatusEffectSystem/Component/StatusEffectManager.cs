@@ -37,7 +37,7 @@ namespace Systems.StatusEffectSystem.Component
         // This adds the effect to the active list and triggers any relevant domain block events.
         public void ApplyEffect(StatusEffect effect)
         {
-            Debug.Log($"[StatusEffectManager] Applying effect: {effect.Name}, Domains: {string.Join(",", effect.Domains)}");
+            //Debug.Log($"[StatusEffectManager] Applying effect: {effect.Name}, Domains: {string.Join(",", effect.Domains)}");
             
             if(!_activeEffects.Contains(effect))
                 _activeEffects.Add(effect);
@@ -52,7 +52,7 @@ namespace Systems.StatusEffectSystem.Component
 
                 if (wasBlocked) continue;
                 DomainBlocked?.Invoke(domain); // use ?. for safety!
-                Debug.Log($"[{ScriptName}] First block for domain: {domain}, invoking DomainBlocked");
+                //Debug.Log($"[{ScriptName}] First block for domain: {domain}, invoking DomainBlocked");
             }
             RecalculateModifiers();
             // TODO: Handle stacking, priority, expiry, etc. (reuse ModifierMeta/Stack pattern)
@@ -95,7 +95,7 @@ namespace Systems.StatusEffectSystem.Component
             AgentModifiers.Stats.Reset(); // Not yet properly implemented
             OnStatusEffectChanged?.Invoke();
 
-            Debug.Log($"[{ScriptName}] After cleanup, activeEffects.Count = {_activeEffects.Count}");
+            //Debug.Log($"[{ScriptName}] After cleanup, activeEffects.Count = {_activeEffects.Count}");
             foreach (var effect in _activeEffects)
                 Debug.Log($"[{ScriptName}] Leaked effect: {effect}, Domains: {string.Join(",", effect.Domains)}"); 
         }

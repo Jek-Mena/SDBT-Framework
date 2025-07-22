@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
@@ -32,7 +33,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         
         public void Reset(BtContext context)
         {
-            // Only called when node is interrupted or parent resets (e.g. after pause)
             context.Blackboard.MovementIntentRouter.CancelMovement();
             LastStatus = BtStatus.Reset;
         }
@@ -70,18 +70,24 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             var target = resolver.ResolveTarget(context.Agent, targetingData, context);
             if (!target)
             {
-                Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
+                //Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }
             
             var canMove = context.Blackboard.MovementIntentRouter.TryIssueMoveIntent(target.position, movementData, context.Blackboard.BtSessionId);
             //Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
-            
-            LastStatus = canMove
-                ? context.Blackboard.MovementIntentRouter.IsAtDestination() ? BtStatus.Success : BtStatus.Running
-                : BtStatus.Failure;
 
+            if (canMove)
+                if (context.Blackboard.MovementIntentRouter.IsAtDestination())
+                    LastStatus = BtStatus.Success;
+                else
+                    LastStatus = BtStatus.Running;
+            else
+                LastStatus = BtStatus.Failure;
+
+            context.Blackboard.MovementIntentRouter.Tick(context.DeltaTime);
+            
             return LastStatus;
         }
     }
