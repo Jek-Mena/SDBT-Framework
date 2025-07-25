@@ -5,6 +5,7 @@ using AI.BehaviorTree.Nodes.Actions.Rotate.Data;
 using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Stimulus;
 using AI.BehaviorTree.Switching;
+using AI.SquadAI;
 using Newtonsoft.Json.Linq;
 
 namespace AI.BehaviorTree.Runtime.Context
@@ -14,6 +15,7 @@ namespace AI.BehaviorTree.Runtime.Context
         private const string ScriptName = nameof(AgentProfiles);
         
         public string CurrentPersonaProfileKey { get; set; }
+        public string CurrentGroupProfileKey { get; set; }
         
         public Dictionary<string, TargetingData> TargetingProfiles { get; set; }
         public Dictionary<string, MovementData> MovementProfiles { get; set; }
@@ -24,7 +26,8 @@ namespace AI.BehaviorTree.Runtime.Context
         public Dictionary<string, List<PersonaSwitchRule>> PersonaProfiles { get; set; }
         public Dictionary<string, JToken> StimuliBehaviorTrees { get; set; }
         public Dictionary<string, FearPerceptionData> FearProfiles { get; set; }
-
+        public Dictionary<string, List<GroupBehaviorProfileEntry>> GroupBehaviorProfiles { get; set; }
+        
         /// [2025-06-18 ARCHITECTURE NOTE]
         /// All profile data access should use DRY helper methods (e.g., GetMovementProfile),
         /// which fail fast on errors. Do not access dictionaries directly from outside.
@@ -54,7 +57,10 @@ namespace AI.BehaviorTree.Runtime.Context
         
         public FearPerceptionData GetFearPerceptionProfile(string key)
             => GetProfile(FearProfiles, key, nameof(FearProfiles));
-
+        
+        public object GetGroupBehaviorProfile(string key)
+            => GetProfile(GroupBehaviorProfiles, key, nameof(GroupBehaviorProfiles));
+        
         /// <summary>
         /// [2025-06-18 ARCHITECTURE NOTE]
         /// Safely retrieves a profile by key from the given dictionary.
@@ -97,7 +103,6 @@ namespace AI.BehaviorTree.Runtime.Context
             }
             return string.Join("\n", lines);
         }
-        
         // TODO: Add attribute support for runtime GUI/Inspector visibility
     }
 }

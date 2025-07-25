@@ -27,11 +27,11 @@ namespace Entity.Core
             // Test spawn
             foreach (var spawner in _spawners)
             {
-                var numToSpawn = 20;
-                for (var i = 0; i < numToSpawn; i++)
-                {
+                var numOfFollowers = 3;
+                for (var i = 0; i < numOfFollowers; i++)
                     spawner.SpawnEntity(null, Vector3.zero, Quaternion.identity);
-                }
+                
+                spawner.SpawnEntity("enemy_test_agent_leader", Vector3.zero, Quaternion.identity);
             }
         }
     

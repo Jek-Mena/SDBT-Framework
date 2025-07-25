@@ -7,6 +7,7 @@ using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
 using AI.BehaviorTree.Switching;
+using AI.SquadAI;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -24,7 +25,7 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             // Load both profile blocks (agent and behavior)
             var rawAgentProfiles = context.AgentDefinition.Config[BtAgentJsonFields.AgentProfilesField] as JObject;
             var rawBehaviorProfiles = context.AgentDefinition.Config[BtAgentJsonFields.BehaviorProfilesField] as JObject;
-        
+    
             // AGENT-GLOBAL PROFILES
             // Only used for systems like Fear, Health, etc.
             if (rawAgentProfiles != null)
@@ -42,7 +43,10 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
                 // --- Persona
                 agentProfiles.PersonaProfiles = ParseProfileBlockList<PersonaSwitchRule>
                     (rawAgentProfiles, BtAgentJsonFields.AgentProfiles.PersonaProfiles);
-            
+                // --- Group
+                agentProfiles.GroupBehaviorProfiles = ParseProfileBlockList<GroupBehaviorProfileEntry>
+                    (rawAgentProfiles, BtAgentJsonFields.AgentProfiles.GroupBehaviorProfiles);
+
                 // Debug.Log($"[{ScriptName}]🟣HealthProfiles:   {agentProfiles.HealthProfiles.Count}");
                 // Debug.Log($"[{ScriptName}]🟣FearProfiles:     {agentProfiles.FearProfiles.Count}");
                 // Debug.Log($"[{ScriptName}]🟣CurveProfiles:    {agentProfiles.CurveProfiles.Count}");
@@ -57,8 +61,6 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             // Agents Current Profiles
             if (context.AgentDefinition.Config != null)
             {
-                var personaProfileKey = context.AgentDefinition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
-
                 agentProfiles.CurrentPersonaProfileKey =
                     context.AgentDefinition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
                 // Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");

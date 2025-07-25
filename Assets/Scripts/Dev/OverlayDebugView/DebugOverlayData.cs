@@ -4,6 +4,7 @@ using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
+using AI.SquadAI;
 using Dev.OverlayDebugView.Data;
 using Systems.FearPerception;
 using Systems.StatusEffectSystem.Component;
@@ -21,12 +22,13 @@ namespace Dev.OverlayDebugView
 
         // (Optional) Used for the agent display name
         public string AgentName { get; set; }
+        public ISquadAgent SquadAgent { get; set; }
 
         public DebugOverlayData(BtContext context)
         {
             _context = context;
             _statusEffectManager = context.Blackboard.StatusEffectManager;
-            AgentName = context.Agent.name;            
+            AgentName = context.Agent.name;  
         }
         
         /// <summary>

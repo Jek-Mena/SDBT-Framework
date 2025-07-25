@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Nodes.Actions.Rotate.Data;
 using AI.BehaviorTree.Runtime.Context;
 using Keys;
@@ -40,8 +39,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
         public void TakeOwnership(string newOwnerId)
         {
-            if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
-                Debug.LogWarning($"[Domain][CLAIM][WARN] Rotation was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
+            //if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
+            //    Debug.LogWarning($"[Domain][CLAIM][WARN] Rotation was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
             
             _currentExecutor.CancelRotation();
             _lastOwnerId = _activeExecutorId;

@@ -1,9 +1,9 @@
-﻿using AI.BehaviorTree.Core;
+﻿using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Registry.List;
 using AI.BehaviorTree.Runtime.Context;
+using AI.SquadAI;
 using Loader;
 using UnityEngine;
-using Utils.Component;
 
 namespace Entity.Core
 {
@@ -37,28 +37,13 @@ namespace Entity.Core
             // Instantiate entity
             var agent = Instantiate(def.Prefab, position, rotation);
             agent.name = $"{entityId}-{agent.GetInstanceID()}";
-        
-            // Assign the definition to the agent
-            var runtimeData = agent.RequireComponent<AgentRuntimeData>();
-            runtimeData.Definition = def;
-        
+            
             // Build context and assign Behavior Tree
             var blackboardBuilder = new BtContextBuilder();
             ContextModuleRegistrationList.RegisterAll(blackboardBuilder);
-        
-            // Build context (pure, no wiring up)
-            var context = blackboardBuilder.BuildContext(agent);
-        
-            var controller = context.Controller;
-            if (!controller)
-            {
-                Debug.LogError($"[{ScriptName}] BtController missing from '{agent.name}'");
-                return agent;       
-            }
-        
-            // Explicitly wire context to controller
-            controller.Initialize(context);
-        
+            
+            blackboardBuilder.BuildContext(agent, def);
+            
             return agent;
         }
    

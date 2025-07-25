@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AI.BehaviorTree.Core.Data;
+using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Loader;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Switching;
+using AI.SquadAI;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-using Utils.Component;
 
 namespace AI.BehaviorTree.Runtime
 {
-    public class BtController : MonoBehaviour
+    public class BtController : MonoBehaviour, IAgentRuntimeData
     {
         private const string ScriptName = nameof(BtController);
         
@@ -23,7 +23,6 @@ namespace AI.BehaviorTree.Runtime
         private readonly List<ISystemCleanable> _allExitables = new();
         private PersonaBtSwitcher _personaSwitcher;
         public string ActivePersonaTreeKey { get; private set; }
-
         private string _btSessionId;
         
         // Switches to a new tree by key; this is the only tree assignment API.
@@ -147,7 +146,10 @@ namespace AI.BehaviorTree.Runtime
                     SwitchPersonaTree(newKey, "polled switcher");
                 }
             }
-
+            
+            foreach (var groupBehavior in Context.Blackboard.GetAll<IGroupBehavior>())
+                groupBehavior.UpdateFormation();
+            
             // Behavior tree tick
             if (RootNode != null && Context != null)
             {
@@ -169,5 +171,9 @@ namespace AI.BehaviorTree.Runtime
             Context.Blackboard.TimeExecutionManager.LateTick();
             Context.Blackboard.StatusEffectManager.LateTick();
         }
+        
+        public Transform Transform => transform;
+        private void OnEnable()  => AgentRuntimeRegistry.Register(this);
+        private void OnDisable() => AgentRuntimeRegistry.Unregister(this);
     }
 }

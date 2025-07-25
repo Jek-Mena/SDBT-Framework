@@ -18,7 +18,6 @@ namespace AI.BehaviorTree.Runtime.Context
     /// 
     /// [2025-06-17 ARCHITECTURE NOTE]
     /// All core runtime data for AI entities must flow through Blackboard.
-    /// - Fields with [Obsolete] will be removed by [set-date].
     /// - Dynamic data (_data/Set/Get/TryGet) is only for optional or extension systems, never core.
     /// - Each field must have a single owner: document the context builder module or system responsible.
     /// - No field may be mutated by random scripts, only via context modules, the pipeline, or authorized plugins.
@@ -30,8 +29,6 @@ namespace AI.BehaviorTree.Runtime.Context
          
         /// <summary>Impulse-based movement logic (e.g., knockbacks, pushes)</summary>
         public IImpulseNode ImpulseLogic { get; set; }
-
-        public AgentRuntimeData RuntimeData { get; set; }
         /// <summary>Timed execution logic for decorators or cooldown systems</summary>
         public TimeExecutionManager TimeExecutionManager { get; set; }
         public UpdatePhaseExecutor UpdatePhaseExecutor { get; set; }
@@ -87,6 +84,19 @@ namespace AI.BehaviorTree.Runtime.Context
             return false;
         }
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<T> GetAll<T>()
+        {
+            foreach (var obj in _data.Values)
+            {
+                if (obj is T tObj)
+                    yield return tObj;
+            }
+        }
+        
         /// <summary>
         /// Removes a previously stored dynamic value. Returns true if removed; false if not present.
         /// </summary>

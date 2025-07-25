@@ -57,21 +57,7 @@ namespace AI.BehaviorTree.Switching
             _lastSwitchTime = -999f; 
             _lastTreeKey = null;
         }
-    
-        public string OldEvaluateSwitch(BtContext context, string currentTreeKey)
-        {
-            // Hardwired for now, because you have no perception/stimuli
-            var currentSituation = "Default";
-            var match = _rules.FirstOrDefault(r => r.IsMatch(currentSituation));
-            if (match != null && match.MainTreeKey != currentTreeKey)
-            {
-                OnSwitchRequested?.Invoke(currentTreeKey, match.MainTreeKey, $"Persona rule matched: {match}");
-                return match.MainTreeKey;
-            }
-            // Fallback to default
-            return _defaultTreeKey;
-        }
-        
+
         public string EvaluateSwitch(BtContext context, string currentTreeKey)
         {
             const string stimulusKey = "FearStimulusLevel"; // AKA stimulusId

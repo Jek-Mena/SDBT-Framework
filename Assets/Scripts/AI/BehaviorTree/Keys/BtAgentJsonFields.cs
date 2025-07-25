@@ -23,7 +23,8 @@ namespace AI.BehaviorTree.Keys
             public const string FearProfiles = "FearProfiles";
             public const string CurveProfiles = "CurveProfiles";
             public const string PersonaProfiles = "PersonaProfiles";
-        
+            public const string GroupBehaviorProfiles = "GroupBehaviorProfiles";
+            
             public const string DefaultHealth = "DefaultHealth";
             public const string DefaultFear = "DefaultFear";
             public const string DefaultCurves = "DefaultCurves";

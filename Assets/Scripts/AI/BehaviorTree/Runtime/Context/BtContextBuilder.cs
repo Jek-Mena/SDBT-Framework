@@ -47,13 +47,12 @@ namespace AI.BehaviorTree.Runtime.Context
         /// ! Each module must be idempotent and safe (i.e., no hard assumptions about components).
         /// ! Will reuse existing context if already built for the entity.
         /// </summary>
-        public BtContext BuildContext(GameObject agent)
+        public void BuildContext(GameObject agent, AgentDefinition definition)
         {
             // Order matters.
             // 1. Retrieve and ensure that the following Monobehaviour Components exists on the entity.
             var controller = agent.RequireComponent<BtController>();
-            var definition = agent.RequireComponent<AgentRuntimeData>().Definition; // If the EntityRuntimeData does not exist check GameAssets.
-        
+            
             var profiles = new AgentProfiles();
             var blackboard = new Blackboard();
             
@@ -94,9 +93,9 @@ namespace AI.BehaviorTree.Runtime.Context
                 }
             }
             
-            // 5. Set the remaining routers and switchers
-            context.Blackboard.MovementIntentRouter = new MovementIntentRouter(context); // <<-- Depends on StatusEffectManager
-            context.Blackboard.RotationIntentRouter = new RotationIntentRouter(context);
+            // 5. Set the remaining routers and switchers that depends on context and StatusEffectBuilder
+            context.Blackboard.MovementIntentRouter = new MovementIntentRouter(context); 
+            context.Blackboard.RotationIntentRouter = new RotationIntentRouter(context); 
             
             var personaBtSwitcher = new PersonaBtSwitcher(context);
             context.Blackboard.PersonaBtSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)
@@ -105,7 +104,7 @@ namespace AI.BehaviorTree.Runtime.Context
             Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +
                       $"Profile Dump:\n{profiles.DumpContents()}");
             
-            return context;
+            context.Controller.Initialize(context);
         }
     
         /// <summary>

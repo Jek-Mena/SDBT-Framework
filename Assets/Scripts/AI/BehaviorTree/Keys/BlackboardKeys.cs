@@ -24,6 +24,24 @@
     /// </summary>
     public static class BlackboardKeys
     {
+        /// <summary>
+        /// [2025-07-24]
+        /// "Group" category covers all runtime modules related to multi-agent coordination:
+        /// - Squad (tactical teams, patrols, fireteams)
+        /// - Party (RPG party systems, companions)
+        /// - Minion/follower logic
+        /// - Formations (lines, wedges, phalanxes)
+        /// - Boss/raid groups, and similar group behaviors.
+        /// 
+        /// Guidelines:
+        /// - Prefix keys with subcategory (e.g., "SquadAgent", "PartyLogic", "MinionManager").
+        /// - Do NOT use "Group" for non-coordination systems (inventory, dialogue, etc).
+        /// - If in doubt, document new usages here.
+        /// </summary>
+        public static class Group {
+            public const string SquadAgent = "Group.SquadAgent";
+        }
+        
         public static class Multipliers
         {
             public const string Movement = "MovementMultiplier";

@@ -1,5 +1,7 @@
-﻿using AI.BehaviorTree.Runtime.Context;
+﻿using AI.BehaviorTree.Keys;
+using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
+using AI.SquadAI;
 using UnityEngine;
 
 namespace Dev.OverlayDebugView
@@ -10,7 +12,7 @@ namespace Dev.OverlayDebugView
     /// </summary>
     public class DebugOverlayView : MonoBehaviour
     {
-        public DebugOverlayData Data { get; private set; }
+        public DebugOverlayData OverlayData { get; private set; }
 
         /// <summary>
         /// Call this from your agent/AI setup code.
@@ -18,7 +20,10 @@ namespace Dev.OverlayDebugView
         public void Initialize(BtContext context)
         {
             // Use gameObject.name for agent label, or override as needed
-            Data = new DebugOverlayData(context);
+            OverlayData = new DebugOverlayData(context)
+            {
+                SquadAgent = context.Blackboard.Get<ISquadAgent>(BlackboardKeys.Group.SquadAgent)
+            };
         }
 
         void OnGUI()
@@ -27,7 +32,7 @@ namespace Dev.OverlayDebugView
             if (!AgentSelectionManager.Instance.IsSelected(this))
                 return;
 
-            var debugString = Data.BuildDebugString();
+            var debugString = OverlayData.BuildDebugString();
 
             // Upper left label
             const float labelWidth = 400;
@@ -47,8 +52,8 @@ namespace Dev.OverlayDebugView
         void DrawStimuliModulationGraph(float x, float y, float width, float height)
         {
             // Get curves and stimulus value from data
-            var curves = Data.GetCurveProfiles(); // List<CurveProfileEntry>
-            float stimulus = Data.GetCurrentStimulusValue(); // [0..1]
+            var curves = OverlayData.GetCurveProfiles(); // List<CurveProfileEntry>
+            float stimulus = OverlayData.GetCurrentStimulusValue(); // [0..1]
 
             int N = 60; // Sample count
             int margin = 30;
@@ -105,6 +110,21 @@ namespace Dev.OverlayDebugView
                 _ => 0f
             };
         }
+        
+        private void OnDrawGizmos()
+        {
+            // Suppose you have a way to get the SquadAgent runtime object.
+            // This can be via Data, Context, or another reference injected at init.
+            var squadAgent = OverlayData?.SquadAgent; // You implement this.
+            if (squadAgent == null) return;
 
+            var slotWorldPos = squadAgent.GetSlotWorldPosition();
+            Gizmos.color = (squadAgent.IsLeader) ? Color.red : Color.goldenRod;
+            Gizmos.DrawSphere(slotWorldPos, 0.75f);
+
+            // Optionally: Draw a line from agent to slot
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(transform.position, slotWorldPos);
+        }
     }
 }

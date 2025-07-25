@@ -94,7 +94,6 @@ namespace Loader
             }
 
             // --- Debug summary ---
-            var entityDebugList = new List<string>();
             var logBuilder = new StringBuilder();
             foreach (var kvp in EntityDefs)
             {

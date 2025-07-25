@@ -2,18 +2,21 @@
 using AI.BehaviorTree.Runtime.Context;
 using UnityEngine;
 
-public class UpdatePhaseExecutorBuilderModule : IContextBuilderModule
+namespace AI.BehaviorTree.Registry.ContextBuilderModules
 {
-    public void Build(BtContext context)
+    public class UpdatePhaseExecutorBuilderModule : IContextBuilderModule
     {
-        var scriptName = nameof(UpdatePhaseExecutorBuilderModule);
-        var agent = context.Agent;
-        var blackboard = context.Blackboard;
+        public void Build(BtContext context)
+        {
+            var scriptName = nameof(UpdatePhaseExecutorBuilderModule);
+            var agent = context.Agent;
+            var blackboard = context.Blackboard;
             
-        var exec = agent.GetComponent<UpdatePhaseExecutor>();
-        if (!exec)
-            throw new Exception($"[{scriptName}] {nameof(UpdatePhaseExecutor)} missing on {agent.name}");
-        blackboard.UpdatePhaseExecutor = exec;
-        Debug.Log($"[{scriptName}] Injected {nameof(UpdatePhaseExecutor)} for {agent.name}");
+            var exec = agent.GetComponent<UpdatePhaseExecutor>();
+            if (!exec)
+                throw new Exception($"[{scriptName}] {nameof(UpdatePhaseExecutor)} missing on {agent.name}");
+            blackboard.UpdatePhaseExecutor = exec;
+            Debug.Log($"[{scriptName}] Injected {nameof(UpdatePhaseExecutor)} for {agent.name}");
+        }
     }
 }

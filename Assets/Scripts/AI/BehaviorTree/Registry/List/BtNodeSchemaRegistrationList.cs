@@ -4,34 +4,37 @@
 
 using AI.BehaviorTree.Keys;
 
-public static class BtNodeSchemaRegistrationList
+namespace AI.BehaviorTree.Registry.List
 {
-    private static bool _hasInitialized;
-    public static void InitializeDefaults()
+    public static class BtNodeSchemaRegistrationList
     {
-        if(_hasInitialized) return;
-        _hasInitialized = true;
-        
-        var entries = new (string alias, IBtNodeSchema schema)[]
+        private static bool _hasInitialized;
+        public static void InitializeDefaults()
         {
-            // Actions / Leaves
-            MakeEntry<MoveToTargetSchema>(BtNodeTypes.Movement.MoveToTarget),
+            if(_hasInitialized) return;
+            _hasInitialized = true;
+        
+            var entries = new (string alias, IBtNodeSchema schema)[]
+            {
+                // Actions / Leaves
+                MakeEntry<MoveToTargetSchema>(BtNodeTypes.Movement.MoveToTarget),
             
-            // Decorators
-            MakeEntry<RepeaterSchema>(BtNodeTypes.Decorators.Repeater),
+                // Decorators
+                MakeEntry<RepeaterSchema>(BtNodeTypes.Decorators.Repeater),
             
-            // Composites
-            MakeEntry<SequenceSchema>(BtNodeTypes.Composite.Sequence),
-            MakeEntry<ParallelSchema>(BtNodeTypes.Composite.Parallel),
-            MakeEntry<SelectorSchema>(BtNodeTypes.Composite.Selector)
-        };
+                // Composites
+                MakeEntry<SequenceSchema>(BtNodeTypes.Composite.Sequence),
+                MakeEntry<ParallelSchema>(BtNodeTypes.Composite.Parallel),
+                MakeEntry<SelectorSchema>(BtNodeTypes.Composite.Selector)
+            };
 
-        foreach (var (alias, schema) in entries)
-            BtNodeSchemaRegistry.Register(alias, schema);
-    }
-    private static (string, IBtNodeSchema) MakeEntry<TSchema>(string alias)
-        where TSchema : IBtNodeSchema, new()
-    {
-        return (alias, new TSchema());
+            foreach (var (alias, schema) in entries)
+                BtNodeSchemaRegistry.Register(alias, schema);
+        }
+        private static (string, IBtNodeSchema) MakeEntry<TSchema>(string alias)
+            where TSchema : IBtNodeSchema, new()
+        {
+            return (alias, new TSchema());
+        }
     }
 }

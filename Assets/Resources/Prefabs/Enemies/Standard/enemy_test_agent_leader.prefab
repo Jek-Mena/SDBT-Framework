@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 3061219268032797514}
   - component: {fileID: 8048266465805689960}
   m_Layer: 0
-  m_Name: enemy_test_agent
+  m_Name: enemy_test_agent_leader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +74,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a9050ee8e1eee584fa9d5dac82499138, type: 2}
+  - {fileID: 2100000, guid: e3ecee671309dc448a766c26e0a493ed, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
