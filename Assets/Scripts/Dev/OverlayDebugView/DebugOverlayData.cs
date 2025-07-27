@@ -4,7 +4,7 @@ using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
-using AI.SquadAI;
+using AI.GroupAI.SquadAgent;
 using Dev.OverlayDebugView.Data;
 using Systems.FearPerception;
 using Systems.StatusEffectSystem.Component;

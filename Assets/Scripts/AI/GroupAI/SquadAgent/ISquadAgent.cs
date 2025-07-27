@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace AI.SquadAI
+namespace AI.GroupAI.SquadAgent
 {
     public interface ISquadAgent : IGroupBehavior
     {

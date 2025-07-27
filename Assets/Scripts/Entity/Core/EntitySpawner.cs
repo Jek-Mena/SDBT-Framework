@@ -1,7 +1,6 @@
 ﻿using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Registry.List;
 using AI.BehaviorTree.Runtime.Context;
-using AI.SquadAI;
 using Loader;
 using UnityEngine;
 

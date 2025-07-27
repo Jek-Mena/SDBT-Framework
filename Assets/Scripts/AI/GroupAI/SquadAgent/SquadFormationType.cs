@@ -1,4 +1,4 @@
-﻿namespace AI.SquadAI
+﻿namespace AI.GroupAI.SquadAgent
 {
     public enum SquadFormationType
     {

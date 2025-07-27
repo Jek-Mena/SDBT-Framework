@@ -1,0 +1,16 @@
+﻿{
+  "Matrix2x2": {
+    "type": "Matrix",
+    "rows": 2,
+    "columns": 2,
+    "spacing": 1.5,
+    "roleAssignments": { "0": "Leader" }
+  },
+  "Triangle": {
+    "type": "Triangle",
+    "rows": 2,
+    "columns": 1,
+    "spacing": 1.2,
+    "roleAssignments": {}
+  }
+}

@@ -7,7 +7,7 @@ using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Registry;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Switching;
-using AI.SquadAI;
+using AI.GroupAI.SquadAgent;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 

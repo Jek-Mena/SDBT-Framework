@@ -1,7 +1,7 @@
 ﻿using AI.BehaviorTree.Nodes.Perception;
 using AI.BehaviorTree.Registry.ContextBuilderModules;
 using AI.BehaviorTree.Runtime.Context;
-using AI.SquadAI;
+using AI.GroupAI;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Registry.List
@@ -34,7 +34,7 @@ namespace AI.BehaviorTree.Registry.List
                 //new TargetingBuilderModule(),
                 //new HealthBuilderModule(),
                 
-                new GroupBuilderModule(),
+                new FormationBuilderModule(),
                 new PerceptionBuilderModule(),
                 //new StatBuilderModule(),
             

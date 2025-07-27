@@ -7,7 +7,7 @@ using AI.BehaviorTree.Nodes.TemporalControl.Data;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
 using AI.BehaviorTree.Switching;
-using AI.SquadAI;
+using AI.GroupAI;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -21,7 +21,7 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
         public void Build(BtContext context)
         {
             var agentProfiles = context.AgentProfiles;
-        
+            
             // Load both profile blocks (agent and behavior)
             var rawAgentProfiles = context.AgentDefinition.Config[BtAgentJsonFields.AgentProfilesField] as JObject;
             var rawBehaviorProfiles = context.AgentDefinition.Config[BtAgentJsonFields.BehaviorProfilesField] as JObject;
@@ -44,8 +44,8 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
                 agentProfiles.PersonaProfiles = ParseProfileBlockList<PersonaSwitchRule>
                     (rawAgentProfiles, BtAgentJsonFields.AgentProfiles.PersonaProfiles);
                 // --- Group
-                agentProfiles.GroupBehaviorProfiles = ParseProfileBlockList<GroupBehaviorProfileEntry>
-                    (rawAgentProfiles, BtAgentJsonFields.AgentProfiles.GroupBehaviorProfiles);
+                agentProfiles.GroupFormationProfiles = ParseProfileBlockList<FormationProfileEntry>
+                    (rawAgentProfiles, BtAgentJsonFields.AgentProfiles.GroupFormationProfiles);
 
                 // Debug.Log($"[{ScriptName}]🟣HealthProfiles:   {agentProfiles.HealthProfiles.Count}");
                 // Debug.Log($"[{ScriptName}]🟣FearProfiles:     {agentProfiles.FearProfiles.Count}");
@@ -61,8 +61,10 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             // Agents Current Profiles
             if (context.AgentDefinition.Config != null)
             {
-                agentProfiles.CurrentPersonaProfileKey =
-                    context.AgentDefinition.Config[BtAgentJsonFields.AgentCurrentPersonaProfile]?.ToString();
+                agentProfiles.CurrentPersonaProfile =
+                    context.AgentDefinition.Config[BtAgentJsonFields.CurrentPersonaProfile]?.ToString();
+                agentProfiles.CurrentFormationProfile =
+                    context.AgentDefinition.Config[BtAgentJsonFields.CurrentFormationProfile]?.ToString();
                 // Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");
                 // Debug.Log($"🟡 [{ScriptName}] PersonaProfiles loaded. Keys: [{string.Join(", ", agentProfiles.PersonaProfiles.Keys)}]");
                 // Add Health and Fear

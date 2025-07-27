@@ -1,7 +1,7 @@
 ﻿using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Stimulus;
-using AI.SquadAI;
+using AI.GroupAI.SquadAgent;
 using UnityEngine;
 
 namespace Dev.OverlayDebugView

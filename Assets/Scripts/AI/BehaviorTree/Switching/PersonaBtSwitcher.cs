@@ -27,7 +27,7 @@ namespace AI.BehaviorTree.Switching
         // Load rules from context / agentProfiles on startup
         public PersonaBtSwitcher(BtContext context)
         {
-            var personaProfileKey = context.AgentProfiles.CurrentPersonaProfileKey;
+            var personaProfileKey = context.AgentProfiles.CurrentPersonaProfile;
             Debug.Log($"[{ScriptName}] Initializing. Using persona profile key: '{personaProfileKey}'");
 
             if (string.IsNullOrEmpty(personaProfileKey))

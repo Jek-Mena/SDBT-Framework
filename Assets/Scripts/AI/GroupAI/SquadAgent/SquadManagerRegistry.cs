@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AI.SquadAI
+namespace AI.GroupAI.SquadAgent
 {
     public static class SquadManagerRegistry
     {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace AI.SquadAI
+namespace AI.GroupAI
 {
     public class Formation
     {

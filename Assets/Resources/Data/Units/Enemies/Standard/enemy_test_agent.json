@@ -1,10 +1,10 @@
 {
   "entityId": "enemy_test_agent",
   "prefab": "Prefabs/Enemy/Standard/enemy_test_agent",
-  "agentCurrentGroupProfile": "DefaultGroup",
-  "agentCurrentPersonaProfile": "DefaultPersona",
-  "agentCurrentHealthProfile": "DefaultHealth",
-  "agentCurrentFearProfile": "DefaultFear",
+  "currentFormationProfile": "DefaultFormation",
+  "currentPersonaProfile": "DefaultPersona",
+  "currentHealthProfile": "DefaultHealth",
+  "currentFearProfile": "DefaultFear",
   "agentProfiles": {
     "HealthProfiles": {
       "DefaultHealth": { 
@@ -12,9 +12,14 @@
         "regenRate": 1 
        }
     },
-    "GroupBehaviorProfiles": {
-      "DefaultGroup": [
-        { "blackboardKey": "Group.SquadAgent", "formation": "Matrix2x2", "role": "Agent"}
+    "GroupFormationProfiles": {
+      "DefaultFormation": [
+        {
+          "blackboardKey": "Group.SquadAgent",
+          "formationType": "Matrix2x2", // Still needed to match the squad
+          "role": "Agent"
+          // Do NOT include "formationParameters"
+        }
       ]
     },
     "FearProfiles": {

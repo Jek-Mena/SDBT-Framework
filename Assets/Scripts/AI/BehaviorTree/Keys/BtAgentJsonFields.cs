@@ -13,7 +13,9 @@ namespace AI.BehaviorTree.Keys
         // Top-level fields
         public const string EntityId = "entityId";
         public const string Prefab = "prefab";
-        public const string AgentCurrentPersonaProfile = "agentCurrentPersonaProfile";
+        public const string CurrentPersonaProfile = "currentPersonaProfile";
+        public const string CurrentFormationProfile = "currentFormationProfile";
+        
         public const string AgentProfilesField = "agentProfiles";
         public const string BehaviorProfilesField = "behaviorProfiles";
     
@@ -23,13 +25,14 @@ namespace AI.BehaviorTree.Keys
             public const string FearProfiles = "FearProfiles";
             public const string CurveProfiles = "CurveProfiles";
             public const string PersonaProfiles = "PersonaProfiles";
-            public const string GroupBehaviorProfiles = "GroupBehaviorProfiles";
+            public const string GroupFormationProfiles = "GroupFormationProfiles";
             
             public const string DefaultHealth = "DefaultHealth";
             public const string DefaultFear = "DefaultFear";
             public const string DefaultCurves = "DefaultCurves";
             public const string DefaultPersona = "DefaultPersona";
-        
+            public const string DefaultFormation = "DefaultFormation";
+            
             public static class HealthProfile
             {
                 public const string MaxHp = "MaxHP";
