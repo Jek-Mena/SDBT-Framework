@@ -35,7 +35,7 @@ namespace AI.GroupAI
            
             // Default: first agent is leader
             for (var i = 0; i < slotsToFill; i++)
-                slots.Add(new Formation { AgentIndex = i, Offset = offsets[i] });
+                slots.Add(new Formation { AgentSlotIndex = i, Offset = offsets[i] });
 
             // Determine leader placement
             if (slotsToFill > 0)

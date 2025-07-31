@@ -111,20 +111,32 @@ namespace Dev.OverlayDebugView
             };
         }
         
-        private void OnDrawGizmos()
+        void OnDrawGizmos()
         {
-            // Suppose you have a way to get the SquadAgent runtime object.
-            // This can be via Data, Context, or another reference injected at init.
-            var squadAgent = OverlayData?.SquadAgent; // You implement this.
+            var squadAgent = OverlayData?.SquadAgent;
             if (squadAgent == null) return;
 
             var slotWorldPos = squadAgent.GetSlotWorldPosition();
-            Gizmos.color = (squadAgent.IsLeader) ? Color.red : Color.goldenRod;
-            Gizmos.DrawSphere(slotWorldPos, 0.75f);
+            var dist = Vector3.Distance(transform.position, slotWorldPos);
 
-            // Optionally: Draw a line from agent to slot
-            Gizmos.color = Color.magenta;
+            // Slot sphere
+            Gizmos.color = squadAgent.IsLeader ? Color.red : Color.yellow;
+            Gizmos.DrawSphere(slotWorldPos, 0.5f);
+
+            // Agent sphere
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawSphere(transform.position, 0.25f);
+
+            // Line: Red if out of formation, Green if in
+            Gizmos.color = dist > 0.5f ? Color.red : Color.green;
             Gizmos.DrawLine(transform.position, slotWorldPos);
+
+            // Label indices
+#if UNITY_EDITOR
+            UnityEditor.Handles.Label(slotWorldPos + Vector3.up * 1.5f, $"Slot {squadAgent.Formation.AgentSlotIndex}");
+            UnityEditor.Handles.Label(transform.position + Vector3.up * 1.5f, gameObject.name);
+#endif
         }
+
     }
 }

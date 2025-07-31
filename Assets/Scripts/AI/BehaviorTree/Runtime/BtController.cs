@@ -9,6 +9,7 @@ using AI.BehaviorTree.Runtime.Context;
 using AI.BehaviorTree.Switching;
 using AI.GroupAI.SquadAgent;
 using Newtonsoft.Json.Linq;
+using Systems.Abstractions;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime
@@ -20,6 +21,7 @@ namespace AI.BehaviorTree.Runtime
         public BtContext Context;
         public IBehaviorNode RootNode { get; private set; }
         
+        private readonly List<ISystemUpdatable> _allUpdatables = new();
         private readonly List<ISystemCleanable> _allExitables = new();
         private PersonaBtSwitcher _personaSwitcher;
         public string ActivePersonaTreeKey { get; private set; }
@@ -103,6 +105,12 @@ namespace AI.BehaviorTree.Runtime
                 _allExitables.Add(systemCleanable);
         }
 
+        public void RegisterUpdatable(ISystemUpdatable systemUpdatable)
+        {
+            if(!_allUpdatables.Contains(systemUpdatable))
+                _allUpdatables.Add(systemUpdatable);       
+        }
+        
         private void ReleaseAllSystem()
         {
             // Call OnExitNode on the old root recursively, clearing ALL status/timers/blocks from BT nodes
@@ -146,6 +154,9 @@ namespace AI.BehaviorTree.Runtime
                     SwitchPersonaTree(newKey, "polled switcher");
                 }
             }
+
+            foreach (var systemUpdatable in _allUpdatables)
+                systemUpdatable.Update(Context);
             
             foreach (var groupBehavior in Context.Blackboard.GetAll<IGroupBehavior>())
                 groupBehavior.UpdateFormation();

@@ -1,56 +1,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UpdatePhaseExecutor : MonoBehaviour
+namespace AI.BehaviorTree.Executor.PhaseUpdate
 {
-    private readonly Queue<IUpdatePhaseAction> _updateQueue = new();
-    private readonly Queue<IUpdatePhaseAction> _lateUpdateQueue = new();
-    private readonly Queue<IUpdatePhaseAction> _fixedUpdateQueue = new();
-
-    public void Enqueue(IUpdatePhaseAction action)
+    public class UpdatePhaseExecutor : MonoBehaviour
     {
-        switch (action)
+        private readonly Queue<IUpdatePhaseAction> _updateQueue = new();
+        private readonly Queue<IUpdatePhaseAction> _lateUpdateQueue = new();
+        private readonly Queue<IUpdatePhaseAction> _fixedUpdateQueue = new();
+
+        public void Enqueue(IUpdatePhaseAction action)
         {
-            case IUpdateAction update: 
-                _updateQueue.Enqueue(update); 
-                break;
-            case ILateUpdateAction late: 
-                _lateUpdateQueue.Enqueue(late); 
-                break;
-            case IFixedUpdateAction fixedAction: 
-                _fixedUpdateQueue.Enqueue(fixedAction); 
-                break;
-            default:
-                Debug.LogError("Unknown phase for action.");
-                break;
+            switch (action)
+            {
+                case IUpdateAction update: 
+                    _updateQueue.Enqueue(update); 
+                    break;
+                case ILateUpdateAction late: 
+                    _lateUpdateQueue.Enqueue(late); 
+                    break;
+                case IFixedUpdateAction fixedAction: 
+                    _fixedUpdateQueue.Enqueue(fixedAction); 
+                    break;
+                default:
+                    Debug.LogError("Unknown phase for action.");
+                    break;
+            }
         }
-        _fixedUpdateQueue.Enqueue(action);
-    }
 
-    private void Update()
-    {
-        while (_updateQueue.Count > 0)
+        private void Update()
         {
-            var action = _updateQueue.Dequeue();
-            action.Execute();
+            while (_updateQueue.Count > 0)
+            {
+                var action = _updateQueue.Dequeue();
+                action.Execute();
+            }
         }
-    }
 
-    private void LateUpdate()
-    {
-        while (_lateUpdateQueue.Count > 0)
+        private void LateUpdate()
         {
-            var action = _lateUpdateQueue.Dequeue();
-            action.Execute();
+            while (_lateUpdateQueue.Count > 0)
+            {
+                var action = _lateUpdateQueue.Dequeue();
+                action.Execute();
+            }
         }
-    }
 
-    private void FixedUpdate()
-    {
-        while (_fixedUpdateQueue.Count > 0)
+        private void FixedUpdate()
         {
-            var action = _fixedUpdateQueue.Dequeue();
-            action.Execute();
+            while (_fixedUpdateQueue.Count > 0)
+            {
+                var action = _fixedUpdateQueue.Dequeue();
+                action.Execute();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AI.GroupAI.SquadAgent
@@ -15,14 +16,8 @@ namespace AI.GroupAI.SquadAgent
         // Create a FormationConfig ScriptableObject for inspector editing, or
         // Use Odin Inspector or a custom editor if you want real designer flexibility.
         // At runtime, serialize SO to JSON (for hot-reloading) or load JSON as a text asset and inject into managers.
-        private FormationParameters _formationParameters = new FormationParameters
-        {
-            Rows = 2,
-            Columns = 2,
-            Spacing = 1.5f,
-            RoleAssignments = new Dictionary<int, string>()
-        };
-        public FormationParameters FormationParameters => _formationParameters;
+        private FormationParameters _formationParameters;
+        private IFormationGenerator _formationGenerator;
         
         public void SetFormationParameters(FormationParameters parameters)
         {
@@ -33,8 +28,8 @@ namespace AI.GroupAI.SquadAgent
         // Called when agent list or formation type changes
         public void UpdateFormation()
         {
-            var generator = FormationGeneratorRegistry.GetGenerator(FormationType);
-            var slots = generator.GenerateFormation(_formationParameters, Agents.Count);
+            _formationGenerator = FormationGeneratorRegistry.GetGenerator(FormationType);
+            var slots = _formationGenerator.GenerateFormation(_formationParameters, Agents.Count);
 
             if (slots.Count < Agents.Count)
                 Debug.LogWarning($"Not enough slots generated for agents: {slots.Count} < {Agents.Count}");
@@ -49,7 +44,7 @@ namespace AI.GroupAI.SquadAgent
         {
             if (Agents.Contains(agent)) return;
             Agents.Add(agent);
-            UpdateFormation();
+            UpdateFormation(); 
         }
 
         public void RemoveAgent(ISquadAgent agent)
@@ -62,6 +57,13 @@ namespace AI.GroupAI.SquadAgent
         {
             GoalPosition = position;
             UpdateFormation();
+        }
+        
+        // In SquadManager.cs
+
+        public ISquadAgent GetLeader()
+        {
+            return Agents.FirstOrDefault(a => a.Formation.AgentSlotIndex == 0);
         }
     }
 }

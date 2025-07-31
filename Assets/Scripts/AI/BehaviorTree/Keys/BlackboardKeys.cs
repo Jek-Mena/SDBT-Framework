@@ -41,6 +41,16 @@
         public static class Group {
             public const string SquadAgent = "Group.SquadAgent";
         }
+
+        public static class Target
+        {
+            // Might be in the wrong place, as this one is not used for blackboard
+            public const string PlayerTag = "Player"; 
+            public const string Formation = "Target.Formation";
+            public const string Combat = "Target.Combat";
+            public const string CurrentTarget = "Target.CurrentTarget";
+            public const string CurrentTargetSource = "Target.CurrentTargetSource";
+        }
         
         public static class Multipliers
         {

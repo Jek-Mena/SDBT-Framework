@@ -74,6 +74,8 @@ namespace AI.BehaviorTree.Keys
             public const string RotationProfiles = "RotationProfiles";
             public const string TimingProfiles = "TimingProfiles";
         
+            public const string DefaultTarget = "DefaultTarget";
+            
             public static class TargetingProfile
             {
                 public const string TargetTag = "targetTag";
@@ -127,6 +129,12 @@ namespace AI.BehaviorTree.Keys
                 public const string ResetOnExit = "resetOnExit";        // Reset timer or state on early exit
                 public const string Mode = "mode";                      // Determines how the timer or state should reset upon early exit
             }
+        }
+
+        public const string AIConfigField = "AIConfig";
+        public static class AIConfig
+        {
+            public const string TargetingPriorityList = "TargetingPriorityList";
         }
     }
 }

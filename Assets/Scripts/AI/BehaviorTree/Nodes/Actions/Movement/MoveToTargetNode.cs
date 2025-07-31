@@ -2,9 +2,7 @@
 using AI.BehaviorTree.Core.Data;
 using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Nodes.Abstractions;
-using AI.BehaviorTree.Nodes.Actions.Movement.Data;
 using AI.BehaviorTree.Runtime.Context;
-using Systems.TargetingSystem;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Nodes.Actions.Movement
@@ -46,7 +44,6 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         public BtStatus Tick(BtContext context)
         {
             if (!BtValidator.Require(context)
-                    .Targeting(_targetProfileKey)
                     .MovementOrchestrator()
                     .Check(out var error))
             {
@@ -57,25 +54,27 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             
             // Resolve data from blackboard profile dictionaries
             var movementData = context.AgentProfiles.GetMovementProfile(_movementProfileKey);
-            var targetingData = context.AgentProfiles.GetTargetingProfile(_targetProfileKey);
+            var targetObj = context.Blackboard.Get<object>(BlackboardKeys.Target.CurrentTarget);
+            Vector3? targetPos = null;
 
-            var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
-            if (resolver == null)
+            switch (targetObj)
             {
-                Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
+                case Transform t when t:
+                    targetPos = t.position;
+                    break;
+                case Vector3 v:
+                    targetPos = v;
+                    break;
+            }
+
+            if (targetPos == null)
+            {
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }
 
-            var target = resolver.ResolveTarget(context.Agent, targetingData, context);
-            if (!target)
-            {
-                //Debug.LogError($"[{ScriptName}] No target found using targetTag: {targetingData.TargetTag}'");
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
-            
-            var canMove = context.Blackboard.MovementIntentRouter.TryIssueMoveIntent(target.position, movementData, context.Blackboard.BtSessionId);
+            var canMove = context.Blackboard.MovementIntentRouter.TryIssueMoveIntent(targetPos.Value, movementData, context.Blackboard.BtSessionId);
+
             //Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
 
             if (canMove)

@@ -4,7 +4,7 @@ namespace AI.GroupAI
 {
     public class Formation
     {
-        public int AgentIndex;
+        public int AgentSlotIndex;
         /// <summary>
         /// Offset from leader or goal
         /// </summary>

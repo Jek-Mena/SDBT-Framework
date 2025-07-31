@@ -119,5 +119,12 @@
         "duration": 5.0
       }
     }
+  },
+  "AIConfig": {
+    "TargetingPriorityList": [
+      "FearSource",
+      "FormationAssignedTarget",
+      "DefaultTarget"
+    ]
   }
 }

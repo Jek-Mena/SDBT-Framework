@@ -2,6 +2,7 @@
 using AI.BehaviorTree.Registry.ContextBuilderModules;
 using AI.BehaviorTree.Runtime.Context;
 using AI.GroupAI;
+using Systems.TargetingSystem;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Registry.List
@@ -31,6 +32,7 @@ namespace AI.BehaviorTree.Registry.List
                 // All systems that depend on profiles must come AFTER profile injection
                 new UpdatePhaseExecutorBuilderModule(),
             
+                new TargetingContextBuilder(),
                 //new TargetingBuilderModule(),
                 //new HealthBuilderModule(),
                 

@@ -22,6 +22,10 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
         {
             var agentProfiles = context.AgentProfiles;
             
+            // Agents Current Profiles
+            if (context.AgentDefinition.Config == null)
+                Debug.LogError($"[{ScriptName}] Agent config missing!");
+            
             // Load both profile blocks (agent and behavior)
             var rawAgentProfiles = context.AgentDefinition.Config[BtAgentJsonFields.AgentProfilesField] as JObject;
             var rawBehaviorProfiles = context.AgentDefinition.Config[BtAgentJsonFields.BehaviorProfilesField] as JObject;
@@ -59,16 +63,13 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
             }
         
             // Agents Current Profiles
-            if (context.AgentDefinition.Config != null)
-            {
-                agentProfiles.CurrentPersonaProfile =
-                    context.AgentDefinition.Config[BtAgentJsonFields.CurrentPersonaProfile]?.ToString();
-                agentProfiles.CurrentFormationProfile =
-                    context.AgentDefinition.Config[BtAgentJsonFields.CurrentFormationProfile]?.ToString();
-                // Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");
-                // Debug.Log($"🟡 [{ScriptName}] PersonaProfiles loaded. Keys: [{string.Join(", ", agentProfiles.PersonaProfiles.Keys)}]");
-                // Add Health and Fear
-            }
+            agentProfiles.CurrentPersonaProfile =
+                context.AgentDefinition.Config[BtAgentJsonFields.CurrentPersonaProfile]?.ToString();
+            agentProfiles.CurrentFormationProfile =
+                context.AgentDefinition.Config[BtAgentJsonFields.CurrentFormationProfile]?.ToString();
+            // Debug.Log($"🟡 [{ScriptName}] Set CurrentPersonaProfileKey = '{personaProfileKey}'");
+            // Debug.Log($"🟡 [{ScriptName}] PersonaProfiles loaded. Keys: [{string.Join(", ", agentProfiles.PersonaProfiles.Keys)}]");
+            // Add Health and Fear
         
             // BEHAVIOR PROFILES
             // Only used for BT node config: movement, timing, targeting, etc.

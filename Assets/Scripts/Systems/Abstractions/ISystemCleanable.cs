@@ -1,6 +1,6 @@
 ﻿using AI.BehaviorTree.Runtime.Context;
 
-namespace AI.BehaviorTree.Nodes.Abstractions
+namespace Systems.Abstractions
 {
     /// <summary>
     /// Marker for behavior nodes that require lifecycle hooks (e.g. OnExit).

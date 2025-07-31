@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using AI.BehaviorTree.Core;
+using AI.BehaviorTree.Executor.PhaseUpdate;
 using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
 using AI.BehaviorTree.Nodes.Perception;
 using AI.BehaviorTree.Nodes.TemporalControl;
 using AI.BehaviorTree.Switching;
 using Systems.StatusEffectSystem.Component;
+using Systems.TargetingSystem;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime.Context
@@ -33,6 +35,7 @@ namespace AI.BehaviorTree.Runtime.Context
         public TimeExecutionManager TimeExecutionManager { get; set; }
         public UpdatePhaseExecutor UpdatePhaseExecutor { get; set; }
         public StatusEffectManager StatusEffectManager { get; set; }
+        public TargetCoordinator TargetCoordinator { get; set; }
         public MovementIntentRouter MovementIntentRouter { get; set; }
         public RotationIntentRouter RotationIntentRouter { get; set; }
         public List<IPerceptionModule> PerceptionModules { get; set; }
@@ -83,19 +86,18 @@ namespace AI.BehaviorTree.Runtime.Context
             value = default;
             return false;
         }
-
         
-        /// <summary>
-        /// 
-        /// </summary>
         public IEnumerable<T> GetAll<T>()
         {
-            foreach (var obj in _data.Values)
+            // Materialize to a List to avoid mutation-while-iteration issues
+            var snapshot = new List<object>(_data.Values);
+            foreach (var obj in snapshot)
             {
                 if (obj is T tObj)
                     yield return tObj;
             }
         }
+
         
         /// <summary>
         /// Removes a previously stored dynamic value. Returns true if removed; false if not present.

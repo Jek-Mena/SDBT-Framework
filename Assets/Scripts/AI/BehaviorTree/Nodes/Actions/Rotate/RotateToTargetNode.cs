@@ -58,39 +58,23 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
 
             // Resolve data from blackboard profile dictionaries
             var rotationData = context.AgentProfiles.GetRotationProfile(_rotationProfileKey);
-            var targetingData = context.AgentProfiles.GetTargetingProfile(_targetProfileKey);
+            var targetObj = context.Blackboard.Get<object>(BlackboardKeys.Target.CurrentTarget);
+            Transform target = null;
 
-            //Debug.Log($"[{ScriptName}]🔁Loaded rotationProfile: {_rotationProfileKey}, data: {JsonUtility.ToJson(rotationData)}");
-            //Debug.Log($"[{ScriptName}]🎯Loaded targetingProfile: {_targetProfileKey}, data: {JsonUtility.ToJson(targetingData)}");
-            var resolver = TargetResolverRegistry.ResolveOrClosest(targetingData.Style);
-            if (resolver == null)
-            {
-                Debug.LogError($"[{ScriptName}] No resolver for style '{targetingData.Style}'");
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
+            if (targetObj is Transform t && t)
+                target = t;
+            else if (targetObj is GameObject go && go.transform)
+                target = go.transform;
+            // (Optionally) if targetObj is Vector3, create a dummy GameObject or handle accordingly
 
-            var target = resolver.ResolveTarget(context.Agent, targetingData, context);
             if (!target)
             {
-                // No target: normal in many BT states—no log needed in production
-                // but can be re-enabled for debugging purposes. 
-                //Debug.LogError($"[{ScriptName}] No target found using {resolver}: {targetingData.Style}'");
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }
 
-            //var targetObj = context.Blackboard.Get<object>(_targetProfileKey);
-            // Debug.Log($"[RotateToTargetNode] Retrieved target for rotation: Type={targetObj?.GetType().Name}, Value={targetObj}");
-            // if (targetObj is Transform tf) Debug.Log($"[RotateToTargetNode] Target Transform Position: {tf.position}");
-            // if (targetObj is Vector3 v3) Debug.Log($"[RotateToTargetNode] Target Vector3: {v3}");
-            // if (targetObj is GameObject go)
-            // {
-            //     Debug.Log($"[RotateToTargetNode] Target GameObject: {go.name} Position: {go.transform.position}");
-            //     Debug.Log($"[{ScriptName}] Issuing rotation intent to: {go.name} at {go.transform.position}");
-            // }
-
             var canRotate = context.Blackboard.RotationIntentRouter.TryIssueRotateIntent(target, rotationData, context.Blackboard.BtSessionId);
+
             //Debug.Log($"[{ScriptName}]🔁Can rotate: {canRotate}" );
             
             if(canRotate)

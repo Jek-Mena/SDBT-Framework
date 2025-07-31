@@ -12,7 +12,17 @@ namespace Entity.Core
         private readonly List<EntitySpawner> _spawners = new();
         private readonly List<GameObject> _activeEntities = new();
     
-        private void Awake()
+        // private void Awake()
+        // {
+        //     if (Instance) { Destroy(gameObject); return; }
+        //     Instance = this;
+        //     DontDestroyOnLoad(gameObject);
+        //
+        //     // Find all spawners in the scene
+        //     _spawners.AddRange(FindObjectsByType<EntitySpawner>(FindObjectsSortMode.None));
+        // }
+    
+        private void Start()
         {
             if (Instance) { Destroy(gameObject); return; }
             Instance = this;
@@ -20,10 +30,7 @@ namespace Entity.Core
         
             // Find all spawners in the scene
             _spawners.AddRange(FindObjectsByType<EntitySpawner>(FindObjectsSortMode.None));
-        }
-    
-        private void Start()
-        {
+            
             // Test spawn
             foreach (var spawner in _spawners)
             {

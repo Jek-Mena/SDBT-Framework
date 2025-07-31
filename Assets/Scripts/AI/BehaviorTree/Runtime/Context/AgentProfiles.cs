@@ -24,9 +24,10 @@ namespace AI.BehaviorTree.Runtime.Context
         public Dictionary<string, HealthData> HealthProfiles { get; set; }
         public Dictionary<string, List<CurveProfileEntry>> CurveProfiles { get; set; }
         public Dictionary<string, List<PersonaSwitchRule>> PersonaProfiles { get; set; }
-        public Dictionary<string, JToken> StimuliBehaviorTrees { get; set; }
         public Dictionary<string, FearPerceptionData> FearProfiles { get; set; }
         public Dictionary<string, List<FormationProfileEntry>> GroupFormationProfiles { get; set; }
+        public Dictionary<string, JToken> StimuliBehaviorTrees { get; set; }
+        public Dictionary<string, JArray> TargetingPriorityList { get; set; } 
         
         /// [2025-06-18 ARCHITECTURE NOTE]
         /// All profile data access should use DRY helper methods (e.g., GetMovementProfile),
