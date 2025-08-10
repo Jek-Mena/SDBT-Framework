@@ -27,7 +27,7 @@ namespace Dev.OverlayDebugView
         public DebugOverlayData(BtContext context)
         {
             _context = context;
-            _statusEffectManager = context.Blackboard.StatusEffectManager;
+            _statusEffectManager = context.Services.StatusEffects;
             AgentName = context.Agent.name;  
         }
         

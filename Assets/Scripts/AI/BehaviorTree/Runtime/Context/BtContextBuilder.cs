@@ -5,6 +5,7 @@ using AI.BehaviorTree.Core;
 using AI.BehaviorTree.Nodes.Actions.Movement;
 using AI.BehaviorTree.Nodes.Actions.Rotate;
 using AI.BehaviorTree.Nodes.TemporalControl;
+using AI.BehaviorTree.Runtime.Services;
 using AI.BehaviorTree.Switching;
 using Systems.StatusEffectSystem.Component;
 using UnityEngine;
@@ -55,6 +56,7 @@ namespace AI.BehaviorTree.Runtime.Context
             
             var profiles = new AgentProfiles();
             var blackboard = new Blackboard();
+            var services = BuildServices();
             
             // 2. Create a preliminary context with what we have. Blackboard
             var context = new BtContext(
@@ -62,7 +64,8 @@ namespace AI.BehaviorTree.Runtime.Context
                 controller, 
                 profiles, 
                 definition, 
-                blackboard
+                blackboard,
+                services
             );
             
             Debug.Log(
@@ -72,13 +75,8 @@ namespace AI.BehaviorTree.Runtime.Context
         
             // 3. After constructing the context, set the agent's systems because in the module.Build "context.Agent.GetComponent" is used".
             // Constructor injection for simple, self-contained systems.
-            var statusEffectManager = new StatusEffectManager(); 
-            blackboard.StatusEffectManager = statusEffectManager;
-            context.Controller.RegisterExitable(statusEffectManager);
-
-            var timeExecutionManager = new TimeExecutionManager();
-            blackboard.TimeExecutionManager = timeExecutionManager;
-            context.Controller.RegisterExitable(timeExecutionManager);
+            context.Controller.RegisterExitable(context.Services.StatusEffects);
+            context.Controller.RegisterExitable(context.Services.TimeExecution);
             
             // 4. Build “complex” builder modules for real logic, data parsing, or order-dependent multi-step construction. 
             foreach (var module in _modules)
@@ -94,11 +92,11 @@ namespace AI.BehaviorTree.Runtime.Context
             }
             
             // 5. Set the remaining routers and switchers that depends on context and StatusEffectBuilder
-            context.Blackboard.MovementIntentRouter = new MovementIntentRouter(context); 
-            context.Blackboard.RotationIntentRouter = new RotationIntentRouter(context); 
+            context.Services.Movement = new MovementIntentRouter(context); 
+            context.Services.Rotation = new RotationIntentRouter(context); 
             
             var personaBtSwitcher = new PersonaBtSwitcher(context);
-            context.Blackboard.PersonaBtSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)
+            context.Services.PersonaSwitcher = personaBtSwitcher; // <<-- Depends on ProfileContextBuilderModule (built on step 3)
             context.Controller.RegisterExitable(personaBtSwitcher);
             
             Debug.Log($"[{nameof(BtContextBuilder)}] Context built for '{agent.name}'. " +
@@ -106,7 +104,19 @@ namespace AI.BehaviorTree.Runtime.Context
             
             context.Controller.Initialize(context);
         }
-    
+
+        private static ServiceContainer BuildServices()
+        {
+            var services = new ServiceContainer
+            {
+                StatusEffects = new StatusEffectManager(),
+                TimeExecution = new TimeExecutionManager(),
+                // Registering fo IntentRouters were not done at the moment because there is an issue in the pipeline.
+            };
+
+            return services;
+        }
+        
         /// <summary>
         /// Registers a new module into the builder pipeline.
         /// </summary>

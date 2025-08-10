@@ -16,14 +16,14 @@ namespace AI.BehaviorTree.Runtime.Context
 
         public BtValidator MovementOrchestrator()
         {
-            if (_context.Blackboard.MovementIntentRouter == null)
+            if (_context.Services.Movement == null)
                 _errors.Add($"[{ScriptName}] Movement logic missing.");
             return this;
         }
 
         public BtValidator Rotation()
         {
-            if (_context.Blackboard.RotationIntentRouter == null)
+            if (_context.Services.Rotation == null)
                 _errors.Add($"[{ScriptName}] Rotation logic missing.");
             return this;
         }
@@ -57,7 +57,7 @@ namespace AI.BehaviorTree.Runtime.Context
 
         public BtValidator TimeExecutionManager()
         {
-            if (_context.Blackboard.TimeExecutionManager == null)
+            if (_context.Services.TimeExecution == null)
                 _errors.Add($"[{ScriptName}] Timer system missing.");
             return this;
         }
@@ -80,7 +80,7 @@ namespace AI.BehaviorTree.Runtime.Context
     
         public BtValidator Effects()
         {
-            if (_context.Blackboard.StatusEffectManager == null)
+            if (_context.Services.StatusEffects == null)
                 _errors.Add($"[{ScriptName}] StatusEffectManager missing.");
             return this;
         }

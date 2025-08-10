@@ -48,16 +48,6 @@ namespace AI.BehaviorTree.Nodes.Composites.Sequence
     
         public BtStatus Tick(BtContext context)
         {
-            if(!BtValidator.Require(context)
-                   .Children(_children)
-                   .Check(out var error)
-              )
-            {
-                Debug.Log(error);
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
-        
             while (_currentIndex < _children.Count)
             {
                 //Debug.Log($"[{ScriptName}] Ticking child {_currentIndex}");

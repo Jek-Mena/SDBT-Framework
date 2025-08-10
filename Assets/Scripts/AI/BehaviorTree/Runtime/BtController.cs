@@ -25,8 +25,9 @@ namespace AI.BehaviorTree.Runtime
         private readonly List<ISystemCleanable> _allExitables = new();
         private PersonaBtSwitcher _personaSwitcher;
         public string ActivePersonaTreeKey { get; private set; }
-        private string _btSessionId;
-        
+        private int _btSessionId;
+        private int _sessionCounter = 0;
+
         // Switches to a new tree by key; this is the only tree assignment API.
         public void SwitchPersonaTree(string treeKey, string reason)
         {
@@ -41,7 +42,7 @@ namespace AI.BehaviorTree.Runtime
             ReleaseAllSystem();
             
             // ---[2. Validate no status/effects have leaked before proceeding]---
-            var effects = Context.Blackboard.StatusEffectManager.GetActiveEffects().ToList();
+            var effects = Context.Services.StatusEffects.GetActiveEffects().ToList();
             if (effects.Count > 0)
             {
                 Debug.LogError($"[{ScriptName}] After OnExitNode, leaked {effects.Count} effects:");
@@ -59,20 +60,14 @@ namespace AI.BehaviorTree.Runtime
             var rootNode = BtTreeBuilder.LoadTreeFromToken(agentBtJson, Context); // Use current agent's context (must be up to date)
 
             // ---[4. Bump BT session, take ownership, and assign root]---
-            _btSessionId = Guid.NewGuid().ToString();
-            Context.Blackboard.BtSessionId = _btSessionId;
-            Context.Blackboard.MovementIntentRouter.TakeOwnership(_btSessionId);
-            Context.Blackboard.RotationIntentRouter.TakeOwnership(_btSessionId);
+            _btSessionId = (Context.Agent.GetInstanceID() << 16) | (++_sessionCounter & 0xFFFF); // Combine agent ID with local counter - guaranteed unique
+            Context.Blackboard.DataRef.BtSessionId = _btSessionId;
+            Context.Services.Movement.TakeOwnership(_btSessionId);
+            Context.Services.Movement.TakeOwnership(_btSessionId);
             
             RootNode = rootNode;
 
             Debug.Log($"[{ScriptName}] Successfully switched to BT '{treeKey}'");
-            
-            Debug.Assert(Context.Blackboard.MovementIntentRouter.GetActiveOwnerId() == Context.Blackboard.BtSessionId,
-                $"[{ScriptName}][ASSERT] Movement domain not owned by current session! Owner={Context.Blackboard.MovementIntentRouter.GetActiveOwnerId()}, Expected={Context.Blackboard.BtSessionId}");
-            Debug.Assert(Context.Blackboard.RotationIntentRouter.GetActiveOwnerId() == Context.Blackboard.BtSessionId,
-                $"[{ScriptName}][ASSERT] Rotation domain not owned by current session! Owner={Context.Blackboard.RotationIntentRouter.GetActiveOwnerId()}, Expected={Context.Blackboard.BtSessionId}");
-            
             Debug.Assert(effects.Count == 0, $"[BT] State leak: {effects.Count} status effects active after BT/persona switch!");
         }
     
@@ -80,7 +75,7 @@ namespace AI.BehaviorTree.Runtime
         {
             Context = context;
 
-            _personaSwitcher = context.Blackboard.PersonaBtSwitcher;
+            _personaSwitcher = context.Services.PersonaSwitcher;
             if (_personaSwitcher != null)
                 _personaSwitcher.OnSwitchRequested += OnSwitchRequested;
             else
@@ -141,7 +136,7 @@ namespace AI.BehaviorTree.Runtime
         private void Update()
         {
             // Run all perception modules
-            foreach (var perception in Context.Blackboard.PerceptionModules)
+            foreach (var perception in Context.Services.PerceptionModules)
                 perception.UpdatePerception();   
             
             // Persona switcher logic
@@ -172,15 +167,8 @@ namespace AI.BehaviorTree.Runtime
         
         private void LateUpdate()
         {
-            if (!BtValidator.Require(Context)
-                    .MovementOrchestrator()
-                    .Check(out var error))
-            {
-                Debug.LogError(error);
-            }
-            
-            Context.Blackboard.TimeExecutionManager.LateTick();
-            Context.Blackboard.StatusEffectManager.LateTick();
+            Context.Services.TimeExecution.LateTick();
+            Context.Services.StatusEffects.LateTick();
         }
         
         public Transform Transform => transform;

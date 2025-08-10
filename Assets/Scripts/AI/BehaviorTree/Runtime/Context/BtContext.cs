@@ -1,4 +1,5 @@
 using AI.BehaviorTree.Core;
+using AI.BehaviorTree.Runtime.Services;
 using Systems.TargetingSystem;
 using UnityEngine;
 
@@ -22,7 +23,8 @@ namespace AI.BehaviorTree.Runtime.Context
         public AgentProfiles AgentProfiles { get; }
         public AgentDefinition AgentDefinition { get; }
         public Blackboard Blackboard { get; }
-
+        public ServiceContainer Services { get; set; }
+        
         public float DeltaTime;
         
         public BtContext(
@@ -30,13 +32,15 @@ namespace AI.BehaviorTree.Runtime.Context
             BtController controller,
             AgentProfiles profile, 
             AgentDefinition agentDefinition,
-            Blackboard blackboard)
+            Blackboard blackboard,
+            ServiceContainer services)
         {
             Controller = controller;
             Agent = agent;
             AgentProfiles = profile;
             AgentDefinition = agentDefinition;
             Blackboard = blackboard;
+            Services = services;
         }
     }
 }

@@ -31,21 +31,21 @@ public class ImpulseMoverNode : IBehaviorNode
 
     public BtStatus Tick(BtContext context)
     {
-        var blackBoard = context.Blackboard;
+        var impulseLogic = context.Services.ImpulseLogic;
 
-        if (blackBoard.ImpulseLogic == null)
+        if (impulseLogic == null)
         {
             _lastStatus = BtStatus.Failure;
             return _lastStatus;
         }
 
-        if (blackBoard.ImpulseLogic.IsImpulsing())
+        if (impulseLogic.IsImpulsing())
         {
-            _lastStatus = blackBoard.ImpulseLogic.IsImpulseComplete() ? BtStatus.Success : BtStatus.Running;
+            _lastStatus = impulseLogic.IsImpulseComplete() ? BtStatus.Success : BtStatus.Running;
             return _lastStatus;
         }
 
-        _lastStatus = blackBoard.ImpulseLogic.TryImpulse() ? BtStatus.Running : BtStatus.Failure;
+        _lastStatus = impulseLogic.TryImpulse() ? BtStatus.Running : BtStatus.Failure;
         return _lastStatus;
     }
 }

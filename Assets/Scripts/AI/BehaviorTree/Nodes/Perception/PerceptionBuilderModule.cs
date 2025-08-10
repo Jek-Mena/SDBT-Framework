@@ -51,7 +51,7 @@ namespace AI.BehaviorTree.Nodes.Perception
                 }
             }
             
-            context.Blackboard.PerceptionModules = perceptionModules;
+            context.Services.PerceptionModules = perceptionModules;
         }
     }
 }

@@ -15,6 +15,7 @@ UserSettings/
 *.mdb
 *.mdb.meta
 Assets/TextMesh Pro/**
+Assets/Plugins/Sirenix/
 
 # Asset pipeline
 *.apk
@@ -87,7 +88,5 @@ sysinfo.txt
 # --- Plastic SCM (expanded) ---
 .plastic*
 Packages/packages-lock.json
-Packages/packages-lock.json
 changes.txt
-*.meta
 *.meta

@@ -80,27 +80,18 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             else
             {
                 // Decay if threat has reduced/disappeared
-                float decayRate = (Profile.DecayDuration > 0f) ? (Time.deltaTime / Profile.DecayDuration) : 1f;
+                var decayRate = (Profile.DecayDuration > 0f) ? (Time.deltaTime / Profile.DecayDuration) : 1f;
                 lastFear = Mathf.MoveTowards(lastFear, 0f, decayRate);
             }
-            Context.Blackboard.Set(BlackboardKeys.Fear.CurrentLevel, lastFear);
-
-            //Debug.Log($"[{ScriptName}]🟠Writing FearStimulusLevel={normalizedFear}");
-            Context.Blackboard.Set(BlackboardKeys.Fear.StimulusLevel, normalizedFear);
-
+            
+            ref var data = ref Context.Blackboard.DataRef; // ref return, no copy
+            data.FearStimulusLevel = normalizedFear;
+            data.FearCurrentLevel = lastFear;
+            
             if (mainThreat.HasValue)
             {
                 _lastThreatTime = Time.time;
                 _lastThreatSource = mainThreat.Value.Source;
-                
-                //Debug.Log($"[{ScriptName}] Main threat: {mainThreat.Value.Position}, Max Contribution: {maxContribution}");
-                Context.Blackboard.Set(BlackboardKeys.Fear.Source, mainThreat.Value.Source);
-                
-                // var value = Context.Blackboard.Get<object>(BlackboardKeys.Fear.Source);
-                // Debug.Log($"[FearPerception] Set FearSource: Type={value?.GetType().Name}, Value={value}");
-                // if (value is GameObject go) Debug.Log($"[FearPerception] FearSource GameObject Name: {go.name}");
-                // if (value is Transform tf) Debug.Log($"[FearPerception] FearSource Transform: {tf.position}");
-                // if (value is Vector3 v3) Debug.Log($"[FearPerception] FearSource Vector3: {v3}");
                 
                 // Agent runs away from the main threat (source) at a fixed distance.
                 var agentPos = Context.Agent.transform.position;
@@ -108,28 +99,30 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
                 
                 // Defensive: If agent and threat are at the same spot, use some fallback
                 var fleeDir = (agentPos - threatPos);
-                if (fleeDir.sqrMagnitude < 0.01f)
-                    fleeDir = Vector3.forward; // fallback direction
-                
+                if (fleeDir.sqrMagnitude < 0.01f) fleeDir = Vector3.forward; // fallback direction
                 fleeDir.Normalize();
                 
                 var fleeDistance = Profile.FleeDistance;
                 var fleePoint = agentPos + fleeDir * fleeDistance;
 
-                Context.Blackboard.Set(BlackboardKeys.Fear.FleePoint, fleePoint);
+                // Write to struct
+                data.FearFleePoint = new Unity.Mathematics.float3(fleePoint.x, fleePoint.y, fleePoint.z);
+                // TODO confirm if we should be using ID or GameObject/Transform [25-10-2025]. Currently using .activeInHierarchy to avoid implicit conversion
+                data.FearSourceEntityId = _lastThreatSource.activeInHierarchy ? _lastThreatSource.GetInstanceID() : 0; // Source: prefer GO/Transform if you have it; else 0
             }
             else
             {
                 if (Time.time - _lastThreatTime > Profile.ThreatCooldown)
                 {
                     //Debug.Log($"[{ScriptName}] No main threat found.");
-                    Context.Blackboard.Set<object>(BlackboardKeys.Fear.Source, null);
-                    Context.Blackboard.Set<object>(BlackboardKeys.Fear.FleePoint, null);
+                    data.FearSourceEntityId = 0;
+                    data.FearFleePoint = default;
                     _lastThreatSource = null;
                 }
                 else if (_lastThreatSource)
                 {
-                    Context.Blackboard.Set(BlackboardKeys.Fear.Source, _lastThreatSource);
+                    //Debug.Log($"[{ScriptName}] Main threat found, but not enough time has passed to update.");
+                    data.FearSourceEntityId = _lastThreatSource.GetInstanceID(); // Source: prefer GO/Transform if you have it; else 0
                 }
             }
         }

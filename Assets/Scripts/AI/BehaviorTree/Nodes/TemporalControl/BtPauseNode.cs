@@ -46,7 +46,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
                 };
                 _pauseEffect.SetCustomName(BtNodeDisplayName.TimedExecution.Pause);
                 
-                context.Blackboard.StatusEffectManager.ApplyEffect(_pauseEffect);
+                context.Services.StatusEffects.ApplyEffect(_pauseEffect);
                 _applied = true;
                 Debug.Log($"Creating pause effect for domains: {string.Join(",", _domains ?? Array.Empty<string>())}");
             }
@@ -56,7 +56,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
             
             if ((timerStatus == BtStatus.Success || timerStatus == BtStatus.Failure) && _applied && _pauseEffect != null)
             {
-                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
+                context.Services.StatusEffects.RemoveEffects(_pauseEffect);
                 _applied = false;
                 _pauseEffect = null;
             }
@@ -69,7 +69,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         {
             if (_applied && _pauseEffect != null)
             {
-                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
+                context.Services.StatusEffects.RemoveEffects(_pauseEffect);
                 _applied = false;
                 _pauseEffect = null;
             }
@@ -81,7 +81,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
         {
             if (_applied && _pauseEffect != null)
             {
-                context.Blackboard.StatusEffectManager.RemoveEffects(_pauseEffect);
+                context.Services.StatusEffects.RemoveEffects(_pauseEffect);
                 _applied = false;
                 _pauseEffect = null;
             }

@@ -31,7 +31,7 @@ namespace Dev
         public void Initialize(BtContext context)
         {
             _context = context;
-            _statusEffectManager = context.Blackboard.StatusEffectManager;
+            _statusEffectManager = context.Services.StatusEffects;
         }
     
         void OnGUI()

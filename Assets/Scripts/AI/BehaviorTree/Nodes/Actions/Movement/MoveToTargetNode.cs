@@ -31,27 +31,18 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         
         public void Reset(BtContext context)
         {
-            context.Blackboard.MovementIntentRouter.CancelMovement();
+            context.Services.Movement.CancelMovement();
             LastStatus = BtStatus.Reset;
         }
         
         public void OnExitNode(BtContext context)
         {
-            context.Blackboard.MovementIntentRouter.CancelMovement();
+            context.Services.Movement.CancelMovement();
             LastStatus = BtStatus.Exit;
         }
 
         public BtStatus Tick(BtContext context)
         {
-            if (!BtValidator.Require(context)
-                    .MovementOrchestrator()
-                    .Check(out var error))
-            {
-                Debug.Log(error);
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
-            
             // Resolve data from blackboard profile dictionaries
             var movementData = context.AgentProfiles.GetMovementProfile(_movementProfileKey);
             var targetObj = context.Blackboard.Get<object>(BlackboardKeys.Target.CurrentTarget);
@@ -73,19 +64,19 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
                 return LastStatus;
             }
 
-            var canMove = context.Blackboard.MovementIntentRouter.TryIssueMoveIntent(targetPos.Value, movementData, context.Blackboard.BtSessionId);
+            var canMove = context.Services.Movement.TryIssueMoveIntent(targetPos.Value, movementData, context.Blackboard.Data.BtSessionId);
 
             //Debug.Log($"[{ScriptName}]🏃‍♂️Can move: {canMove}" );
 
             if (canMove)
-                if (context.Blackboard.MovementIntentRouter.IsAtDestination())
+                if (context.Services.Movement.IsAtDestination())
                     LastStatus = BtStatus.Success;
                 else
                     LastStatus = BtStatus.Running;
             else
                 LastStatus = BtStatus.Failure;
 
-            context.Blackboard.MovementIntentRouter.Tick(context.DeltaTime);
+            context.Services.Movement.Tick(context.DeltaTime);
             
             return LastStatus;
         }

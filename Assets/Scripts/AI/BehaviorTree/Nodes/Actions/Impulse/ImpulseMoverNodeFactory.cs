@@ -11,7 +11,7 @@ public class ImpulseMoverNodeFactory : IBtNodeFactory
         // For now, leave logic injection to the plugin as discussed.
 
         // Optional: You can add a fail-fast check if desired
-        if (context.Blackboard.ImpulseLogic == null)
+        if (context.Services.ImpulseLogic == null)
             throw new Exception("[ImpulseMoverNodeFactory] ImpulseLogic was not injected into the blackboard. Add the relevant plugin.");
 
         return new ImpulseMoverNode();

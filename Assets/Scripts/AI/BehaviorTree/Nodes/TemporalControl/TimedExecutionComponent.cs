@@ -30,7 +30,7 @@ namespace AI.BehaviorTree.Nodes.TemporalControl
 
         public void Initialize(BtContext context)
         {
-            _timer = context.Blackboard.TimeExecutionManager;
+            _timer = context.Services.TimeExecution;
             _timerStarted = false;
         }
 

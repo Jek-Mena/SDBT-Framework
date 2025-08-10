@@ -1,13 +1,5 @@
 ﻿using System.Collections.Generic;
-using AI.BehaviorTree.Core;
-using AI.BehaviorTree.Executor.PhaseUpdate;
-using AI.BehaviorTree.Nodes.Actions.Movement;
-using AI.BehaviorTree.Nodes.Actions.Rotate;
-using AI.BehaviorTree.Nodes.Perception;
-using AI.BehaviorTree.Nodes.TemporalControl;
-using AI.BehaviorTree.Switching;
-using Systems.StatusEffectSystem.Component;
-using Systems.TargetingSystem;
+using Loader;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime.Context
@@ -27,27 +19,30 @@ namespace AI.BehaviorTree.Runtime.Context
     /// </summary>
     public class Blackboard
     {
-        private const string ScriptName = nameof(Blackboard);
-         
-        /// <summary>Impulse-based movement logic (e.g., knockbacks, pushes)</summary>
-        public IImpulseNode ImpulseLogic { get; set; }
-        /// <summary>Timed execution logic for decorators or cooldown systems</summary>
-        public TimeExecutionManager TimeExecutionManager { get; set; }
-        public UpdatePhaseExecutor UpdatePhaseExecutor { get; set; }
-        public StatusEffectManager StatusEffectManager { get; set; }
-        public TargetCoordinator TargetCoordinator { get; set; }
-        public MovementIntentRouter MovementIntentRouter { get; set; }
-        public RotationIntentRouter RotationIntentRouter { get; set; }
-        public List<IPerceptionModule> PerceptionModules { get; set; }
-        public PersonaBtSwitcher PersonaBtSwitcher { get; set; }
-        public string BtSessionId { get; set; }
+        private BlackboardData _data = BlackboardData.CreateDefaults(); // use defaults
+        public BlackboardData Data { get => _data; set => _data = value; }
+        public ref BlackboardData DataRef => ref _data;
 
+        private const string ScriptName = nameof(Blackboard);
+        
+        public static GameObject GetEntity(int id)
+        {
+            return EntityRegistry.TryGetValue(id, out var go) && go != null ? go : null;
+        }
+        
+        public static void CleanupRegistry()
+        {
+            var dead = EntityRegistry.Where(kvp => kvp.Value == null).Select(kvp => kvp.Key).ToList();
+            foreach (var id in dead) EntityRegistry.Remove(id);
+        }
+        
         // ───────────────
         // Dynamic Key-Value Context Store
         // Only for non-core, optional extensions; never use for primary context fields.
         // ───────────────
 
-        private readonly Dictionary<string, object> _data = new();
+        private readonly Dictionary<string, object> _dataDictionary = new();
+        private string _btSessionId;
 
         /// <summary>
         /// Dynamically registers a runtime value with the blackboard.
@@ -55,7 +50,8 @@ namespace AI.BehaviorTree.Runtime.Context
         /// </summary>
         public void Set<T>(string key, T value)
         {
-            _data[key] = value;
+            BlackboardMigration.MigrateSet(this, key, value); // write into Data when key is known
+            _dataDictionary[key] = value; // keep legacy path alive
         }
 
         /// <summary>
@@ -64,7 +60,7 @@ namespace AI.BehaviorTree.Runtime.Context
         /// </summary>
         public T Get<T>(string key, T defaultValue = default)
         {
-            if (_data.TryGetValue(key, out var value))
+            if (_dataDictionary.TryGetValue(key, out var value))
                 return (T)value;
 
             Debug.LogWarning($"[Blackboard] Missing key '{key}' of type {typeof(T).Name}, returning default value '{defaultValue}'.");
@@ -77,7 +73,7 @@ namespace AI.BehaviorTree.Runtime.Context
         /// </summary>
         public bool TryGet<T>(string key, out T value)
         {
-            if (_data.TryGetValue(key, out var raw) && raw is T cast)
+            if (_dataDictionary.TryGetValue(key, out var raw) && raw is T cast)
             {
                 value = cast;
                 return true;
@@ -90,21 +86,20 @@ namespace AI.BehaviorTree.Runtime.Context
         public IEnumerable<T> GetAll<T>()
         {
             // Materialize to a List to avoid mutation-while-iteration issues
-            var snapshot = new List<object>(_data.Values);
+            var snapshot = new List<object>(_dataDictionary.Values);
             foreach (var obj in snapshot)
             {
                 if (obj is T tObj)
                     yield return tObj;
             }
         }
-
         
         /// <summary>
         /// Removes a previously stored dynamic value. Returns true if removed; false if not present.
         /// </summary>
         public bool Remove(string key)
         {
-            return _data.Remove(key);
+            return _dataDictionary.Remove(key);
         }
 
         // ───────────────
@@ -114,6 +109,6 @@ namespace AI.BehaviorTree.Runtime.Context
         /// <summary>
         /// Dumps the dynamic dictionary for debugging or inspection.
         /// </summary>
-        public IEnumerable<KeyValuePair<string, object>> DumpDynamic() => _data;
+        public IEnumerable<KeyValuePair<string, object>> DumpDynamic() => _dataDictionary;
     }
 }

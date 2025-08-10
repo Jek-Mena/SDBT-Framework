@@ -2,6 +2,7 @@
 using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Runtime.Context;
 using Systems.Abstractions;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Systems.TargetingSystem
@@ -19,6 +20,8 @@ namespace Systems.TargetingSystem
         
         public void Update(BtContext context)
         {
+            ref var data = ref context.Blackboard.DataRef;
+            
             Vector3? formationSlot = null;
             if (context.Blackboard.TryGet(BlackboardKeys.Target.Formation, out Vector3 slotPos))
                 formationSlot = slotPos;
@@ -26,13 +29,15 @@ namespace Systems.TargetingSystem
             if (formationSlot.HasValue)
             {
                 var dist = Vector3.Distance(context.Agent.transform.position, formationSlot.Value);
+                // TODO Make this data driven, also TargetCoordinator is not yet finished.
                 var slotTolerance = 0.5f; // tweak as needed
 
                 if (dist > slotTolerance)
                 {
-                    // Enforce slot discipline
-                    context.Blackboard.Set(BlackboardKeys.Target.CurrentTarget, formationSlot.Value);
-                    context.Blackboard.Set(BlackboardKeys.Target.CurrentTargetSource, "SlotDiscipline");
+                    // Struct as the source of truth
+                    data.CurrentTargetId = 0; // 0 == position target
+                    var fp = formationSlot.Value;
+                    data.FormationPosition = new float3(fp.x, fp.y, fp.z);
                     return; // do not process other priorities!
                 }
             }
@@ -40,30 +45,34 @@ namespace Systems.TargetingSystem
             object resolvedTarget = null;
             string sourceProfile = null;
             
-            foreach (var data in _targetingPriorityList)
+            foreach (var targetingData in _targetingPriorityList)
             {
-                if (!TargetResolverRegistry.TryGetValue(data.Style, out var resolver))
+                if (!TargetResolverRegistry.TryGetValue(targetingData.Style, out var resolver))
                     continue;
 
-                var candidate = resolver.ResolveTarget(_self, data, context);
-
-                if (!candidate && !data.AllowNull) continue;
+                var candidate = resolver.ResolveTarget(_self, targetingData, context);
+                if (!candidate && !targetingData.AllowNull) continue;
 
                 resolvedTarget = candidate;
-                sourceProfile = data.BlackboardKey;
+                sourceProfile = targetingData.BlackboardKey;
                 break; // Stop at first valid
             }
             
             // This is the **intent arbitration**: set a single unified key
             if (resolvedTarget != null)
             {
-                context.Blackboard.Set(BlackboardKeys.Target.CurrentTarget, resolvedTarget);
-                context.Blackboard.Set(BlackboardKeys.Target.CurrentTargetSource, sourceProfile); // (Optional: for debug/UI)
+                // Struct as the source of truth
+                if (resolvedTarget is Transform tr)
+                    data.CurrentTargetId = tr.gameObject.GetInstanceID();
+                else if (resolvedTarget is GameObject go)
+                    data.CurrentTargetId = go.GetInstanceID();
+
+                data.FormationPosition = default; // clear any stale slot
             }
             else
             {
-                context.Blackboard.Remove(BlackboardKeys.Target.CurrentTarget);
-                context.Blackboard.Remove(BlackboardKeys.Target.CurrentTargetSource);
+                data.CurrentTargetId   = 0;
+                data.FormationPosition = default;
             }
         }
     }

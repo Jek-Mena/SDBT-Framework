@@ -49,17 +49,7 @@ namespace AI.BehaviorTree.Nodes.Composites.Parallel
                 LastStatus = BtStatus.Failure;
                 return LastStatus;
             }
-
-            if (!BtValidator.Require(context)
-                    .Children(_children)
-                    .Check(out var error)
-               )
-            {
-                Debug.LogError(error);
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
-
+            
             var anyRunning = false;
             var anySuccess = false;
             var anyFailure = false;

@@ -17,8 +17,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         private readonly StatusEffectManager _statusEffectManager;
         private IMovementExecutor _currentExecutor;
         private MoveToTargetNodeType _currentExecutorType;
-        private string _activeExecutorId; // GUID session
-        private string _lastOwnerId; // For debug overlay
+        private int _activeExecutorId; // session Id
+        private int _lastOwnerId; // For debug overlay
 
         public MovementIntentRouter(BtContext context)
         {
@@ -32,14 +32,14 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _currentExecutor = _executors[_currentExecutorType];
             
             UnsubscribedToManagers();
-            _statusEffectManager = context.Blackboard.StatusEffectManager;
+            _statusEffectManager = context.Services.StatusEffects;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
             
             Debug.Log($"[{ScriptName}] {nameof(MovementIntentRouter)} initialized for {context.Agent.name}");
         }
         
-        public void TakeOwnership(string newOwnerId)
+        public void TakeOwnership(int newOwnerId)
         {
             //if (_activeExecutorId != null && _activeExecutorId != newOwnerId)
             //    Debug.LogWarning($"[Domain][CLAIM][WARN] Movement was owned by {_activeExecutorId}, now claiming for {newOwnerId}.");
@@ -76,7 +76,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
         /// <summary>
         /// Called by BTNode <see cref="MoveToTargetNode"/>
         /// </summary>
-        public bool TryIssueMoveIntent(Vector3 destination, MovementData data, string executorId)
+        public bool TryIssueMoveIntent(Vector3 destination, MovementData data, int executorId)
         {
             if (_activeExecutorId != executorId)
             {
@@ -149,8 +149,8 @@ namespace AI.BehaviorTree.Nodes.Actions.Movement
             _statusEffectManager.DomainUnblocked -= OnDomainUnblocked;
         }
         
-        public string GetActiveOwnerId() => _activeExecutorId;
-        public string GetLastOwnerId() => _lastOwnerId;
+        public int GetActiveOwnerId() => _activeExecutorId;
+        public int GetLastOwnerId() => _lastOwnerId;
         public void CancelMovement() => _currentExecutor.CancelMovement();
         public void PauseMovement() => _currentExecutor.PauseMovement();
         public void StartMovement() => _currentExecutor.StartMovement();

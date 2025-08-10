@@ -30,7 +30,7 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             _currentExecutor = _executors[_currentExecutorType];
 
             UnsubscribedToManagers();
-            _statusEffectManager = context.Blackboard.StatusEffectManager;
+            _statusEffectManager = context.Services.StatusEffects;
             _statusEffectManager.DomainBlocked += OnDomainBlocked;
             _statusEffectManager.DomainUnblocked += OnDomainUnblocked;
 

@@ -11,12 +11,12 @@ namespace AI.BehaviorTree.Registry.ContextBuilderModules
         {
             var scriptName = nameof(UpdatePhaseExecutorBuilderModule);
             var agent = context.Agent;
-            var blackboard = context.Blackboard;
+            var updatePhaseExecutor = context.Services.UpdatePhase;
             
             var exec = agent.GetComponent<UpdatePhaseExecutor>();
             if (!exec)
                 throw new Exception($"[{scriptName}] {nameof(UpdatePhaseExecutor)} missing on {agent.name}");
-            blackboard.UpdatePhaseExecutor = exec;
+            updatePhaseExecutor = exec;
             Debug.Log($"[{scriptName}] Injected {nameof(UpdatePhaseExecutor)} for {agent.name}");
         }
     }

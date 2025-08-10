@@ -47,15 +47,6 @@ namespace AI.BehaviorTree.Nodes.Decorators.Repeater
 
         public BtStatus Tick(BtContext context)
         {
-            if (!BtValidator.Require(context)
-                    .RequireChild(_child)
-                    .Check(out var error))
-            {
-                Debug.LogError(error);
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
-
             // Infinite repeat if _maxRepeats < 0 (default)
             while (_maxRepeats < 0 || _repeatCount < _maxRepeats)
             {

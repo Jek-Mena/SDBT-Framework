@@ -35,7 +35,7 @@ namespace Systems.TargetingSystem
             }
 
             var coordinator = new TargetCoordinator(context.Agent, priorities);
-            context.Blackboard.TargetCoordinator = coordinator;
+            context.Services.Targeting = coordinator;
             context.Controller.RegisterUpdatable(coordinator);
         }
 

@@ -33,29 +33,18 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
         
         public void Reset(BtContext context)
         {
-            context.Blackboard.RotationIntentRouter.CancelRotation();
+            context.Services.Rotation.CancelRotation();
             LastStatus = BtStatus.Exit;       
         }
     
         public void OnExitNode(BtContext context)
         {
-            context.Blackboard.RotationIntentRouter.CancelRotation();
+            context.Services.Rotation.CancelRotation();
             LastStatus = BtStatus.Exit;
         }
 
         public BtStatus Tick(BtContext context)
         {
-            if (!BtValidator.Require(context)
-                    .Targeting(_targetProfileKey)
-                    .Rotation()
-                    .Check(out var error)
-               )
-            {
-                Debug.Log(error);
-                LastStatus = BtStatus.Failure;
-                return LastStatus;
-            }
-
             // Resolve data from blackboard profile dictionaries
             var rotationData = context.AgentProfiles.GetRotationProfile(_rotationProfileKey);
             var targetObj = context.Blackboard.Get<object>(BlackboardKeys.Target.CurrentTarget);
@@ -73,12 +62,12 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
                 return LastStatus;
             }
 
-            var canRotate = context.Blackboard.RotationIntentRouter.TryIssueRotateIntent(target, rotationData, context.Blackboard.BtSessionId);
+            var canRotate = context.Services.Rotation.TryIssueRotateIntent(target, rotationData, context.Blackboard.Data.BtSessionId);
 
             //Debug.Log($"[{ScriptName}]🔁Can rotate: {canRotate}" );
             
             if(canRotate)
-                if (context.Blackboard.RotationIntentRouter.IsFacingTarget())
+                if (context.Services.Rotation.IsFacingTarget())
                     LastStatus = rotationData.SuccessToRunning ? BtStatus.Running : BtStatus.Success;
                 else 
                     LastStatus = BtStatus.Running;
@@ -87,16 +76,16 @@ namespace AI.BehaviorTree.Nodes.Actions.Rotate
             
             // if (!canRotate)
             //     LastStatus = BtStatus.Failure;
-            // else if (context.Blackboard.RotationIntentRouter.IsFacingTarget())
+            // else if (context.Services.Rotation.IsFacingTarget())
             //     LastStatus = BtStatus.Success;
             // else
             //     LastStatus = BtStatus.Running;
         
             // Debug.Log($"[RotateToTargetNode]💯🚀🎯Rotating to: {target} | " +
             //           $"DomainBlocked: {context.Blackboard.StatusEffectManager.IsBlocked(DomainKeys.Rotation)} | " +
-            //           $"CurrentSettings: {context.Blackboard.RotationIntentRouter.GetCurrentSettings()}");
+            //           $"CurrentSettings: {context.Services.Rotation.GetCurrentSettings()}");
             //
-            context.Blackboard.RotationIntentRouter.Tick(context.DeltaTime);
+            context.Services.Rotation.Tick(context.DeltaTime);
             
             return LastStatus;
         }
