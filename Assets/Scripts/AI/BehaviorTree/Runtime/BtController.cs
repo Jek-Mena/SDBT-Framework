@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AI.BehaviorTree.Core;
+using AI.BehaviorTree.Keys;
 using AI.BehaviorTree.Loader;
 using AI.BehaviorTree.Nodes.Abstractions;
 using AI.BehaviorTree.Registry;
@@ -10,6 +11,7 @@ using AI.BehaviorTree.Switching;
 using AI.GroupAI.SquadAgent;
 using Newtonsoft.Json.Linq;
 using Systems.Abstractions;
+using Systems.FearPerception;
 using UnityEngine;
 
 namespace AI.BehaviorTree.Runtime
@@ -174,5 +176,6 @@ namespace AI.BehaviorTree.Runtime
         public Transform Transform => transform;
         private void OnEnable()  => AgentRuntimeRegistry.Register(this);
         private void OnDisable() => AgentRuntimeRegistry.Unregister(this);
+        private void OnDestroy() => Context.Blackboard.ReleasePooledList(BlackboardKeys.Fear.StimuliNearby);
     }
 }

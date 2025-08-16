@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using Loader;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace AI.BehaviorTree.Runtime.Context
 {
@@ -24,10 +25,22 @@ namespace AI.BehaviorTree.Runtime.Context
         public ref BlackboardData DataRef => ref _data;
 
         private const string ScriptName = nameof(Blackboard);
+        private string _btSessionId;
+        
+        // Simple entity registry
+        private static readonly Dictionary<int, GameObject> EntityRegistry = new();
         
         public static GameObject GetEntity(int id)
         {
             return EntityRegistry.TryGetValue(id, out var go) && go != null ? go : null;
+        }
+        
+        public static int RegisterEntity(GameObject go)
+        {
+            if (go == null) return 0;
+            var id = go.GetInstanceID();
+            EntityRegistry[id] = go;
+            return id;
         }
         
         public static void CleanupRegistry()
@@ -36,28 +49,68 @@ namespace AI.BehaviorTree.Runtime.Context
             foreach (var id in dead) EntityRegistry.Remove(id);
         }
         
-        // ───────────────
-        // Dynamic Key-Value Context Store
-        // Only for non-core, optional extensions; never use for primary context fields.
-        // ───────────────
+        private readonly Dictionary<int, object> _dynamic = new();
+        // NEW: typed API (preferred)
+        public void SetTypedAPI<T>(BbKey<T> key, T value) => _dynamic[key.Id] = value;
 
-        private readonly Dictionary<string, object> _dataDictionary = new();
-        private string _btSessionId;
-
-        /// <summary>
-        /// Dynamically registers a runtime value with the blackboard.
-        /// Useful for injecting settings, services, or tools without altering the main schema.
-        /// </summary>
-        public void Set<T>(string key, T value)
+        public bool TryGet<T>(BbKey<T> key, out T value)
         {
-            BlackboardMigration.MigrateSet(this, key, value); // write into Data when key is known
-            _dataDictionary[key] = value; // keep legacy path alive
+            if (_dynamic.TryGetValue(key.Id, out var raw) && raw is T t)
+            { value = t; return true; }
+            value = default; return false;
         }
 
+        public T Get<T>(BbKey<T> key, T defaultValue = default)
+        {
+            return _dynamic.TryGetValue(key.Id, out var raw) && raw is T t ? t : defaultValue;
+        }
+        
         /// <summary>
-        /// Retrieves a previously stored dynamic value.
-        /// Logs a warning if the key is missing.
+        /// Get the long-lived pooled List<T> backing a BbKey&lt;IReadOnlyList&lt;T&gt;&gt;.
+        /// Allocates once (from pool), then reused forever for this agent.
+        /// Capacity is clamped to a fixed max and never allowed to grow.
         /// </summary>
+        public List<T> GetListForWriteFixed<T>(BbKey<IReadOnlyList<T>> key, int fixedCapacity)
+        {
+            if (_dynamic.TryGetValue(key.Id, out var raw) && raw is List<T> list) return list;
+            var newList = ListPool<T>.Get(); // pooled allocation (once)
+            if (newList.Capacity < fixedCapacity) newList.Capacity = fixedCapacity;
+            _dynamic[key.Id] = newList;  // store the STABLE reference
+            return newList;
+        }
+        
+        /// <summary>Read-only view of the long-lived list. Zero alloc.</summary>
+        public IReadOnlyList<T> GetListForRead<T>(BbKey<IReadOnlyList<T>> key)
+        {
+            if (_dynamic.TryGetValue(key.Id, out var raw) && raw is List<T> list)
+                return list;
+            return System.Array.Empty<T>();
+        }
+        
+        /// <summary>Release the pooled list when the agent is destroyed.</summary>
+        public void ReleasePooledList<T>(BbKey<IReadOnlyList<T>> key)
+        {
+            if (_dynamic.TryGetValue(key.Id, out var raw) && raw is List<T> list)
+            {
+                list.Clear();
+                ListPool<T>.Release(list);
+                _dynamic.Remove(key.Id);
+            }
+        }
+        
+        public bool Remove<T>(BbKey<T> key) => _dynamic.Remove(key.Id);
+        
+        // Legacy
+        [System.Obsolete]
+        private readonly Dictionary<string, object> _dataDictionary = new();
+
+        [System.Obsolete("Use typed BbKey<T> API. Register keys and call Set(BbKey<T>, value).")]
+        public void Set<T>(string key, T value)
+        {
+            _dataDictionary[key] = value; // keep legacy path alive
+        }
+        
+        [System.Obsolete("Use typed BbKey<T> API.")]
         public T Get<T>(string key, T defaultValue = default)
         {
             if (_dataDictionary.TryGetValue(key, out var value))
@@ -67,10 +120,7 @@ namespace AI.BehaviorTree.Runtime.Context
             return defaultValue; // Use the user-supplied default!
         }
 
-        /// <summary>
-        /// Tries to retrieve a value safely with type checking.
-        /// Returns true if the value was found and matched the requested type.
-        /// </summary>
+        [System.Obsolete("Use typed BbKey<T> API.")]
         public bool TryGet<T>(string key, out T value)
         {
             if (_dataDictionary.TryGetValue(key, out var raw) && raw is T cast)
@@ -80,9 +130,10 @@ namespace AI.BehaviorTree.Runtime.Context
             }
 
             value = default;
-            return false;
+            return false; 
         }
         
+        [System.Obsolete("Use typed BbKey<T> API. I think I need to create something similar or refactor")]
         public IEnumerable<T> GetAll<T>()
         {
             // Materialize to a List to avoid mutation-while-iteration issues
@@ -93,22 +144,5 @@ namespace AI.BehaviorTree.Runtime.Context
                     yield return tObj;
             }
         }
-        
-        /// <summary>
-        /// Removes a previously stored dynamic value. Returns true if removed; false if not present.
-        /// </summary>
-        public bool Remove(string key)
-        {
-            return _dataDictionary.Remove(key);
-        }
-
-        // ───────────────
-        // End Dynamic Key-Value Context Store
-        // ───────────────
-
-        /// <summary>
-        /// Dumps the dynamic dictionary for debugging or inspection.
-        /// </summary>
-        public IEnumerable<KeyValuePair<string, object>> DumpDynamic() => _dataDictionary;
     }
 }

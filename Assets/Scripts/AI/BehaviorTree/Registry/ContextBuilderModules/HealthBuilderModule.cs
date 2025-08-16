@@ -18,7 +18,7 @@ public class HealthBuilderModule : IContextBuilderModule
             throw new System.Exception($"[{scriptName}] Health logic missing!");
         }
         
-        // Initialize with dummy data just to guarantee pipeline safety (real profile will come from the BT node)
+        /*// Initialize with dummy data just to guarantee pipeline safety (real profile will come from the BT node)
         healthComponent.Initialize(new HealthData());
         
         // Inject StatusEffectManager only if supported
@@ -29,6 +29,6 @@ public class HealthBuilderModule : IContextBuilderModule
         }
         
         // Set current health into blackboard (for BT logic)
-        blackboard.Set(BlackboardKeys.Health.CurrentHealth, healthComponent.CurrentHealth);
+        blackboard.Set(BlackboardKeys.Health.CurrentHealth, healthComponent.CurrentHealth);*/
     }
 }

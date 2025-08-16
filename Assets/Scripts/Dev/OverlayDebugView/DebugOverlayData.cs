@@ -93,7 +93,7 @@ namespace Dev.OverlayDebugView
         
         public float GetCurrentStimulusValue()
         {
-            return _context.Blackboard.Get<float>(BlackboardKeys.Fear.StimulusLevel);
+            return _context.Blackboard.Get(BlackboardKeys.Fear.StimulusLevel);
         }
         
         public List<CurveProfileEntry> GetCurveProfiles()

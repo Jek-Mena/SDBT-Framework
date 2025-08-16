@@ -1,4 +1,8 @@
-﻿namespace AI.BehaviorTree.Keys
+﻿using System.Collections.Generic;
+using AI.BehaviorTree.Runtime.Context;
+using Systems.FearPerception;
+
+namespace AI.BehaviorTree.Keys
 {
     /// <summary>
     /// [2025-07-05]
@@ -52,24 +56,12 @@
             public const string CurrentTargetSource = "Target.CurrentTargetSource";
         }
         
-        public static class Multipliers
-        {
-            public const string Movement = "MovementMultiplier";
-            public const string HealthMultiplier = "HealthMultiplier";
-            public const string Armor = "ArmorMultiplier";
-            public const string Attack = "AttackMultiplier";
-        }
-
-        public static class Health
-        {
-            public const string CurrentHealth = "CurrentHealth";
-        }
-    
         public static class Fear
         {
-            public const string StimuliNearby = "StimuliNearby";
-            public const string StimulusLevel = "FearStimulusLevel";
-            public const string CurrentLevel = "CurrentFearLevel";
+            // Stable handle to the long-lived list stored on the BB.
+            public static readonly BbKey<IReadOnlyList<FearStimulus>> StimuliNearby = BbKey.Create<IReadOnlyList<FearStimulus>>("Fear.StimuliNearby");
+            public static readonly BbKey<float> StimulusLevel = BbKey.Create<float>("Fear.StimulusLevel");
+            public static readonly BbKey<float> CurrentLevel = BbKey.Create<float>("Fear.CurrentLevel");
             public const string Cooldown = "FearCooldown";
             public const string Duration = "FearDuration";
             public const string Strength = "FearStrength";

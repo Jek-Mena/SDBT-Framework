@@ -20,7 +20,7 @@ namespace AI.BehaviorTree.Nodes.Composites.Selector.Stimuli
         public int SelectChildIndex(IReadOnlyList<IBehaviorNode> children, BtContext context)
         {
             // Read latched, decayed fear value from blackboard
-            var fear = context.Blackboard.Get<float>(BlackboardKeys.Fear.CurrentLevel);
+            var fear = context.Blackboard.Get(BlackboardKeys.Fear.CurrentLevel);
 
             if (_activeIndex == 0 && fear > _enterThreshold)
                 _activeIndex = 1;

@@ -15,8 +15,8 @@ namespace AI.BehaviorTree.Switching
         public event Action<string, string, string> OnSwitchRequested;
 
         private List<PersonaSwitchRule> _rules;
+        
         private string _defaultTreeKey;
-    
         private string _lastTreeKey;
         private float _lastStimulusValue;
         private float _lastSwitchTime; // To force the initial switch

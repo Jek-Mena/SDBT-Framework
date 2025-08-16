@@ -71,7 +71,7 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
             var maxExpectedFear = 2.0f; // <-- Adjust as needed
             var normalizedFear = Mathf.Clamp01(totalFear / maxExpectedFear);
             
-            var lastFear = Context.Blackboard.Get(BlackboardKeys.Fear.CurrentLevel, 0f);
+            var lastFear = Context.Blackboard.Get(BlackboardKeys.Fear.CurrentLevel);
             var targetFear = normalizedFear;
             if (targetFear > lastFear)
             {
@@ -141,12 +141,18 @@ namespace AI.BehaviorTree.Nodes.Perception.Fear
 
         public override void ReleaseSystem(BtContext context)
         {
-
+            
         }
 
-        protected override void WriteStimuliToBlackboard(List<FearStimulus> stimuli)
+        protected override void WriteStimuliToBlackboard(List<FearStimulus> stimuliSource)
         {
-            Context.Blackboard.Set(BlackboardKeys.Fear.StimuliNearby, stimuli);
+            var dest = Context.Blackboard.GetListForWriteFixed(BlackboardKeys.Fear.StimuliNearby);
+            dest.Clear();
+            if (stimuliSource != null && stimuliSource.Count > 0)
+            {
+                dest.AddRange(stimuliSource);
+            }
+            Context.Blackboard.Data.HasStimuliNearby = dest.Count > 0; // core bool, no boxing
         }
     }
 }

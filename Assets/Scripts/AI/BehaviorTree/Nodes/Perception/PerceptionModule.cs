@@ -46,7 +46,7 @@ namespace AI.BehaviorTree.Nodes.Perception
         /// <summary>
         /// Implement: Write all stimuli data (raw or processed) to blackboard.
         /// </summary>
-        protected abstract void WriteStimuliToBlackboard(List<TStimulus> stimuli);
+        protected abstract void WriteStimuliToBlackboard(List<TStimulus> stimuliSource);
 
         /// <summary>
         /// Implement: Query stimuli from the relevant manager/system for this domain.
